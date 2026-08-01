@@ -1,22 +1,41 @@
 name: Crowdin Sync
 
 on:
-  push:
-    paths:
-      - 'core/resources/src/main/res/values/strings.xml'
   workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: navori-crowdin-sync
+  cancel-in-progress: false
 
 jobs:
   synchronize-with-crowdin:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
     steps:
+      - name: Verify Crowdin configuration
+        shell: bash
+        env:
+          GH_TOKEN_VALUE: ${{ secrets.GH_TOKEN }}
+          CROWDIN_PROJECT_ID_VALUE: ${{ secrets.CROWDIN_PROJECT_ID }}
+          CROWDIN_PERSONAL_TOKEN_VALUE: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
+        run: |
+          set -euo pipefail
+          missing=()
+          [[ -n "${GH_TOKEN_VALUE:-}" ]] || missing+=(GH_TOKEN)
+          [[ -n "${CROWDIN_PROJECT_ID_VALUE:-}" ]] || missing+=(CROWDIN_PROJECT_ID)
+          [[ -n "${CROWDIN_PERSONAL_TOKEN_VALUE:-}" ]] || missing+=(CROWDIN_PERSONAL_TOKEN)
+          if (( ${#missing[@]} > 0 )); then
+            echo "::error::Crowdin is not configured for this fork. Missing secrets: ${missing[*]}"
+            exit 1
+          fi
+
       - name: Checkout
         uses: actions/checkout@v7
 
-      - name: crowdin action
+      - name: Synchronize with Crowdin
         uses: crowdin/github-action@v2
         with:
           upload_sources: true
@@ -26,13 +45,8 @@ jobs:
           create_pull_request: true
           pull_request_title: 'New Crowdin Translations'
           pull_request_body: 'New Crowdin translations by [Crowdin GH Action](https://github.com/crowdin/github-action)'
-          pull_request_base_branch_name: 'develop'
+          pull_request_base_branch_name: 'navori/develop'
         env:
-          # A classic GitHub Personal Access Token with the 'repo' scope selected (the user should have write access to the repository).
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-          
-          # A numeric ID, found at https://crowdin.com/project/<projectName>/tools/api
           CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
-
-          # Visit https://crowdin.com/settings#api-key to create this token
           CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
