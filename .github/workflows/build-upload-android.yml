@@ -1,16 +1,19 @@
 name: Android Build Release FOSS APK
 
 on:
-  push:
-    branches:
-      - 'develop'
-    paths:
-      - 'version.properties'
   workflow_dispatch:
     inputs:
       single_apk:
-        description: 'Build only the universal apk'
+        description: 'Build only the universal APK'
         type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: navori-android-release-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   BRANCH_NAME: ${{ github.base_ref || github.ref_name }}
@@ -21,13 +24,32 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Decode Keystore File
+      - name: Verify signing configuration
+        shell: bash
+        env:
+          KEYSTORE_FILE_B64: ${{ secrets.KEYSTORE_FILE }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          missing=()
+          [[ -n "${KEYSTORE_FILE_B64:-}" ]] || missing+=(KEYSTORE_FILE)
+          [[ -n "${KEYSTORE_PASSWORD:-}" ]] || missing+=(KEYSTORE_PASSWORD)
+          [[ -n "${KEY_ALIAS:-}" ]] || missing+=(KEY_ALIAS)
+          [[ -n "${KEY_PASSWORD:-}" ]] || missing+=(KEY_PASSWORD)
+          if (( ${#missing[@]} > 0 )); then
+            echo "::error::Release signing is not configured for this fork. Missing secrets: ${missing[*]}"
+            exit 1
+          fi
+
+      - name: Decode keystore file
         uses: timheuer/base64-to-file@v2
         id: android_keystore
         with:
-          fileName: "android_keystore.keystore"
-          encodedString: ${{secrets.KEYSTORE_FILE}}
-      
+          fileName: android_keystore.keystore
+          encodedString: ${{ secrets.KEYSTORE_FILE }}
+
       - name: Accept Android SDK license
         run: echo "y" | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager "build-tools;34.0.0"
 
@@ -37,19 +59,20 @@ jobs:
           java-version: 17
           distribution: temurin
 
-      - if: ${{ inputs.single_apk == true || env.BRANCH_NAME == 'develop' }}
+      - if: ${{ inputs.single_apk == true }}
         run: sed -i -e '/isEnable/s/true/false/' app/build.gradle.kts
 
       - name: Build Android release
         run: fastlane release
         env:
-          KEYSTORE_FILE: ${{steps.android_keystore.outputs.filePath}}
-          KEYSTORE_PASSWORD: ${{secrets.KEYSTORE_PASSWORD}}
-          KEY_ALIAS: ${{secrets.KEY_ALIAS}}
-          KEY_PASSWORD: ${{secrets.KEY_PASSWORD}}
+          KEYSTORE_FILE: ${{ steps.android_keystore.outputs.filePath }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v7
         with:
           name: assets
-          path: ${{github.workspace}}/app/build/outputs/apk/foss/release/*.apk
+          path: ${{ github.workspace }}/app/build/outputs/apk/foss/release/*.apk
+          if-no-files-found: error
