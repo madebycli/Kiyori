@@ -55,10 +55,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          sdkmanager_path="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
+          [[ -x "${sdkmanager_path}" ]] || { echo "::error::sdkmanager not found at ${sdkmanager_path}."; exit 1; }
           set +o pipefail
-          yes | sdkmanager --licenses >/dev/null
+          yes | "${sdkmanager_path}" --licenses >/dev/null
           set -o pipefail
-          sdkmanager \
+          "${sdkmanager_path}" \
             "platforms;android-${ANDROID_PLATFORM}" \
             "build-tools;${ANDROID_BUILD_TOOLS}"
 
@@ -121,10 +123,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          sdkmanager_path="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
+          [[ -x "${sdkmanager_path}" ]] || { echo "::error::sdkmanager not found at ${sdkmanager_path}."; exit 1; }
           set +o pipefail
-          yes | sdkmanager --licenses >/dev/null
+          yes | "${sdkmanager_path}" --licenses >/dev/null
           set -o pipefail
-          sdkmanager \
+          "${sdkmanager_path}" \
             "platforms;android-${ANDROID_PLATFORM}" \
             "build-tools;${ANDROID_BUILD_TOOLS}"
 
@@ -192,8 +196,10 @@ jobs:
           all_apks=(app/build/outputs/apk/foss/release/*.apk)
           (( ${#all_apks[@]} > 0 )) || { echo "::error::No release APKs were produced."; exit 1; }
 
+          apksigner_path="${ANDROID_SDK_ROOT}/build-tools/${ANDROID_BUILD_TOOLS}/apksigner"
+          [[ -x "${apksigner_path}" ]] || { echo "::error::apksigner not found at ${apksigner_path}."; exit 1; }
           for apk in "${all_apks[@]}"; do
-            apksigner verify --verbose "${apk}"
+            "${apksigner_path}" verify --verbose "${apk}"
           done
 
           stage_dir="${RUNNER_TEMP}/release-apks"
