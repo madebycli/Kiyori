@@ -1,78 +1,223 @@
-name: Android Build Release FOSS APK
+name: Android CI and signed release
 
 on:
+  push:
+    branches:
+      - 'navori/develop'
+  pull_request:
+    branches:
+      - 'navori/develop'
   workflow_dispatch:
     inputs:
-      single_apk:
-        description: 'Build only the universal APK'
+      build_release:
+        description: 'Build a signed FOSS release after CI succeeds'
         type: boolean
+        required: true
+        default: true
+      single_apk:
+        description: 'Upload only the universal release APK'
+        type: boolean
+        required: true
         default: true
 
 permissions:
   contents: read
 
 concurrency:
-  group: navori-android-release-${{ github.ref }}
-  cancel-in-progress: true
+  group: navori-android-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
 
 env:
-  BRANCH_NAME: ${{ github.base_ref || github.ref_name }}
+  JAVA_VERSION: '17'
+  ANDROID_PLATFORM: '37'
+  ANDROID_BUILD_TOOLS: '36.0.0'
 
 jobs:
-  build:
+  verify:
+    name: Build and test FOSS debug APK
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
+    timeout-minutes: 45
 
-      - name: Verify signing configuration
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Set up JDK
+        uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5.6.0
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: gradle
+
+      - name: Install required Android SDK packages
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +o pipefail
+          yes | sdkmanager --licenses >/dev/null
+          set -o pipefail
+          sdkmanager \
+            "platforms;android-${ANDROID_PLATFORM}" \
+            "build-tools;${ANDROID_BUILD_TOOLS}"
+
+      - name: Build and test
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x ./gradlew
+          ./gradlew \
+            :app:assembleFossDebug \
+            :app:testFossDebugUnitTest \
+            --no-daemon \
+            --stacktrace
+
+      - name: Stage universal debug APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "${RUNNER_TEMP}/debug-apk"
+          cp app/build/outputs/apk/foss/debug/*universal*.apk "${RUNNER_TEMP}/debug-apk/"
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: navori-foss-debug-${{ github.sha }}
+          path: ${{ runner.temp }}/debug-apk/*.apk
+          if-no-files-found: error
+          retention-days: 14
+
+  release:
+    name: Build signed FOSS release APK
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.build_release }}
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Require the Navori development branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_REF_NAME}" != "navori/develop" ]]; then
+            echo "::error::Signed releases must be started from navori/develop, not ${GITHUB_REF_NAME}."
+            exit 1
+          fi
+
+      - name: Checkout source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Set up JDK
+        uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5.6.0
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: gradle
+
+      - name: Install required Android SDK packages
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +o pipefail
+          yes | sdkmanager --licenses >/dev/null
+          set -o pipefail
+          sdkmanager \
+            "platforms;android-${ANDROID_PLATFORM}" \
+            "build-tools;${ANDROID_BUILD_TOOLS}"
+
+      - name: Verify signing secrets
         shell: bash
         env:
           KEYSTORE_FILE_B64: ${{ secrets.KEYSTORE_FILE }}
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEYSTORE_PASSWORD_VALUE: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS_VALUE: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD_VALUE: ${{ secrets.KEY_PASSWORD }}
         run: |
           set -euo pipefail
           missing=()
           [[ -n "${KEYSTORE_FILE_B64:-}" ]] || missing+=(KEYSTORE_FILE)
-          [[ -n "${KEYSTORE_PASSWORD:-}" ]] || missing+=(KEYSTORE_PASSWORD)
-          [[ -n "${KEY_ALIAS:-}" ]] || missing+=(KEY_ALIAS)
-          [[ -n "${KEY_PASSWORD:-}" ]] || missing+=(KEY_PASSWORD)
+          [[ -n "${KEYSTORE_PASSWORD_VALUE:-}" ]] || missing+=(KEYSTORE_PASSWORD)
+          [[ -n "${KEY_ALIAS_VALUE:-}" ]] || missing+=(KEY_ALIAS)
+          [[ -n "${KEY_PASSWORD_VALUE:-}" ]] || missing+=(KEY_PASSWORD)
+
           if (( ${#missing[@]} > 0 )); then
-            echo "::error::Release signing is not configured for this fork. Missing secrets: ${missing[*]}"
+            echo "::error::Release signing is not configured. Missing repository secrets: ${missing[*]}"
+            echo "::error::Follow docs/BUILDING.md to generate and upload the signing key."
             exit 1
           fi
 
-      - name: Decode keystore file
-        uses: timheuer/base64-to-file@v2
-        id: android_keystore
-        with:
-          fileName: android_keystore.keystore
-          encodedString: ${{ secrets.KEYSTORE_FILE }}
-
-      - name: Accept Android SDK license
-        run: echo "y" | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager "build-tools;34.0.0"
-
-      - name: Set up JDK
-        uses: actions/setup-java@v5
-        with:
-          java-version: 17
-          distribution: temurin
-
-      - if: ${{ inputs.single_apk == true }}
-        run: sed -i -e '/isEnable/s/true/false/' app/build.gradle.kts
-
-      - name: Build Android release
-        run: fastlane release
+      - name: Decode release keystore
+        id: keystore
+        shell: bash
         env:
-          KEYSTORE_FILE: ${{ steps.android_keystore.outputs.filePath }}
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          KEYSTORE_FILE_B64: ${{ secrets.KEYSTORE_FILE }}
+        run: |
+          set -euo pipefail
+          umask 077
+          keystore_path="${RUNNER_TEMP}/navori-release.jks"
+          printf '%s' "${KEYSTORE_FILE_B64}" | base64 --decode > "${keystore_path}"
+          [[ -s "${keystore_path}" ]] || { echo "::error::Decoded keystore is empty."; exit 1; }
+          echo "path=${keystore_path}" >> "${GITHUB_OUTPUT}"
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v7
+      - name: Build signed release
+        shell: bash
+        env:
+          KEYSTORE_PATH: ${{ steps.keystore.outputs.path }}
+          KEYSTORE_PASSWORD_VALUE: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS_VALUE: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD_VALUE: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          chmod +x ./gradlew
+          env \
+            "ORG_GRADLE_PROJECT_android.injected.signing.store.file=${KEYSTORE_PATH}" \
+            "ORG_GRADLE_PROJECT_android.injected.signing.store.password=${KEYSTORE_PASSWORD_VALUE}" \
+            "ORG_GRADLE_PROJECT_android.injected.signing.key.alias=${KEY_ALIAS_VALUE}" \
+            "ORG_GRADLE_PROJECT_android.injected.signing.key.password=${KEY_PASSWORD_VALUE}" \
+            ./gradlew \
+              :app:assembleFossRelease \
+              --no-daemon \
+              --stacktrace
+
+      - name: Verify and stage release APKs
+        shell: bash
+        env:
+          SINGLE_APK: ${{ inputs.single_apk }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          all_apks=(app/build/outputs/apk/foss/release/*.apk)
+          (( ${#all_apks[@]} > 0 )) || { echo "::error::No release APKs were produced."; exit 1; }
+
+          for apk in "${all_apks[@]}"; do
+            apksigner verify --verbose "${apk}"
+          done
+
+          stage_dir="${RUNNER_TEMP}/release-apks"
+          mkdir -p "${stage_dir}"
+          if [[ "${SINGLE_APK}" == "true" ]]; then
+            universal_apks=(app/build/outputs/apk/foss/release/*universal*.apk)
+            (( ${#universal_apks[@]} == 1 )) || {
+              echo "::error::Expected exactly one universal APK, found ${#universal_apks[@]}."
+              exit 1
+            }
+            cp "${universal_apks[0]}" "${stage_dir}/"
+          else
+            cp "${all_apks[@]}" "${stage_dir}/"
+          fi
+
+      - name: Upload signed release APKs
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          name: assets
-          path: ${{ github.workspace }}/app/build/outputs/apk/foss/release/*.apk
+          name: navori-foss-release-${{ github.sha }}
+          path: ${{ runner.temp }}/release-apks/*.apk
           if-no-files-found: error
+          retention-days: 30
+
+      - name: Remove decoded keystore
+        if: ${{ always() }}
+        shell: bash
+        run: rm -f "${RUNNER_TEMP}/navori-release.jks"
