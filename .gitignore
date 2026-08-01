@@ -12,3 +12,6 @@
 local.properties
 /fastlane/report.xml
 .kotlin
+/.secrets/
+*.jks
+*.keystore
