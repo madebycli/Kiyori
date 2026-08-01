@@ -13,18 +13,19 @@ concurrency:
 
 jobs:
   synchronize-with-crowdin:
+    name: Synchronize translations
     runs-on: ubuntu-latest
+    timeout-minutes: 30
+
     steps:
       - name: Verify Crowdin configuration
         shell: bash
         env:
-          GH_TOKEN_VALUE: ${{ secrets.GH_TOKEN }}
           CROWDIN_PROJECT_ID_VALUE: ${{ secrets.CROWDIN_PROJECT_ID }}
           CROWDIN_PERSONAL_TOKEN_VALUE: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
         run: |
           set -euo pipefail
           missing=()
-          [[ -n "${GH_TOKEN_VALUE:-}" ]] || missing+=(GH_TOKEN)
           [[ -n "${CROWDIN_PROJECT_ID_VALUE:-}" ]] || missing+=(CROWDIN_PROJECT_ID)
           [[ -n "${CROWDIN_PERSONAL_TOKEN_VALUE:-}" ]] || missing+=(CROWDIN_PERSONAL_TOKEN)
           if (( ${#missing[@]} > 0 )); then
@@ -32,11 +33,13 @@ jobs:
             exit 1
           fi
 
-      - name: Checkout
-        uses: actions/checkout@v7
+      - name: Checkout source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - name: Synchronize with Crowdin
-        uses: crowdin/github-action@v2
+        uses: crowdin/github-action@c7af9bc98b01694653031fef2a0dc6c7888ce9bc # v2
         with:
           upload_sources: true
           upload_translations: false
@@ -47,6 +50,6 @@ jobs:
           pull_request_body: 'New Crowdin translations by [Crowdin GH Action](https://github.com/crowdin/github-action)'
           pull_request_base_branch_name: 'navori/develop'
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
           CROWDIN_PROJECT_ID: ${{ secrets.CROWDIN_PROJECT_ID }}
           CROWDIN_PERSONAL_TOKEN: ${{ secrets.CROWDIN_PERSONAL_TOKEN }}
