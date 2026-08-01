@@ -43,7 +43,7 @@ pkgs.mkShell {
   GRADLE_OPTS = "-Dorg.gradle.project.android.aapt2FromMavenOverride=${androidHome}/build-tools/${buildToolsVersion}/aapt2";
 
   shellHook = ''
-    export PATH="$ANDROID_HOME/platform-tools:$PATH"
+    export PATH="$ANDROID_HOME/platform-tools:$ANDROID_HOME/build-tools/${buildToolsVersion}:$PATH"
     printf 'sdk.dir=%s\n' "$ANDROID_HOME" > local.properties
 
     echo "Navori Android build shell"
