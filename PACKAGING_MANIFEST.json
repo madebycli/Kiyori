@@ -1,0 +1,25 @@
+{
+  "package": "Kiyori-ready-for-GitHub",
+  "purpose": "Transfer the prepared Git repository to another ChatGPT session and upload main plus recovery/phase0-backup to madebycli/Kiyori.",
+  "created_utc": "2026-08-03T18:10:53.224911+00:00",
+  "checked_out_branch": "main",
+  "refs": {
+    "main": "68200f585531336be658d620bfe028e6344b2900",
+    "recovery/phase0-backup": "476ad447217ecae2b7c7ae710f7981ca55d9a003",
+    "recorded_remote_develop_at_context_bootstrap": "01a8a4abe98c778d1015a33072a11efdb4ef8593"
+  },
+  "remote": "https://github.com/madebycli/Kiyori.git",
+  "tracked_file_count_before_manifest_commit": 935,
+  "security": {
+    "keystores_included": false,
+    "passwords_included": false,
+    "tokens_included": false,
+    "local_properties_included": false,
+    "apk_binaries_included": false
+  },
+  "notes": [
+    "The remote develop branch is not embedded in the offline repository because its Git objects could not be fetched in the packaging environment.",
+    "Fetch origin/develop in the next connected session and do not overwrite it.",
+    "Historical Navori references are isolated evidence; the active product name is Kiyori."
+  ]
+}
