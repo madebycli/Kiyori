@@ -123,7 +123,6 @@ jobs:
           KEYSTORE_FILE_B64: ${{ secrets.KEYSTORE_FILE }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         shell: bash
         run: |
           set -euo pipefail
@@ -135,14 +134,7 @@ jobs:
             -keystore "$keystore" \
             -storepass "$KEYSTORE_PASSWORD" \
             -alias "$KEY_ALIAS" >/dev/null
-
-          mkdir -p "$HOME/.gradle"
-          {
-            printf 'android.injected.signing.store.file=%s\n' "$keystore"
-            printf 'android.injected.signing.store.password=%s\n' "$KEYSTORE_PASSWORD"
-            printf 'android.injected.signing.key.alias=%s\n' "$KEY_ALIAS"
-            printf 'android.injected.signing.key.password=%s\n' "$KEY_PASSWORD"
-          } >> "$HOME/.gradle/gradle.properties"
+          echo "RELEASE_KEYSTORE=$keystore" >> "$GITHUB_ENV"
 
       - name: Configure universal APKs
         if: ${{ inputs.universal_only }}
@@ -150,6 +142,10 @@ jobs:
         run: sed -i -e '/isEnable/s/true/false/' app/build.gradle.kts
 
       - name: Build signed release APKs
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         shell: bash
         run: |
           set -euo pipefail
@@ -157,6 +153,10 @@ jobs:
           ./gradlew \
             :app:assembleFossRelease \
             :app:assembleGmsRelease \
+            "-Pandroid.injected.signing.store.file=$RELEASE_KEYSTORE" \
+            "-Pandroid.injected.signing.store.password=$KEYSTORE_PASSWORD" \
+            "-Pandroid.injected.signing.key.alias=$KEY_ALIAS" \
+            "-Pandroid.injected.signing.key.password=$KEY_PASSWORD" \
             --no-daemon \
             --stacktrace
 
@@ -202,6 +202,4 @@ jobs:
       - name: Remove decoded signing material
         if: ${{ always() }}
         shell: bash
-        run: |
-          rm -f "$RUNNER_TEMP/kiyori-release.p12"
-          rm -f "$HOME/.gradle/gradle.properties"
+        run: rm -f "$RUNNER_TEMP/kiyori-release.p12"
