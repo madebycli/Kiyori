@@ -52,6 +52,5 @@ jobs:
           path: |
             **/build/reports/**
             app/build/outputs/apk/**
-            wearos/build/outputs/apk/**
           if-no-files-found: ignore
           retention-days: 7
