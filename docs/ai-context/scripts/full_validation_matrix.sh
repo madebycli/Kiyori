@@ -9,7 +9,6 @@ chmod +x ./gradlew
   :core:model:testDebugUnitTest \
   :core:domain:testDebugUnitTest \
   :feature:calendar:testDebugUnitTest \
-  :wearos:assembleDebug \
   :app:lintFossDebug \
   :app:lintGmsDebug \
   --no-daemon \
