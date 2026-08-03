@@ -14,6 +14,12 @@ This document describes the repository baseline before product reconstruction an
 
 Development work belongs on `feature/kiyori-integrated-rebuild`. Open pull requests from that branch into `main`. Do not implement new Kiyori features directly on `develop`.
 
+## Android SDK preview handling
+
+The project currently compiles against Android API 37 / Android 17 Preview. Google can publish the preview platform under different SDK Manager paths, including `platforms;android-37`, `platforms;android-37.0`, or `platforms;android-CinnamonBun`.
+
+All Android workflows call `scripts/install-android-sdk.sh`. The script reads the package list from the Canary channel, selects the published Android 17 platform path, installs the newest available Build Tools 37 package, and exports `ANDROID_BUILD_TOOLS_VERSION` for later steps. Do not duplicate hard-coded SDK installation commands in individual workflows.
+
 ## Workflows
 
 ### Android CI
@@ -34,37 +40,42 @@ Debug APKs use Android's generated debug signing key. They are for installation 
 
 File: `.github/workflows/release.yml`
 
-Manual workflow. Select the branch in GitHub, optionally enter a tag and title, and choose draft/prerelease behavior. If the tag is blank, the workflow uses `v<name>` from `version.properties`.
+For security, always start the workflow itself from `main`. Enter the branch, tag, or commit to build in the `source_ref` input. This keeps the trusted workflow definition and protected signing environment on `main` while allowing a release candidate to be built from another source ref.
 
 The workflow:
 
-1. verifies that the tag does not already exist;
-2. verifies all signing secrets;
-3. builds signed FOSS and GMS release APKs;
-4. verifies every APK with `apksigner`;
-5. generates `SHA256SUMS.txt`;
-6. creates a GitHub Release and uploads the APKs and checksums.
+1. resolves the requested source ref to an exact commit;
+2. verifies that the release tag does not already exist;
+3. verifies all signing secrets in the protected `release` environment;
+4. builds signed FOSS and GMS release APKs;
+5. verifies every APK with `apksigner`;
+6. generates `SHA256SUMS.txt`;
+7. creates a GitHub Release and uploads the APKs and checksums.
 
-A release from a branch other than `main` is always marked as a prerelease. Draft mode is enabled by default.
+A release whose `source_ref` is not `main` is always marked as a prerelease. Draft mode is enabled by default.
 
-Required repository secrets:
+Required secrets in the GitHub environment named `release`:
 
-- `KEYSTORE_FILE`: base64-encoded PKCS#12/JKS keystore
+- `KEYSTORE_FILE`: base64-encoded PKCS#12 keystore
 - `KEYSTORE_PASSWORD`: keystore password
 - `KEY_ALIAS`: signing key alias
 - `KEY_PASSWORD`: signing key password
+
+The `release` environment is restricted to workflow runs dispatched from `main`. Do not store these values as repository-wide secrets.
 
 ### Crowdin Sync
 
 File: `.github/workflows/crowdin.yml`
 
-Runs only in `madebycli/Kiyori`, only from `main`, and only when the source strings file changes, plus manual dispatch. It does not execute for fork pull requests or arbitrary feature-branch pushes.
+Runs only in `madebycli/Kiyori`, only after the source strings file changes on `main`. It has no manual dispatch and does not execute for fork pull requests or arbitrary feature-branch pushes.
 
-Required secrets:
+Required repository secrets:
 
 - `GH_TOKEN`
 - `CROWDIN_PROJECT_ID`
 - `CROWDIN_PERSONAL_TOKEN`
+
+If Crowdin is not configured yet, the workflow remains dormant until the source strings file changes on `main`.
 
 ## Create and upload signing keys on NixOS
 
@@ -91,19 +102,25 @@ The script asks for the alias, certificate identity, and a password. It generate
 - `~/.local/share/kiyori-signing/kiyori-release.p12`
 - `~/.local/share/kiyori-signing/kiyori-release-certificate.pem`
 
-It uploads the four GitHub Actions secrets and prints SHA-1/SHA-256 certificate fingerprints.
+It creates the protected GitHub environment `release`, restricts it to workflow runs from `main`, uploads the four environment secrets, removes obsolete repository-wide signing secrets, and prints SHA-1/SHA-256 certificate fingerprints.
 
 Back up the `.p12` file and its password in at least two encrypted offline locations. Losing the signing key prevents future APK updates under the same application identity. Never add a keystore to Git, chat, email, or a GitHub Release.
 
-Verify that the secret names exist:
+Verify that the environment secret names exist:
 
 ```bash
-gh secret list -R madebycli/Kiyori
+gh secret list --env release -R madebycli/Kiyori
 ```
 
 GitHub never shows secret values after upload.
 
 ## Manual commands
+
+Run Android CI from the CLI:
+
+```bash
+gh workflow run android-ci.yml -R madebycli/Kiyori --ref main
+```
 
 Run the debug workflow from the CLI:
 
@@ -111,13 +128,14 @@ Run the debug workflow from the CLI:
 gh workflow run debug-apks.yml -R madebycli/Kiyori --ref main -f variant=all
 ```
 
-Run a draft signed release from the CLI:
+Run a draft signed release from trusted workflow code on `main` while building another source branch:
 
 ```bash
 gh workflow run release.yml -R madebycli/Kiyori --ref main \
-  -f tag=v1.6.0 \
+  -f source_ref=feature/kiyori-integrated-rebuild \
+  -f tag=v1.6.0-rc1 \
   -f universal_only=true \
-  -f prerelease=false \
+  -f prerelease=true \
   -f draft=true
 ```
 
@@ -128,13 +146,31 @@ gh run list -R madebycli/Kiyori --limit 10
 gh run watch -R madebycli/Kiyori
 ```
 
+## Branch cleanup after verification
+
+Delete `master` after CI and Debug APKs pass:
+
+```bash
+git push origin --delete master
+```
+
+Keep `recovery/phase0-backup` until the first signed release has been built, downloaded, signature-verified, and backed up. Then preserve it as a tag before deleting the branch:
+
+```bash
+git tag recovery-phase0-final origin/recovery/phase0-backup
+git push origin recovery-phase0-final
+git push origin --delete recovery/phase0-backup
+```
+
+Keep `develop` as the upstream comparison branch and keep `feature/kiyori-integrated-rebuild` as the active development branch.
+
 ## Before product development
 
 The repository baseline is ready when:
 
 - Android CI completes successfully;
 - Debug APKs are downloadable and installable;
-- signing secrets exist;
+- the `release` environment and its four signing secrets exist;
 - a draft signed release completes and its signatures verify;
 - `feature/kiyori-integrated-rebuild` points to the current `main` before the first implementation commit.
 
