@@ -73,11 +73,10 @@ Runs only in `madebycli/Kiyori`, only after the source strings file changes on `
 
 Required repository secrets:
 
-- `GH_TOKEN`
 - `CROWDIN_PROJECT_ID`
 - `CROWDIN_PERSONAL_TOKEN`
 
-If Crowdin is not configured yet, the workflow remains dormant until the source strings file changes on `main`.
+The workflow uses GitHub's short-lived scoped workflow token instead of a personal GitHub token. If Crowdin is not configured yet, the workflow remains dormant until the source strings file changes on `main`.
 
 ## Create and upload signing keys on NixOS
 
