@@ -1,0 +1,122 @@
+name: Kiyori verified online import
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: write
+  issues: read
+  pull-requests: write
+
+jobs:
+  import-main:
+    if: ${{ github.event.issue.number == 1 && contains(github.event.comment.body, 'KIYORI_START_IMPORT') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          ref: master
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Download and verify owner-uploaded package
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="${RUNNER_TEMP}/kiyori-import"
+          mkdir -p "$root/payload"
+          curl --fail --location --retry 5 --retry-all-errors \
+            --output "$root/Kiyori-main-transfer.zip" \
+            "https://github.com/user-attachments/files/30677354/Kiyori-main-transfer.zip"
+          echo "fb9f9acc2eef7b62492200007b47ee1c873008f7798dc7e8caa7822d81d26742  $root/Kiyori-main-transfer.zip" | sha256sum --check --strict
+          unzip -q "$root/Kiyori-main-transfer.zip" -d "$root"
+          echo "de76366fd3890c8aa92512ec44590ecdebb5d790c54eabad8bc23f954b7a385f  $root/Kiyori-main-transfer.tar.gz" | sha256sum --check --strict
+          tar -xzf "$root/Kiyori-main-transfer.tar.gz" -C "$root/payload"
+          test -f "$root/payload/stage1/AGENTS.md"
+          test -f "$root/payload/stage2/NEXT_CHAT_START.md"
+          test -f "$root/payload/stage3/PACKAGING_MANIFEST.json"
+
+      - name: Create main from current develop plus three Kiyori commits
+        shell: bash
+        run: |
+          set -euo pipefail
+          payload="${RUNNER_TEMP}/kiyori-import/payload"
+          git fetch origin develop recovery/phase0-backup feature/kiyori-integrated-rebuild
+          develop_sha="$(git rev-parse origin/develop)"
+          recovery_sha="$(git rev-parse origin/recovery/phase0-backup)"
+          feature_sha="$(git rev-parse origin/feature/kiyori-integrated-rebuild)"
+
+          test "$recovery_sha" = "476ad447217ecae2b7c7ae710f7981ca55d9a003"
+          if git ls-remote --exit-code origin refs/heads/main >/dev/null 2>&1; then
+            echo "Remote main already exists; refusing to overwrite it."
+            exit 1
+          fi
+
+          git checkout -B main "$develop_sha"
+          git config user.name "Kiyori Recovery"
+          git config user.email "recovery@local.invalid"
+
+          # Forward-port the stage-1 CI intent onto the current upstream workflow
+          # instead of replacing the newer develop workflow with the old backup copy.
+          rsync -a --exclude='.github/workflows/build-upload-android.yml' "$payload/stage1/" ./
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('.github/workflows/build-upload-android.yml')
+          text = path.read_text()
+          needle = 'sdkmanager "build-tools;34.0.0"'
+          replacement = 'sdkmanager "build-tools;34.0.0" --channel=3'
+          if text.count(needle) != 1:
+              raise SystemExit('Current develop build workflow no longer matches the verified forward-port target')
+          path.write_text(text.replace(needle, replacement))
+          PY
+          git add -A
+          git commit -m "chore: bootstrap Kiyori recovery context"
+
+          rsync -a "$payload/stage2/" ./
+          git add -A
+          git commit -m "docs: complete Kiyori AI handoff and evidence"
+
+          rsync -a "$payload/stage3/" ./
+          git add -A
+          git commit -m "docs: finalize Kiyori transfer package"
+
+          test "$(git rev-list --count "$develop_sha"..HEAD)" = "3"
+          test "$(git rev-parse HEAD^^^)" = "$develop_sha"
+          git merge-base --is-ancestor "$develop_sha" HEAD
+          git push origin HEAD:refs/heads/main
+
+          if [ "$feature_sha" != "$develop_sha" ]; then
+            if git merge-base --is-ancestor "$feature_sha" "$develop_sha"; then
+              git push origin "$develop_sha":refs/heads/feature/kiyori-integrated-rebuild
+            else
+              echo "Feature branch has independent work; refusing to move it."
+              exit 1
+            fi
+          fi
+
+          echo "DEVELOP_SHA=$develop_sha"
+          echo "MAIN_SHA=$(git rev-parse HEAD)"
+          echo "FEATURE_SHA=$(git rev-parse origin/feature/kiyori-integrated-rebuild)"
+          git log --oneline --decorate -4
+
+      - name: Try to set main as default branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -u
+          gh api --method PATCH "repos/${GITHUB_REPOSITORY}" -f default_branch=main || true
+
+      - name: Remove temporary import workflow from master
+        if: ${{ success() }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin master
+          git checkout -B master origin/master
+          git config user.name "Kiyori Recovery"
+          git config user.email "recovery@local.invalid"
+          git rm .github/workflows/kiyori-online-import.yml
+          git commit -m "chore: remove completed Kiyori online importer"
+          git push origin HEAD:refs/heads/master
