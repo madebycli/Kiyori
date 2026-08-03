@@ -3,6 +3,11 @@ name: Signed GitHub Release
 on:
   workflow_dispatch:
     inputs:
+      source_ref:
+        description: Branch, tag, or commit to build (workflow itself must run from main)
+        required: true
+        default: main
+        type: string
       tag:
         description: Optional tag, for example v1.6.0 (defaults to version.properties)
         required: false
@@ -36,15 +41,39 @@ concurrency:
 
 jobs:
   release:
-    if: github.repository == 'madebycli/Kiyori'
+    if: github.repository == 'madebycli/Kiyori' && github.ref_name == 'main'
+    environment: release
     runs-on: ubuntu-latest
     timeout-minutes: 90
 
     steps:
-      - name: Checkout selected branch
+      - name: Checkout trusted workflow source
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
+          ref: main
           fetch-depth: 0
+
+      - name: Resolve source ref
+        env:
+          SOURCE_REF_INPUT: ${{ inputs.source_ref }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$SOURCE_REF_INPUT"
+          git fetch --no-tags origin "$SOURCE_REF_INPUT"
+          source_sha="$(git rev-parse FETCH_HEAD)"
+          test -n "$source_sha"
+          {
+            echo "SOURCE_REF=$SOURCE_REF_INPUT"
+            echo "SOURCE_SHA=$source_sha"
+          } >> "$GITHUB_ENV"
+
+      - name: Checkout selected source
+        shell: bash
+        run: |
+          set -euo pipefail
+          git checkout --detach "$SOURCE_SHA"
+          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
 
       - name: Set up JDK 17
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
@@ -88,9 +117,9 @@ jobs:
           fi
 
           prerelease="${{ inputs.prerelease }}"
-          if [ "$GITHUB_REF_NAME" != "main" ]; then
+          if [ "$SOURCE_REF" != "main" ]; then
             prerelease=true
-            echo "Non-main releases are always marked as prereleases."
+            echo "Non-main source releases are always marked as prereleases."
           fi
 
           {
@@ -109,10 +138,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -n "$KEYSTORE_FILE" || { echo "Missing secret KEYSTORE_FILE" >&2; exit 10; }
-          test -n "$KEYSTORE_PASSWORD" || { echo "Missing secret KEYSTORE_PASSWORD" >&2; exit 11; }
-          test -n "$KEY_ALIAS" || { echo "Missing secret KEY_ALIAS" >&2; exit 12; }
-          test -n "$KEY_PASSWORD" || { echo "Missing secret KEY_PASSWORD" >&2; exit 13; }
+          test -n "$KEYSTORE_FILE" || { echo "Missing release environment secret KEYSTORE_FILE" >&2; exit 10; }
+          test -n "$KEYSTORE_PASSWORD" || { echo "Missing release environment secret KEYSTORE_PASSWORD" >&2; exit 11; }
+          test -n "$KEY_ALIAS" || { echo "Missing release environment secret KEY_ALIAS" >&2; exit 12; }
+          test -n "$KEY_PASSWORD" || { echo "Missing release environment secret KEY_PASSWORD" >&2; exit 13; }
 
       - name: Decode and verify release keystore
         env:
@@ -184,10 +213,10 @@ jobs:
             "$RELEASE_TAG"
             dist/*.apk
             dist/SHA256SUMS.txt
-            --target "$GITHUB_SHA"
+            --target "$SOURCE_SHA"
             --title "$RELEASE_TITLE"
             --generate-notes
-            --notes "Built from branch \`$GITHUB_REF_NAME\` at commit \`$GITHUB_SHA\`."
+            --notes "Built from source \`$SOURCE_REF\` at commit \`$SOURCE_SHA\`."
           )
           if [ "$RELEASE_PRERELEASE" = "true" ]; then
             args+=(--prerelease)
