@@ -1,0 +1,65 @@
+name: Restore original Kiyori evidence
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: read
+  pull-requests: read
+
+jobs:
+  restore-evidence:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          ref: main
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Find, download, and verify owner upload
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          work="${RUNNER_TEMP}/kiyori-original-evidence"
+          mkdir -p "$work"
+
+          gh api --paginate --slurp "repos/${GITHUB_REPOSITORY}/issues/1/comments" > "$work/comments.json"
+          url="$(jq -r '
+            add
+            | map(.body)
+            | map(capture("(?<url>https://github.com/user-attachments/files/[0-9]+/Kiyori-original-evidence\\.zip)")? | .url)
+            | map(select(. != null))
+            | last // empty
+          ' "$work/comments.json")"
+          test -n "$url"
+
+          curl --fail --location --retry 5 --retry-all-errors \
+            --output "$work/Kiyori-original-evidence.zip" "$url"
+          echo "ab4be19b47d9fdbfefabfcc0b11a34656f5603e847be94f2c2f5a8c8fe49aae8  $work/Kiyori-original-evidence.zip" | sha256sum --check --strict
+          unzip -q "$work/Kiyori-original-evidence.zip" -d "$work/extracted"
+          cd "$work/extracted"
+          sha256sum --check --strict ORIGINAL_EVIDENCE_SHA256SUMS.txt
+
+      - name: Restore exact PNG files on main
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_dir="${RUNNER_TEMP}/kiyori-original-evidence/extracted/docs/ai-context/evidence/screenshots"
+          target_dir="docs/ai-context/evidence/screenshots"
+          cp "$source_dir"/*.png "$target_dir"/
+
+          git add "$target_dir"/*.png
+          git diff --cached --quiet && {
+            echo "No evidence changes detected; refusing empty commit."
+            exit 1
+          }
+
+          git config user.name "Kiyori Recovery"
+          git config user.email "recovery@local.invalid"
+          git commit -m "docs: restore original evidence screenshots"
+          git push origin HEAD:refs/heads/main
+          git log --oneline --decorate -2
