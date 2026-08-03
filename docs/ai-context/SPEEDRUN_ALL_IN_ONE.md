@@ -1,16 +1,15 @@
-# Kiyori Speedrun Recovery — All in One
+# Kiyori Speedrun Reconstruction — All in One
 
-> Rebranded operational handoff. The previous lost trial product was called Navori; any replacement below is implementation guidance for Kiyori, not a claim that historical commit names changed.
+> Generated from the authoritative split files in this repository. The source backup is Phase 0; reconstructed snippets are guidance, not exact lost source.
 
-# Kiyori Speedrun Recovery — All in One
-
-> AI-to-AI implementation handoff reconstructed from the prior project conversation, the audited Phase-0 source backup, and owner screenshots. Reconstructed code is not a byte-identical copy of the deleted repository.
 
 ---
 
-<!-- BEGIN 00_START_HERE.md -->
+<!-- BEGIN reconstruction/00_START_HERE.md -->
 
-# Kiyori Speedrun Recovery
+> **Reconstruction status:** implementation guidance adapted for Kiyori from the surviving project record. It is not a byte-identical copy of the deleted source.
+
+# Kiyori Speedrun Recovery v2
 
 ## Mission
 
@@ -34,7 +33,7 @@ The surviving source ZIP is:
 
 ```text
 Recovery Phase / Phase 0
-branch: kiyori/develop
+branch: recovery/phase0-backup
 HEAD: 476ad447217ecae2b7c7ae710f7981ca55d9a003
 base upstream: 259e81de6cd3ea51a488849bbd4777a2c3c7f342
 version: 1.6.0 / code 112
@@ -77,19 +76,21 @@ This is not permission for one giant untested commit. The coding AI must keep th
 9. `09_RELEASE_RECONSTRUCTION.md`
 10. files under `blueprints/`
 
-`NAVORI_SPEEDRUN_ALL_IN_ONE.md` contains the full textual context in one file.
+`SPEEDRUN_ALL_IN_ONE.md` contains the full textual context in one file.
 
 ## Non-negotiable honesty
 
 Never claim reconstructed snippets are the exact deleted source. They are implementation-ready guidance that must be adapted to the current upstream tree and compiled.
 
 
-<!-- END 00_START_HERE.md -->
+<!-- END reconstruction/00_START_HERE.md -->
 
 
 ---
 
-<!-- BEGIN 01_AI_BOOTSTRAP_SPEEDRUN_PROMPT.md -->
+<!-- BEGIN reconstruction/01_AI_BOOTSTRAP_SPEEDRUN_PROMPT.md -->
+
+> **Reconstruction status:** implementation guidance adapted for Kiyori from the surviving project record. It is not a byte-identical copy of the deleted source.
 
 # Senior-to-Coding-AI Bootstrap Prompt
 
@@ -103,7 +104,7 @@ The previous remote repository was lost. You have:
 
 1. a new GitHub repository;
 2. a branch containing the newest verified upstream `axiel7/AniHyou-android:develop`;
-3. a preserved backup branch containing the old Phase-0 Kiyori infrastructure baseline;
+3. a preserved backup branch containing the old Phase-0 infrastructure baseline originally prepared under the former project name;
 4. this complete `Kiyori-Speedrun-Recovery` package;
 5. owner screenshots of the accepted later UI;
 6. optionally one or more owner-built APKs.
@@ -264,12 +265,14 @@ Do not version-bump merely to show progress. `1.6.0.1` is final release work aft
 ---
 
 
-<!-- END 01_AI_BOOTSTRAP_SPEEDRUN_PROMPT.md -->
+<!-- END reconstruction/01_AI_BOOTSTRAP_SPEEDRUN_PROMPT.md -->
 
 
 ---
 
-<!-- BEGIN 02_SPEEDRUN_MASTER_PLAN.md -->
+<!-- BEGIN reconstruction/02_SPEEDRUN_MASTER_PLAN.md -->
+
+> **Reconstruction status:** implementation guidance adapted for Kiyori from the surviving project record. It is not a byte-identical copy of the deleted source.
 
 # Integrated Speedrun Master Plan
 
@@ -460,12 +463,14 @@ The AI still runs automated checks continuously. “Test once” means one owner
 The final FOSS debug build meets or exceeds the supplied screenshots, with Calendar day swipe and corrected remove-button alignment.
 
 
-<!-- END 02_SPEEDRUN_MASTER_PLAN.md -->
+<!-- END reconstruction/02_SPEEDRUN_MASTER_PLAN.md -->
 
 
 ---
 
-<!-- BEGIN 03_RECOVERED_IMPLEMENTATION_MAP.md -->
+<!-- BEGIN reconstruction/03_RECOVERED_IMPLEMENTATION_MAP.md -->
+
+> **Reconstruction status:** implementation guidance adapted for Kiyori from the surviving project record. It is not a byte-identical copy of the deleted source.
 
 # Recovered Implementation Map
 
@@ -743,12 +748,14 @@ Tests covered:
 - Home account route.
 
 
-<!-- END 03_RECOVERED_IMPLEMENTATION_MAP.md -->
+<!-- END reconstruction/03_RECOVERED_IMPLEMENTATION_MAP.md -->
 
 
 ---
 
-<!-- BEGIN 04_KNOWN_FAILURES_AND_PREVENTION.md -->
+<!-- BEGIN reconstruction/04_KNOWN_FAILURES_AND_PREVENTION.md -->
+
+> **Reconstruction status:** implementation guidance adapted for Kiyori from the surviving project record. It is not a byte-identical copy of the deleted source.
 
 # Known Failures and Prevention
 
@@ -882,12 +889,14 @@ Rules:
 - retain non-swipe controls.
 
 
-<!-- END 04_KNOWN_FAILURES_AND_PREVENTION.md -->
+<!-- END reconstruction/04_KNOWN_FAILURES_AND_PREVENTION.md -->
 
 
 ---
 
-<!-- BEGIN 05_UI_UX_CONTRACT_AND_IMPROVEMENTS.md -->
+<!-- BEGIN reconstruction/05_UI_UX_CONTRACT_AND_IMPROVEMENTS.md -->
+
+> **Reconstruction status:** implementation guidance adapted for Kiyori from the surviving project record. It is not a byte-identical copy of the deleted source.
 
 # UI/UX Contract and v2 Improvements
 
@@ -1028,12 +1037,14 @@ Public repository documentation is English.
 Application UI uses existing localization. Add English source strings and German translations at minimum for accepted German screens. Do not manually edit every upstream translation.
 
 
-<!-- END 05_UI_UX_CONTRACT_AND_IMPROVEMENTS.md -->
+<!-- END reconstruction/05_UI_UX_CONTRACT_AND_IMPROVEMENTS.md -->
 
 
 ---
 
-<!-- BEGIN 06_TEST_ONCE_FINAL_MATRIX.md -->
+<!-- BEGIN reconstruction/06_TEST_ONCE_FINAL_MATRIX.md -->
+
+> **Reconstruction status:** implementation guidance adapted for Kiyori from the surviving project record. It is not a byte-identical copy of the deleted source.
 
 # One Consolidated Owner Test, Continuous Automated Gates
 
@@ -1191,12 +1202,14 @@ The unsigned release candidate is not expected to install.
 Only issues found here require a correction APK.
 
 
-<!-- END 06_TEST_ONCE_FINAL_MATRIX.md -->
+<!-- END reconstruction/06_TEST_ONCE_FINAL_MATRIX.md -->
 
 
 ---
 
-<!-- BEGIN 07_BRANCH_UPSTREAM_AND_COMMIT_STRATEGY.md -->
+<!-- BEGIN reconstruction/07_BRANCH_UPSTREAM_AND_COMMIT_STRATEGY.md -->
+
+> **Reconstruction status:** implementation guidance adapted for Kiyori from the surviving project record. It is not a byte-identical copy of the deleted source.
 
 # Branch, Upstream, and Commit Strategy
 
@@ -1298,12 +1311,14 @@ docs/ai-context/PHASE_PROMPTS.md
 Adapt this package. Do not copy historical “merged” status before the new rebuild reaches it.
 
 
-<!-- END 07_BRANCH_UPSTREAM_AND_COMMIT_STRATEGY.md -->
+<!-- END reconstruction/07_BRANCH_UPSTREAM_AND_COMMIT_STRATEGY.md -->
 
 
 ---
 
-<!-- BEGIN 08_APK_FORENSICS_GUIDE.md -->
+<!-- BEGIN reconstruction/08_APK_FORENSICS_GUIDE.md -->
+
+> **Reconstruction status:** implementation guidance adapted for Kiyori from the surviving project record. It is not a byte-identical copy of the deleted source.
 
 # APK Forensics Guide
 
@@ -1402,12 +1417,14 @@ Use APK evidence to refine and confirm behavior. Do not paste decompiled code bl
 The latest accepted FOSS debug APK is the most useful single additional artifact.
 
 
-<!-- END 08_APK_FORENSICS_GUIDE.md -->
+<!-- END reconstruction/08_APK_FORENSICS_GUIDE.md -->
 
 
 ---
 
-<!-- BEGIN 09_RELEASE_RECONSTRUCTION.md -->
+<!-- BEGIN reconstruction/09_RELEASE_RECONSTRUCTION.md -->
+
+> **Reconstruction status:** implementation guidance adapted for Kiyori from the surviving project record. It is not a byte-identical copy of the deleted source.
 
 # Release Reconstruction
 
@@ -1463,12 +1480,14 @@ Application UI may remain localized.
 - remove temporary keystore.
 
 
-<!-- END 09_RELEASE_RECONSTRUCTION.md -->
+<!-- END reconstruction/09_RELEASE_RECONSTRUCTION.md -->
 
 
 ---
 
-<!-- BEGIN 10_OWNER_FEEDBACK_LEDGER.md -->
+<!-- BEGIN reconstruction/10_OWNER_FEEDBACK_LEDGER.md -->
+
+> **Reconstruction status:** implementation guidance adapted for Kiyori from the surviving project record. It is not a byte-identical copy of the deleted source.
 
 # Owner Feedback Ledger
 
@@ -1611,12 +1630,14 @@ Do not spend time on release metadata before the full accepted runtime exists.
 Treat the lost repository as an earlier prototype/test run. Use the recovered knowledge to build a cleaner, more stable second implementation rather than attempting an emotionally costly blind recreation.
 
 
-<!-- END 10_OWNER_FEEDBACK_LEDGER.md -->
+<!-- END reconstruction/10_OWNER_FEEDBACK_LEDGER.md -->
 
 
 ---
 
-<!-- BEGIN 11_INTEGRATED_REBUILD_COPY_PROMPT.md -->
+<!-- BEGIN reconstruction/11_INTEGRATED_REBUILD_COPY_PROMPT.md -->
+
+> **Reconstruction status:** implementation guidance adapted for Kiyori from the surviving project record. It is not a byte-identical copy of the deleted source.
 
 # One Copy-Paste Prompt for the Integrated Rebuild
 
@@ -1695,12 +1716,14 @@ Do not finalize `1.6.0.1` until the owner approves the rebuilt FOSS debug APK.
 ---
 
 
-<!-- END 11_INTEGRATED_REBUILD_COPY_PROMPT.md -->
+<!-- END reconstruction/11_INTEGRATED_REBUILD_COPY_PROMPT.md -->
 
 
 ---
 
 <!-- BEGIN blueprints/01_navigation_blueprint.md -->
+
+> **Reconstructed blueprint:** adapt to the current upstream APIs and compile; do not claim this is the exact deleted source.
 
 # Reconstructed Navigation Blueprint
 
@@ -1862,6 +1885,8 @@ Bottom bar and rail both consume it. Do not duplicate switch logic in both compo
 ---
 
 <!-- BEGIN blueprints/02_calendar_blueprint.md -->
+
+> **Reconstructed blueprint:** adapt to the current upstream APIs and compile; do not claim this is the exact deleted source.
 
 # Reconstructed Calendar Blueprint with Swipe v2
 
@@ -2039,6 +2064,8 @@ Counts/content receive same filter.
 
 <!-- BEGIN blueprints/03_routes_hosts_profile_blueprint.md -->
 
+> **Reconstructed blueprint:** adapt to the current upstream APIs and compile; do not claim this is the exact deleted source.
+
 # Routes, Reused Hosts, and Profile Blueprint
 
 ## Routes
@@ -2138,6 +2165,8 @@ Always establish Home as initial top-level destination. Do not restore Calendar/
 ---
 
 <!-- BEGIN blueprints/04_settings_editor_alignment_blueprint.md -->
+
+> **Reconstructed blueprint:** adapt to the current upstream APIs and compile; do not claim this is the exact deleted source.
 
 # Navigation Editor and Remove Alignment Blueprint
 
@@ -2247,6 +2276,8 @@ Use a lazy list in a Material bottom sheet. Do not place all options in an unbou
 ---
 
 <!-- BEGIN blueprints/05_ci_security_release_blueprint.md -->
+
+> **Reconstructed blueprint:** adapt to the current upstream APIs and compile; do not claim this is the exact deleted source.
 
 # CI, Security, Wear, and Release Blueprint
 
