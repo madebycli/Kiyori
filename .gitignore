@@ -12,3 +12,11 @@
 local.properties
 /fastlane/report.xml
 .kotlin
+
+# Never commit release signing material
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.key
+.signing/
