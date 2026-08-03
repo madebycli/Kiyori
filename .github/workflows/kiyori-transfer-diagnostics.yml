@@ -1,0 +1,71 @@
+name: Kiyori transfer diagnostics
+
+on:
+  push:
+    branches:
+      - transfer/kiyori-main-payload
+    paths:
+      - .github/workflows/kiyori-transfer-diagnostics.yml
+
+permissions:
+  contents: write
+  issues: read
+  pull-requests: read
+
+jobs:
+  inspect-prefix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Inspect verified payload prefix
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -u
+          gh api --paginate --slurp "repos/${GITHUB_REPOSITORY}/issues/1/comments" > comments.json
+
+          jq -r '
+            add
+            | map(
+                .body as $body
+                | ($body | split("\n")[0]) as $marker
+                | select($marker | test("^KIYORI_PAYLOAD_(0[0-9]|1[0-5])_OF_20$"))
+              )
+            | sort_by(.body | split("\n")[0])
+            | .[]
+            | .body
+            | split("\n")[1]
+          ' comments.json | tr -d '\n' > prefix.b64
+
+          base64 --decode prefix.b64 > prefix.tar.gz
+          gzip -dc prefix.tar.gz > partial.tar 2>gzip-error.txt || true
+          mkdir -p partial
+          tar -xf partial.tar -C partial --ignore-zeros 2>tar-error.txt || true
+
+          {
+            echo "PAYLOAD_PREFIX_BASE64_BYTES=$(wc -c < prefix.b64)"
+            echo "PARTIAL_TAR_BYTES=$(wc -c < partial.tar)"
+            echo
+            echo "=== EXTRACTED FILES ==="
+            find partial -type f -printf '%P\t%s bytes\n' | sort
+            echo
+            echo "=== SHA256 ==="
+            find partial -type f -print0 | sort -z | xargs -0 sha256sum || true
+            echo
+            echo "=== GZIP STATUS ==="
+            cat gzip-error.txt
+            echo
+            echo "=== TAR STATUS ==="
+            cat tar-error.txt
+          } > _transfer_diagnostics.txt
+
+          git config user.name "Kiyori Transfer Diagnostics"
+          git config user.email "recovery@local.invalid"
+          git add _transfer_diagnostics.txt
+          git commit -m "chore: record transfer diagnostics"
+          git push origin HEAD:transfer/kiyori-main-payload
