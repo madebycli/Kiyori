@@ -40,11 +40,7 @@ jobs:
 
       - name: Install Android SDK components
         shell: bash
-        run: |
-          yes | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
-          "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --channel=3 \
-            "platforms;android-37" \
-            "build-tools;36.0.0"
+        run: bash scripts/install-android-sdk.sh
 
       - name: Build debug APKs
         shell: bash
