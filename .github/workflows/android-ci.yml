@@ -38,15 +38,11 @@ jobs:
 
       - name: Install Android SDK components
         shell: bash
-        run: |
-          yes | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
-          "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --channel=3 \
-            "platforms;android-37" \
-            "build-tools;36.0.0"
+        run: bash scripts/install-android-sdk.sh
 
       - name: Run validation matrix
         shell: bash
-        run: ./docs/ai-context/scripts/full_validation_matrix.sh
+        run: bash docs/ai-context/scripts/full_validation_matrix.sh
 
       - name: Upload reports and APKs
         if: ${{ always() }}
