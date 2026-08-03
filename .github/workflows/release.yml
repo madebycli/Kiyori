@@ -57,11 +57,7 @@ jobs:
 
       - name: Install Android SDK components
         shell: bash
-        run: |
-          yes | "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --licenses >/dev/null || true
-          "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" --channel=3 \
-            "platforms;android-37" \
-            "build-tools;36.0.0"
+        run: bash scripts/install-android-sdk.sh
 
       - name: Resolve and validate release metadata
         env:
@@ -167,8 +163,10 @@ jobs:
           mkdir -p dist
           find app/build/outputs/apk -type f -path '*/release/*.apk' -exec cp '{}' dist/ \;
           test -n "$(find dist -maxdepth 1 -type f -name '*.apk' -print -quit)"
+          apksigner="$ANDROID_SDK_ROOT/build-tools/$ANDROID_BUILD_TOOLS_VERSION/apksigner"
+          test -x "$apksigner"
           for apk in dist/*.apk; do
-            "$ANDROID_SDK_ROOT/build-tools/36.0.0/apksigner" verify \
+            "$apksigner" verify \
               --verbose \
               --print-certs \
               "$apk"
