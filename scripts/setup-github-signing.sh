@@ -5,12 +5,13 @@ umask 077
 
 REPOSITORY="${1:-madebycli/Kiyori}"
 OUTPUT_DIR="${2:-$HOME/.local/share/kiyori-signing}"
+RELEASE_ENVIRONMENT="${RELEASE_ENVIRONMENT:-release}"
 KEYSTORE_PATH="$OUTPUT_DIR/kiyori-release.p12"
 CERTIFICATE_PATH="$OUTPUT_DIR/kiyori-release-certificate.pem"
 DEFAULT_ALIAS="kiyori-release"
 DEFAULT_DNAME="CN=Kiyori Release, O=Kiyori, C=DE"
 
-for command in gh keytool base64 tr; do
+for command in gh keytool base64 grep; do
   command -v "$command" >/dev/null 2>&1 || {
     echo "Missing required command: $command" >&2
     exit 2
@@ -66,14 +67,49 @@ keytool -exportcert \
   -alias "$KEY_ALIAS" \
   -file "$CERTIFICATE_PATH"
 
-base64 < "$KEYSTORE_PATH" | tr -d '\n' | gh secret set KEYSTORE_FILE -R "$REPOSITORY"
-printf '%s' "$STORE_PASSWORD" | gh secret set KEYSTORE_PASSWORD -R "$REPOSITORY"
-printf '%s' "$KEY_ALIAS" | gh secret set KEY_ALIAS -R "$REPOSITORY"
-printf '%s' "$STORE_PASSWORD" | gh secret set KEY_PASSWORD -R "$REPOSITORY"
+# Keep signing secrets out of repository-wide scope. The release environment is
+# restricted to workflow runs dispatched from main; release.yml can still build
+# another source ref through its source_ref input.
+gh api --method PUT \
+  "repos/$REPOSITORY/environments/$RELEASE_ENVIRONMENT" \
+  --input - >/dev/null <<'JSON'
+{
+  "wait_timer": 0,
+  "prevent_self_review": false,
+  "deployment_branch_policy": {
+    "protected_branches": false,
+    "custom_branch_policies": true
+  }
+}
+JSON
+
+if ! gh api \
+  "repos/$REPOSITORY/environments/$RELEASE_ENVIRONMENT/deployment-branch-policies" \
+  --jq '.branch_policies[].name' 2>/dev/null | grep -Fxq main; then
+  gh api --method POST \
+    "repos/$REPOSITORY/environments/$RELEASE_ENVIRONMENT/deployment-branch-policies" \
+    -f name=main \
+    -f type=branch >/dev/null
+fi
+
+base64 < "$KEYSTORE_PATH" | tr -d '\n' \
+  | gh secret set KEYSTORE_FILE --env "$RELEASE_ENVIRONMENT" -R "$REPOSITORY"
+printf '%s' "$STORE_PASSWORD" \
+  | gh secret set KEYSTORE_PASSWORD --env "$RELEASE_ENVIRONMENT" -R "$REPOSITORY"
+printf '%s' "$KEY_ALIAS" \
+  | gh secret set KEY_ALIAS --env "$RELEASE_ENVIRONMENT" -R "$REPOSITORY"
+printf '%s' "$STORE_PASSWORD" \
+  | gh secret set KEY_PASSWORD --env "$RELEASE_ENVIRONMENT" -R "$REPOSITORY"
+
+# Remove obsolete repository-wide copies if an older setup was used.
+for secret in KEYSTORE_FILE KEYSTORE_PASSWORD KEY_ALIAS KEY_PASSWORD; do
+  gh secret delete "$secret" -R "$REPOSITORY" >/dev/null 2>&1 || true
+done
 
 echo
-echo "Uploaded GitHub Actions secrets to $REPOSITORY:"
-gh secret list -R "$REPOSITORY" | grep -E '^(KEYSTORE_FILE|KEYSTORE_PASSWORD|KEY_ALIAS|KEY_PASSWORD)[[:space:]]' || true
+echo "Uploaded GitHub Actions secrets to environment '$RELEASE_ENVIRONMENT':"
+gh secret list --env "$RELEASE_ENVIRONMENT" -R "$REPOSITORY" \
+  | grep -E '^(KEYSTORE_FILE|KEYSTORE_PASSWORD|KEY_ALIAS|KEY_PASSWORD)[[:space:]]' || true
 
 echo
 echo "Certificate fingerprints:"
