@@ -29,7 +29,7 @@ jobs:
           encodedString: ${{secrets.KEYSTORE_FILE}}
       
       - name: Accept Android SDK license
-        run: echo "y" | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager "build-tools;34.0.0"
+        run: echo "y" | /usr/local/lib/android/sdk/cmdline-tools/latest/bin/sdkmanager "build-tools;34.0.0" --channel=3
 
       - name: Set up JDK
         uses: actions/setup-java@v5
