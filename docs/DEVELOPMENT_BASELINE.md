@@ -10,7 +10,7 @@ This document describes the repository baseline before product reconstruction an
 | `feature/kiyori-integrated-rebuild` | Active product reconstruction work | Yes |
 | `develop` | Unmodified upstream comparison and update source | Yes, while upstream syncing is needed |
 | `recovery/phase0-backup` | Historical recovery snapshot | Keep until the first verified signed Kiyori release, then tag/archive and delete the branch |
-| `master` | Superseded historical default and transfer scaffolding | Safe to delete now |
+| `master` | Superseded historical default and transfer scaffolding | Safe to delete after the current baseline is verified |
 
 Development work belongs on `feature/kiyori-integrated-rebuild`. Open pull requests from that branch into `main`. Do not implement new Kiyori features directly on `develop`.
 
@@ -26,13 +26,15 @@ All Android workflows call `scripts/install-android-sdk.sh`. The script reads th
 
 File: `.github/workflows/android-ci.yml`
 
-Runs on pushes to `main`, pull requests into `main`, and manual dispatch. It builds FOSS and GMS debug variants, runs unit tests and lint, builds Wear OS debug, and compiles a FOSS release variant without publishing it.
+Runs on pushes to `main`, pull requests into `main`, and manual dispatch. It builds the FOSS and GMS phone debug variants, runs unit tests and lint, and compiles a FOSS phone release variant without publishing it.
+
+The Wear OS module is intentionally not part of the baseline CI and cannot block phone development.
 
 ### Debug APKs
 
 File: `.github/workflows/debug-apks.yml`
 
-Manual workflow. Select any branch in the GitHub **Run workflow** menu and choose `all`, `foss`, or `gms`. The produced debug APKs and `SHA256SUMS.txt` are available as a workflow artifact.
+Manual workflow. Select any branch in the GitHub **Run workflow** menu and choose `all`, `foss`, or `gms`. It produces only phone APKs. The debug APKs and `SHA256SUMS.txt` are available as a workflow artifact.
 
 Debug APKs use Android's generated debug signing key. They are for installation and testing, not distribution.
 
@@ -47,7 +49,7 @@ The workflow:
 1. resolves the requested source ref to an exact commit;
 2. verifies that the release tag does not already exist;
 3. verifies all signing secrets in the protected `release` environment;
-4. builds signed FOSS and GMS release APKs;
+4. builds signed FOSS and GMS phone release APKs;
 5. verifies every APK with `apksigner`;
 6. generates `SHA256SUMS.txt`;
 7. creates a GitHub Release and uploads the APKs and checksums.
@@ -79,30 +81,28 @@ If Crowdin is not configured yet, the workflow remains dormant until the source 
 
 ## Create and upload signing keys on NixOS
 
-Enter a temporary shell with the required tools:
+The private signing key must be generated on your own NixOS machine. It must never be generated in GitHub Actions, committed to Git, or sent through chat.
+
+Clone or update the repository, enter it, and run:
 
 ```bash
-nix-shell -p git gh jdk17_headless coreutils gnugrep
+bash scripts/setup-github-signing-nixos.sh madebycli/Kiyori
 ```
 
-Authenticate GitHub CLI if necessary:
+The wrapper invokes this temporary shell automatically:
 
 ```bash
-gh auth login
+nix-shell -p bash git gh jdk17_headless coreutils gnugrep
 ```
 
-Clone the repository or enter an existing checkout, then run:
+Inside that shell it executes `scripts/setup-github-signing.sh`. GitHub CLI asks you to authenticate when necessary. The script asks for the alias, certificate identity, and a password with at least 16 characters.
 
-```bash
-bash scripts/setup-github-signing.sh madebycli/Kiyori
-```
-
-The script asks for the alias, certificate identity, and a password. It generates:
+It generates locally:
 
 - `~/.local/share/kiyori-signing/kiyori-release.p12`
 - `~/.local/share/kiyori-signing/kiyori-release-certificate.pem`
 
-It creates the protected GitHub environment `release`, restricts it to workflow runs from `main`, uploads the four environment secrets, removes obsolete repository-wide signing secrets, and prints SHA-1/SHA-256 certificate fingerprints.
+It then creates the protected GitHub environment `release`, restricts it to workflow runs from `main`, uploads the four environment secrets, removes obsolete repository-wide signing secrets, and prints SHA-1/SHA-256 certificate fingerprints.
 
 Back up the `.p12` file and its password in at least two encrypted offline locations. Losing the signing key prevents future APK updates under the same application identity. Never add a keystore to Git, chat, email, or a GitHub Release.
 
@@ -114,7 +114,14 @@ gh secret list --env release -R madebycli/Kiyori
 
 GitHub never shows secret values after upload.
 
-## Manual commands
+### Equivalent manual `nix-shell -p` command
+
+```bash
+nix-shell -p bash git gh jdk17_headless coreutils gnugrep \
+  --run 'bash scripts/setup-github-signing.sh madebycli/Kiyori'
+```
+
+## Manual workflow commands
 
 Run Android CI from the CLI:
 
@@ -122,7 +129,7 @@ Run Android CI from the CLI:
 gh workflow run android-ci.yml -R madebycli/Kiyori --ref main
 ```
 
-Run the debug workflow from the CLI:
+Run the phone debug workflow from the CLI:
 
 ```bash
 gh workflow run debug-apks.yml -R madebycli/Kiyori --ref main -f variant=all
@@ -169,7 +176,7 @@ Keep `develop` as the upstream comparison branch and keep `feature/kiyori-integr
 The repository baseline is ready when:
 
 - Android CI completes successfully;
-- Debug APKs are downloadable and installable;
+- FOSS and GMS debug APKs are downloadable and installable;
 - the `release` environment and its four signing secrets exist;
 - a draft signed release completes and its signatures verify;
 - `feature/kiyori-integrated-rebuild` points to the current `main` before the first implementation commit.
