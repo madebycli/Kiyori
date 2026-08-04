@@ -1,3 +1,0 @@
-files:
-  - source: /core/resources/src/main/res/values/strings.xml
-    translation: /core/resources/src/main/res/values-%android_code%/%original_file_name%

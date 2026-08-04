@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 108 108" role="img" aria-labelledby="title desc">
+  <title id="title">Kiyori app mark</title>
+  <desc id="desc">An abstract K made from slender ribbon forms over a dark navy field.</desc>
+  <rect width="108" height="108" fill="#11152f"/>
+  <path d="M-12 80C18 51 45 45 120 24v96H-12Z" fill="#1c224a"/>
+  <path d="M-10 103C26 68 69 62 118 48v72H-10Z" fill="#252b5b"/>
+  <path d="M39 28c5 0 9 4 9 9v18l27-27c4-4 10-4 14 0s4 10 0 14L63 68l27 18c4 3 5 9 2 13s-9 5-13 2L48 80v9c0 5-4 9-9 9s-9-4-9-9V37c0-5 4-9 9-9Z" fill="#e6e3ff"/>
+  <path d="m48 55 27-27c4-4 10-4 14 0s4 10 0 14L63 68Z" fill="#9c8cff"/>
+</svg>
