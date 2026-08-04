@@ -423,6 +423,7 @@ fun MainNavigation(
                 isLoggedIn = isLoggedIn,
                 listType = it.listType,
                 navActionManager = navActionManager,
+                isMainDestination = it.isMainDestination,
             )
         }
 

@@ -84,6 +84,7 @@ fun SeasonAnimeView(
         uiState = uiState,
         event = viewModel,
         navActionManager = navActionManager,
+        isMainDestination = arguments.isMainDestination,
     )
 }
 
@@ -94,6 +95,7 @@ private fun SeasonAnimeContent(
     uiState: SeasonAnimeUiState,
     event: SeasonAnimeEvent?,
     navActionManager: NavActionManager,
+    isMainDestination: Boolean = false,
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
         rememberTopAppBarState()
@@ -144,7 +146,7 @@ private fun SeasonAnimeContent(
                 )
             }
         },
-        navigationIcon = {
+        navigationIcon = if (isMainDestination) ({}) else {
             BackIconButton(onClick = navActionManager::goBack)
         },
         actions = {

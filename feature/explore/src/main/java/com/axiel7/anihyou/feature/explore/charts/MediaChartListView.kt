@@ -57,6 +57,7 @@ fun MediaChartListView(
         uiState = uiState,
         event = viewModel,
         navActionManager = navActionManager,
+        isMainDestination = arguments.isMainDestination,
     )
 }
 
@@ -67,6 +68,7 @@ private fun MediaChartListContent(
     uiState: MediaChartUiState,
     event: MediaChartEvent?,
     navActionManager: NavActionManager,
+    isMainDestination: Boolean = false,
 ) {
     val blurAdult = LocalBlurAdult.current
     val topAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
@@ -95,7 +97,7 @@ private fun MediaChartListContent(
 
     DefaultScaffoldWithMediumTopAppBar(
         title = uiState.chartType?.localized().orEmpty(),
-        navigationIcon = {
+        navigationIcon = if (isMainDestination) ({}) else {
             BackIconButton(onClick = navActionManager::goBack)
         },
         scrollBehavior = topAppBarScrollBehavior,
