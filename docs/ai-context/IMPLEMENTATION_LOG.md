@@ -55,3 +55,10 @@
 - Home is now the deterministic startup and fallback; an active top-level route removed or hidden by
   the persisted configuration immediately returns to Home.
 - Calendar is represented as a configurable typed top-level target without changing the nested route.
+
+## 2026-08-04 — Navigation, Calendar, and security continuation
+
+- Added an editable main-navigation settings route with visibility, ordering, reset, remove and typed shortcut controls.
+- Projected current-list, chart and semantic current/next-season shortcuts through the shared compact/wide resolver.
+- Added a date-based Calendar main host with a bounded local-date pager, Monday-first week controls and DST-safe interval tests.
+- Added Home Account and Settings actions and excluded the credential-bearing DataStore from backup and device transfer.

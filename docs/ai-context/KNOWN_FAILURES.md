@@ -26,3 +26,4 @@ These failures occurred during the previous implementation and must be prevented
     explicit normalized rewrite during app initialization before the editor can modify the config.
 20. **Divergent compact/wide navigation** — never maintain separate bottom-bar and rail lists; both
     must consume the resolver projection of the same persisted typed configuration.
+21. **Connector blob encoding** — upload text sources as UTF-8 and verify a fetched source file; truncated base64 can create binary blobs.

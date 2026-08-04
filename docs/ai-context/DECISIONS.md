@@ -26,3 +26,5 @@
   and idempotent, so migrating legacy values cannot disturb credential storage.
 - One app-local resolver projects the typed configuration into compact and wide navigation. It sends
   any hidden or removed active top-level target to Home instead of retaining an unreachable route.
+- The top-level Calendar route is distinct from the retained nested route so only the nested view has a Back action.
+- The current default DataStore carries credentials, so its file is excluded from cloud backup and device transfer.

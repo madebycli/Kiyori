@@ -61,3 +61,7 @@ PATH=/usr/lib/jvm/java-17-openjdk-amd64/bin:$PATH \\
 ```
 
 Implement the settings editor and typed dynamic shortcut hosts, then add model and route tests.
+
+## 2026-08-04 continuation
+
+Remote checkpoint `0da3b861` adds the editor, typed shortcut projection, Home actions, a separate date-based Calendar main host and DataStore backup exclusion. The source is still blocked from Gradle validation by the unavailable Gradle 9.5.0 distribution; Calendar list/grid persistence and the final stabilization matrix remain.
