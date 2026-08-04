@@ -82,11 +82,19 @@ sealed class BottomDestination(
     }
 
     companion object {
-        val routes = setOf(Home.route, AnimeList.route, MangaList.route, Profile.route, Explore.route, Calendar.route)
+        /*
+         * Use accessors instead of eagerly initialized companion fields.
+         * Eager initialization can run while BottomDestination's nested data objects
+         * are still being initialized, which made Home null and crashed at startup.
+         */
+        val values: List<BottomDestination>
+            get() = listOf(Home, AnimeList, MangaList, Profile, Explore, Calendar)
 
-        val values = listOf(Home, AnimeList, MangaList, Profile, Explore, Calendar)
+        val routes: Set<NavKey>
+            get() = values.mapTo(linkedSetOf()) { it.route }
 
-        val railValues = listOf(Home, AnimeList, MangaList, Profile)
+        val railValues: List<BottomDestination>
+            get() = listOf(Home, AnimeList, MangaList, Profile)
 
         fun Int.toBottomDestinationRoute(): NavKey? = values.find { it.index == this }?.route
 
