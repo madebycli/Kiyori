@@ -56,6 +56,14 @@ sealed class BottomDestination(
         iconSelected = R.drawable.explore_filled_24
     )
 
+    data object Calendar : BottomDestination(
+        index = 5,
+        route = Routes.Calendar,
+        title = R.string.calendar,
+        icon = R.drawable.calendar_month_24,
+        iconSelected = R.drawable.calendar_month_24,
+    )
+
     @Composable
     fun Icon(selected: Boolean) {
         androidx.compose.material3.Icon(
@@ -65,9 +73,9 @@ sealed class BottomDestination(
     }
 
     companion object {
-        val routes = setOf(Home.route, AnimeList.route, MangaList.route, Profile.route, Explore.route)
+        val routes = setOf(Home.route, AnimeList.route, MangaList.route, Profile.route, Explore.route, Calendar.route)
 
-        val values = listOf(Home, AnimeList, MangaList, Profile, Explore)
+        val values = listOf(Home, AnimeList, MangaList, Profile, Explore, Calendar)
 
         val railValues = listOf(Home, AnimeList, MangaList, Profile)
 
@@ -82,6 +90,7 @@ sealed class BottomDestination(
                 is MangaList -> "MangaListTab"
                 is Profile -> "ProfileTab"
                 is Explore -> "ExploreTab"
+                is Calendar -> "CalendarTab"
             }
     }
 }

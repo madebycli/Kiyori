@@ -36,6 +36,8 @@ class MainViewModel(
 
     val homeTab = defaultPreferencesRepository.defaultHomeTab
 
+    val mainNavigationConfig = defaultPreferencesRepository.mainNavigationConfig
+
     val theme = defaultPreferencesRepository.theme
 
     val useBlackColors = defaultPreferencesRepository.useBlackColors
@@ -97,6 +99,9 @@ class MainViewModel(
     }
 
     init {
+        viewModelScope.launch {
+            defaultPreferencesRepository.normalizeMainNavigationConfig()
+        }
         accessToken
             .onEach { setToken(it) }
             .launchIn(viewModelScope)

@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Text
@@ -19,23 +18,13 @@ import com.axiel7.anihyou.core.ui.common.navigation.Navigator
 @Composable
 fun MainNavigationRail(
     navigator: Navigator,
+    destinations: List<BottomDestination>,
     onItemSelected: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     NavigationRail(
         modifier = modifier,
-        header = {
-            FloatingActionButton(
-                onClick = {
-                    onItemSelected(4)
-                    navigator.navigate(BottomDestination.Explore.route)
-                }
-            ) {
-                BottomDestination.Explore.Icon(
-                    selected = navigator.state.topLevelRoute == BottomDestination.Explore.route
-                )
-            }
-        }
+        header = {}
     ) {
         Column(
             modifier = Modifier
@@ -43,7 +32,7 @@ fun MainNavigationRail(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.Bottom
         ) {
-            BottomDestination.railValues.forEachIndexed { index, dest ->
+            destinations.forEachIndexed { index, dest ->
                 val isSelected = navigator.state.topLevelRoute == dest.route
                 NavigationRailItem(
                     selected = isSelected,

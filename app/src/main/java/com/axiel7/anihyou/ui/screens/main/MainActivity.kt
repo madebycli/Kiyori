@@ -41,12 +41,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.axiel7.anihyou.core.base.extensions.firstBlocking
 import com.axiel7.anihyou.core.model.DeepLink
 import com.axiel7.anihyou.core.model.HomeTab
+import com.axiel7.anihyou.core.model.navigation.MainNavigationConfig
 import com.axiel7.anihyou.core.model.Theme
 import com.axiel7.anihyou.core.resources.dark_scrim
 import com.axiel7.anihyou.core.resources.light_scrim
 import com.axiel7.anihyou.core.ui.common.BottomDestination
 import com.axiel7.anihyou.core.ui.common.BottomDestination.Companion.isBottomDestination
-import com.axiel7.anihyou.core.ui.common.BottomDestination.Companion.toBottomDestinationRoute
 import com.axiel7.anihyou.core.ui.common.LocalBlurAdult
 import com.axiel7.anihyou.core.ui.common.LocalHideScores
 import com.axiel7.anihyou.core.ui.common.LocalScoreFormat
@@ -81,8 +81,8 @@ class MainActivity : AppCompatActivity() {
         val initialBlurAdult = viewModel.blurAdultContent.firstBlocking()
         val initialScoreFormat = viewModel.scoreFormat.firstBlocking()
         val initialHideScores = viewModel.hideScores.firstBlocking()
-        val startTab = runBlocking { viewModel.getStartTab() }
         val homeTab = viewModel.homeTab.firstBlocking() ?: HomeTab.CURRENT
+        val initialNavigationConfig = viewModel.mainNavigationConfig.firstBlocking()
 
         setContent {
             val windowSizeClass = calculateWindowSizeClass(this)
@@ -101,6 +101,7 @@ class MainActivity : AppCompatActivity() {
             val blurAdultContent by viewModel.blurAdultContent.collectAsStateWithLifecycle(initialBlurAdult)
             val scoreFormat by viewModel.scoreFormat.collectAsStateWithLifecycle(initialScoreFormat)
             val hideScores by viewModel.hideScores.collectAsStateWithLifecycle(initialHideScores)
+            val navigationConfig by viewModel.mainNavigationConfig.collectAsStateWithLifecycle(initialNavigationConfig)
 
             DisposableEffect(isDark) {
                 enableEdgeToEdge(
@@ -135,7 +136,7 @@ class MainActivity : AppCompatActivity() {
                         MainView(
                             windowSizeClass = windowSizeClass,
                             isLoggedIn = isLoggedIn,
-                            tabToOpen = startTab,
+                            navigationConfig = navigationConfig,
                             event = viewModel,
                             homeTab = homeTab,
                             deepLink = deepLink,
@@ -199,16 +200,19 @@ class MainActivity : AppCompatActivity() {
 fun MainView(
     windowSizeClass: WindowSizeClass,
     isLoggedIn: Boolean,
-    tabToOpen: Int,
+    navigationConfig: MainNavigationConfig,
     event: MainEvent?,
     homeTab: HomeTab,
     deepLink: DeepLink?,
     setNavigationBarContrastEnforced: (Boolean) -> Unit,
 ) {
-    val startKey = remember(tabToOpen) {
-        tabToOpen.toBottomDestinationRoute() ?: BottomDestination.Home.route
+    val resolvedDestinations = remember(navigationConfig) {
+        MainNavigationResolver.destinations(navigationConfig)
     }
-    val navigationState = rememberNavigationState(startKey, BottomDestination.routes)
+    val resolvedRoutes = remember(resolvedDestinations) {
+        MainNavigationResolver.routes(navigationConfig)
+    }
+    val navigationState = rememberNavigationState(BottomDestination.Home.route, BottomDestination.routes)
     val navigator = remember { Navigator(navigationState) }
     val isBottomDestination by remember {
         derivedStateOf { navigationState.getCurrentRoute()?.isBottomDestination() == true }
@@ -220,12 +224,19 @@ fun MainView(
         setNavigationBarContrastEnforced(!isBottomDestination)
     }
 
+    LaunchedEffect(resolvedRoutes, navigationState.topLevelRoute) {
+        if (navigationState.topLevelRoute !in resolvedRoutes) {
+            navigator.navigate(BottomDestination.Home.route)
+        }
+    }
+
     Scaffold(
         bottomBar = {
             if (isCompactScreen) {
                 MainBottomNavBar(
                     navigator = navigator,
                     navActionManager = navActionManager,
+                    destinations = resolvedDestinations,
                     isVisible = isBottomDestination,
                     onItemSelected = { event?.saveLastTab(it) }
                 )
@@ -251,6 +262,7 @@ fun MainView(
             ) {
                 MainNavigationRail(
                     navigator = navigator,
+                    destinations = resolvedDestinations,
                     onItemSelected = { event?.saveLastTab(it) },
                 )
                 MainNavigation(
@@ -277,7 +289,7 @@ private fun MainPreview() {
                 DpSize(width = 1280.dp, height = 1920.dp)
             ),
             isLoggedIn = false,
-            tabToOpen = 0,
+            navigationConfig = com.axiel7.anihyou.core.model.navigation.defaultMainNavigationConfig(),
             event = null,
             homeTab = HomeTab.CURRENT,
             deepLink = null,

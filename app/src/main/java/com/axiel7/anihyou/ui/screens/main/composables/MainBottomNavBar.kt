@@ -24,6 +24,7 @@ import com.axiel7.anihyou.core.ui.common.navigation.Navigator
 fun MainBottomNavBar(
     navigator: Navigator,
     navActionManager: NavActionManager,
+    destinations: List<BottomDestination>,
     isVisible: Boolean,
     onItemSelected: (Int) -> Unit,
 ) {
@@ -33,7 +34,7 @@ fun MainBottomNavBar(
         exit = slideOutVertically(targetOffsetY = { it })
     ) {
         NavigationBar {
-            BottomDestination.values.forEachIndexed { index, dest ->
+            destinations.forEachIndexed { index, dest ->
                 val isSelected = dest.route == navigator.state.topLevelRoute
                 NavigationBarItem(
                     icon = {
