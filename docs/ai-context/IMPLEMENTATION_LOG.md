@@ -47,3 +47,11 @@
 - Added a shared `main_navigation_config` preferences flow, a normalized writer, and an idempotent
   migration method to the existing default preferences repository.
 - The schema stays separate from credentials and stores only the compact v3 technical-item contract.
+
+## 2026-08-04 — Gate 2, shared app shell
+
+- Added one app-local resolver for the normalized typed configuration and connected it to the phone
+  bottom bar and wide navigation rail.
+- Home is now the deterministic startup and fallback; an active top-level route removed or hidden by
+  the persisted configuration immediately returns to Home.
+- Calendar is represented as a configurable typed top-level target without changing the nested route.

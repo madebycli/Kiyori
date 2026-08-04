@@ -1,16 +1,16 @@
 # Current State — Kiyori
 
-- Updated: 2026-08-04T10:27:14+02:00
+- Updated: 2026-08-04T11:25:59+02:00
 - Repository: `madebycli/Kiyori`
 - Branch: `feature/kiyori-integrated-rebuild`
-- Local/remote checkpoint before this context update: `44b56f02b9fea8f20c15adf6b4612c23b55608b4`
+- Last published product checkpoint: `eb7e0d9ba2ccbbfebc0892e203a72640a32ac2fa`
 - Upstream `develop`: `01a8a4abe98c778d1015a33072a11efdb4ef8593`
 - Merge-base with `origin/develop`: `01a8a4abe98c778d1015a33072a11efdb4ef8593`
 - Protected refs verified unchanged: `main` `90898bfe`, `develop` `01a8a4ab`, `recovery/phase0-backup` `476ad447`
 
 ## Current gate
 
-Gate 2 — configurable main navigation / DataStore persistence complete locally; publication pending.
+Gate 2 — shared app-shell resolver complete; navigation editor and dynamic shortcut hosts remain.
 
 ## Completed
 
@@ -29,6 +29,9 @@ Gate 2 — configurable main navigation / DataStore persistence complete locally
   invalid, over-capacity and missing-Home configurations without persisting Compose routes.
 - Added the shared preferences flow and explicit rewrite migration for the schema. Both always encode
   a normalized v3 value and are ready to drive one app-shell resolver.
+- The app now rewrites legacy navigation preferences on initialization and drives both the compact
+  bottom bar and wide navigation rail from the same normalized resolver. Hidden active tabs are
+  redirected to mandatory Home; Calendar is available as a configurable main destination.
 
 ## Build status
 
@@ -57,4 +60,4 @@ PATH=/usr/lib/jvm/java-17-openjdk-amd64/bin:$PATH \\
 ./gradlew :app:assembleFossDebug --no-daemon --stacktrace
 ```
 
-Publish the DataStore checkpoint, then connect the normalized flow to the app shell and route resolver.
+Implement the settings editor and typed dynamic shortcut hosts, then add model and route tests.

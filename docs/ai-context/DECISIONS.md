@@ -24,3 +24,5 @@
   serializes a Compose route, a concrete season/year, or a ViewModel instance key.
 - The navigation schema shares the existing default-preferences DataStore; normalization is explicit
   and idempotent, so migrating legacy values cannot disturb credential storage.
+- One app-local resolver projects the typed configuration into compact and wide navigation. It sends
+  any hidden or removed active top-level target to Home instead of retaining an unreachable route.

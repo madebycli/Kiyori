@@ -24,3 +24,5 @@ These failures occurred during the previous implementation and must be prevented
     through one normalizer; Home must remain visible and malformed data must not select a hidden tab.
 19. **Silent legacy persistence** — decode-only migration leaves corrupt values on disk. Invoke the
     explicit normalized rewrite during app initialization before the editor can modify the config.
+20. **Divergent compact/wide navigation** — never maintain separate bottom-bar and rail lists; both
+    must consume the resolver projection of the same persisted typed configuration.

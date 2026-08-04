@@ -32,12 +32,14 @@ Rebuild the previously accepted product experience on the newer upstream base in
 
 ### Progress
 
-- Completed locally: versioned typed item/shortcut model and codec; legacy/v2 migration;
+- Completed: versioned typed item/shortcut model and codec; legacy/v2 migration;
   deterministic repair for unknown IDs, duplicates, Home visibility, capacity, minimum visibility,
   and duplicate Season shortcuts.
-- Completed locally: the existing preferences DataStore now exposes and writes only normalized v3
+- Completed: the existing preferences DataStore now exposes and writes only normalized v3
   schema values, with an explicit legacy-rewrite migration.
-- Next: connect the normalized flow to the app shell and one route resolver.
+- Completed: app initialization performs the explicit normalized rewrite; one resolver drives both
+  Bottom Bar and Navigation Rail, Home is the startup/fallback, and Calendar is a typed main target.
+- Next: settings editor, dynamic shortcut hosts, and tests.
 
 ## Slice 3 — Date-based Calendar
 
