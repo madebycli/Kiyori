@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="main_navigation_editor_title">Customize main navigation</string>
+    <string name="main_navigation_editor_reset">Reset</string>
+    <string name="main_navigation_editor_help">Choose visible destinations and drag the handle to change their order.</string>
+    <string name="main_navigation_editor_rule">Two to five destinations must be visible. Home is required.</string>
+    <string name="main_navigation_required">Required</string>
+    <string name="main_navigation_add">Add main tab</string>
+    <string name="main_navigation_remove">Remove %1$s</string>
+    <string name="main_navigation_reorder">Reorder %1$s</string>
+    <string name="main_navigation_shortcut_home">Home</string>
+    <string name="main_navigation_shortcut_discover">Discover</string>
+    <string name="main_navigation_shortcut_existing_home">Opens this existing Home list directly as a main tab.</string>
+    <string name="main_navigation_shortcut_current_season">Automatically opens the current anime season.</string>
+    <string name="main_navigation_shortcut_next_season">Automatically opens the next anime season.</string>
+    <string name="main_navigation_shortcut_existing_discover">Opens this existing Discover list directly as a main tab.</string>
+    <string name="main_navigation_shortcut_already_added">Already added</string>
+    <string name="main_navigation_shortcut_limit">A maximum of five tabs can be visible. Newly added tabs remain available but hidden.</string>
+</resources>
