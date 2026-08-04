@@ -1,0 +1,7 @@
+Kiyori integrated rebuild candidate
+
+- New Kiyori identity and launcher experience
+- Configurable main navigation with Calendar and media shortcuts
+- Date-based Calendar with daily counts, list/grid presentation, and list-status filtering
+- Faster access to notifications, settings, account, current lists, charts, and seasonal discovery
+- Improved backup protection for credential-bearing preferences
