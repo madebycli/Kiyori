@@ -77,8 +77,7 @@ class SystemAuthenticationPrompt(
 
                         BiometricPrompt.ERROR_HW_NOT_PRESENT,
                         BiometricPrompt.ERROR_HW_UNAVAILABLE,
-                        BiometricPrompt.ERROR_NO_BIOMETRICS,
-                        BiometricPrompt.ERROR_NO_DEVICE_CREDENTIAL ->
+                        BiometricPrompt.ERROR_NO_BIOMETRICS ->
                             SystemAuthenticationError.UNAVAILABLE
 
                         else -> SystemAuthenticationError.UNKNOWN
