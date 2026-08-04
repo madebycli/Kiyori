@@ -85,11 +85,11 @@ fun MediaCharacterStaffView(
     val languages = remember(characters) {
         characters
             .flatMap(MediaCharacter::availableVoiceActors)
-            .mapNotNull(CommonVoiceActor::languageV2)
+            .mapNotNull { it.languageV2 }
             .distinct()
             .sortedWith(
                 compareBy<String> { !it.equals("Japanese", ignoreCase = true) }
-                    .thenBy(String::lowercase)
+                    .thenBy { it.lowercase() }
             )
     }
 
@@ -237,7 +237,7 @@ private fun CharacterVoiceActorRow(
     navigateToCharacterDetails: (Int) -> Unit,
     showVoiceActorsSheet: (MediaCharacter) -> Unit,
 ) {
-    val node = character.node
+    val node = character.node?.commonCharacter
     val voiceActors = character.availableVoiceActors()
     val voiceActor = voiceActors.firstOrNull {
         it.languageV2.equals(selectedLanguage, ignoreCase = true)
@@ -336,7 +336,7 @@ private fun TeamSection(
     when {
         isLoading -> repeat(5) { PersonItemHorizontalPlaceholder() }
         else -> uiState.staff.orEmpty().forEach { staff ->
-            val node = staff.node
+            val node = staff.node?.commonStaff
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
