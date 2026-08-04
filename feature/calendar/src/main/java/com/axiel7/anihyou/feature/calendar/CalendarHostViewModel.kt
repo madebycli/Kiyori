@@ -10,8 +10,13 @@ class CalendarHostViewModel(
 ): ViewModel() {
 
     val onMyList = defaultPreferencesRepository.calendarOnMyList
+    val displayGrid = defaultPreferencesRepository.calendarDisplayGrid
 
     fun onMyListChanged(value: Boolean?) = viewModelScope.launch {
         defaultPreferencesRepository.setCalendarOnMyList(value)
+    }
+
+    fun onDisplayGridChanged(value: Boolean) = viewModelScope.launch {
+        defaultPreferencesRepository.setCalendarDisplayGrid(value)
     }
 }

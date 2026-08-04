@@ -2,12 +2,14 @@ package com.axiel7.anihyou.feature.calendar
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -19,6 +21,9 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.items as listItems
 import androidx.compose.material3.DropdownMenuGroup
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.DropdownMenuPopup
@@ -70,6 +75,8 @@ import com.axiel7.anihyou.core.ui.composables.list.OnBottomReached
 import com.axiel7.anihyou.core.ui.composables.media.MEDIA_POSTER_SMALL_WIDTH
 import com.axiel7.anihyou.core.ui.composables.media.MediaItemVertical
 import com.axiel7.anihyou.core.ui.composables.media.MediaItemVerticalPlaceholder
+import com.axiel7.anihyou.core.ui.composables.media.MediaItemHorizontal
+import com.axiel7.anihyou.core.ui.composables.media.MediaItemHorizontalPlaceholder
 import com.axiel7.anihyou.core.ui.theme.AniHyouTheme
 import com.axiel7.anihyou.feature.editmedia.EditMediaSheet
 import org.koin.compose.viewmodel.koinViewModel
@@ -86,11 +93,14 @@ fun CalendarView(
 ) {
     val viewModel: CalendarHostViewModel = koinViewModel()
     val onMyList by viewModel.onMyList.collectAsStateWithLifecycle(initialValue = null)
+    val displayGrid by viewModel.displayGrid.collectAsStateWithLifecycle(initialValue = false)
 
     CalendarViewContent(
         isLoggedIn = isLoggedIn,
         onMyList = onMyList,
         onMyListChanged = viewModel::onMyListChanged,
+        displayGrid = displayGrid,
+        onDisplayGridChanged = viewModel::onDisplayGridChanged,
         navActionManager = navActionManager,
         isMainDestination = isMainDestination,
         contentPadding = contentPadding,
@@ -103,6 +113,8 @@ private fun CalendarViewContent(
     isLoggedIn: Boolean,
     onMyList: Boolean?,
     onMyListChanged: (Boolean?) -> Unit,
+    displayGrid: Boolean,
+    onDisplayGridChanged: (Boolean) -> Unit,
     navActionManager: NavActionManager,
     isMainDestination: Boolean,
     contentPadding: PaddingValues,
@@ -112,6 +124,8 @@ private fun CalendarViewContent(
             isLoggedIn = isLoggedIn,
             onMyList = onMyList,
             onMyListChanged = onMyListChanged,
+            displayGrid = displayGrid,
+            onDisplayGridChanged = onDisplayGridChanged,
             navActionManager = navActionManager,
             contentPadding = contentPadding,
         )
@@ -130,6 +144,8 @@ private fun CalendarViewContent(
             AppBarActions(
                 onMyList = onMyList,
                 onMyListChanged = onMyListChanged,
+                displayGrid = displayGrid,
+                onDisplayGridChanged = onDisplayGridChanged,
             )
         },
         snackbarHost = snackbarManager::SnackbarHost,
@@ -166,6 +182,7 @@ private fun CalendarViewContent(
                 snackbarManager = snackbarManager,
                 uiState = uiState,
                 events = viewModel,
+                displayGrid = displayGrid,
                 showEditSheet = showEditSheet,
                 navActionManager = navActionManager,
                 modifier = Modifier
@@ -186,6 +203,8 @@ private fun DateCalendarContent(
     isLoggedIn: Boolean,
     onMyList: Boolean?,
     onMyListChanged: (Boolean?) -> Unit,
+    displayGrid: Boolean,
+    onDisplayGridChanged: (Boolean) -> Unit,
     navActionManager: NavActionManager,
     contentPadding: PaddingValues,
 ) {
@@ -202,7 +221,14 @@ private fun DateCalendarContent(
 
     DefaultScaffoldWithSmallTopAppBar(
         title = stringResource(R.string.calendar),
-        actions = { AppBarActions(onMyList = onMyList, onMyListChanged = onMyListChanged) },
+        actions = {
+            AppBarActions(
+                onMyList = onMyList,
+                onMyListChanged = onMyListChanged,
+                displayGrid = displayGrid,
+                onDisplayGridChanged = onDisplayGridChanged,
+            )
+        },
         snackbarHost = snackbarManager::SnackbarHost,
         scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState()),
     ) { padding ->
@@ -246,6 +272,7 @@ private fun DateCalendarContent(
                     snackbarManager = snackbarManager,
                     uiState = uiState,
                     events = viewModel,
+                    displayGrid = displayGrid,
                     showEditSheet = showEditSheet,
                     navActionManager = navActionManager,
                     modifier = Modifier.fillMaxHeight(),
@@ -298,6 +325,7 @@ private fun CalendarDayView(
     snackbarManager: SnackbarManager,
     uiState: CalendarUiState,
     events: CalendarEvent?,
+    displayGrid: Boolean,
     showEditSheet: MutableState<Boolean>,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
@@ -306,8 +334,8 @@ private fun CalendarDayView(
     val blurAdult = LocalBlurAdult.current
     val haptic = LocalHapticFeedback.current
 
-    val listState = rememberLazyGridState()
-    listState.OnBottomReached(buffer = 3) {
+    val gridState = rememberLazyGridState()
+    gridState.OnBottomReached(buffer = 3) {
         events?.onLoadMore()
     }
 
@@ -324,10 +352,49 @@ private fun CalendarDayView(
         )
     }
 
+    if (!displayGrid) {
+        val listState = rememberLazyListState()
+        listState.OnBottomReached(buffer = 3) { events?.onLoadMore() }
+        LazyColumn(
+            modifier = modifier,
+            state = listState,
+            contentPadding = contentPadding,
+        ) {
+            listItems(uiState.weeklyAnime, contentType = { it }) { item ->
+                MediaItemHorizontal(
+                    title = item.media?.basicMediaDetails?.title?.userPreferred.orEmpty(),
+                    imageUrl = item.media?.coverImage?.large,
+                    blurImage = blurAdult && item.media?.isAdult == true,
+                    subtitle1 = {
+                        Text(
+                            text = stringResource(
+                                R.string.episode_airing_at,
+                                item.episode,
+                                item.airingAt.toLong().timestampToTimeString() ?: UNKNOWN_CHAR,
+                            ),
+                            color = MaterialTheme.colorScheme.outline,
+                        )
+                    },
+                    status = item.media?.mediaListEntry?.basicMediaListEntry?.status,
+                    onClick = { navActionManager.toMediaDetails(item.mediaId) },
+                    onLongClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        if (isLoggedIn) {
+                            events?.selectItem(item)
+                            showEditSheet.value = true
+                        } else snackbarManager.showNotLoggedInSnackbar()
+                    },
+                )
+            }
+            if (uiState.isLoading) listItems(8) { MediaItemHorizontalPlaceholder() }
+        }
+        return
+    }
+
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = (MEDIA_POSTER_SMALL_WIDTH + 8).dp),
         modifier = modifier,
-        state = listState,
+        state = gridState,
         contentPadding = contentPadding,
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)
@@ -381,6 +448,8 @@ private fun CalendarDayView(
 private fun AppBarActions(
     onMyList: Boolean?,
     onMyListChanged: (Boolean?) -> Unit,
+    displayGrid: Boolean,
+    onDisplayGridChanged: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var menuOpened by remember { mutableStateOf(false) }
@@ -388,6 +457,14 @@ private fun AppBarActions(
         modifier = modifier
             .wrapContentSize(Alignment.TopStart)
     ) {
+        IconButton(onClick = { onDisplayGridChanged(!displayGrid) }) {
+            Icon(
+                painter = painterResource(
+                    if (displayGrid) R.drawable.format_list_bulleted_24 else R.drawable.grid_view_24
+                ),
+                contentDescription = if (displayGrid) "Show list" else "Show grid",
+            )
+        }
         IconButton(
             onClick = { menuOpened = !menuOpened },
             shapes = IconButtonDefaults.shapes(),
@@ -445,6 +522,7 @@ private fun CalendarViewPreview() {
                 snackbarManager = rememberSnackbarManager(),
                 uiState = CalendarUiState(),
                 events = null,
+                displayGrid = false,
                 showEditSheet = remember { mutableStateOf(false) },
                 navActionManager = NavActionManager.rememberNavActionManager()
             )

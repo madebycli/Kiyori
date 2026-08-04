@@ -267,6 +267,12 @@ class DefaultPreferencesRepository (
         dataStore.setValue(CALENDAR_ON_MY_LIST_KEY, value)
     }
 
+    /** False is the compact, detail-rich list used by a new Calendar tab. */
+    val calendarDisplayGrid = dataStore.getValue(key = CALENDAR_DISPLAY_GRID_KEY, default = false)
+    suspend fun setCalendarDisplayGrid(value: Boolean) {
+        dataStore.setValue(CALENDAR_DISPLAY_GRID_KEY, value)
+    }
+
     // notifications
     val isNotificationsEnabled =
         dataStore.getValue(key = NOTIFICATIONS_ENABLED_KEY, default = false)
@@ -350,6 +356,7 @@ class DefaultPreferencesRepository (
         private val DEFAULT_HOME_TAB_KEY = intPreferencesKey("default_home_tab")
         private val AIRING_ON_MY_LIST_KEY = booleanPreferencesKey("airing_on_my_list")
         private val CALENDAR_ON_MY_LIST_KEY = booleanPreferencesKey("calendar_on_my_list")
+        private val CALENDAR_DISPLAY_GRID_KEY = booleanPreferencesKey("calendar_display_grid")
 
         private val NOTIFICATIONS_ENABLED_KEY = booleanPreferencesKey("enabled_notifications")
         private val NOTIFICATION_INTERVAL_KEY = stringPreferencesKey("notification_interval")
