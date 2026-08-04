@@ -3,7 +3,7 @@
 - Updated: 2026-08-04T17:51:43+02:00
 - Repository: `madebycli/Kiyori`
 - Branch: `feature/kiyori-integrated-rebuild`
-- Last published product checkpoint: `dc4972f6ac2d5448e688773132104b5dd28f75ef`
+- Last published product checkpoint: `c56ccd90f9a9295f6638d39a56fe2c37cf7f6e7d`
 - Upstream `develop`: `01a8a4abe98c778d1015a33072a11efdb4ef8593`
 - Merge-base with `origin/develop`: `01a8a4abe98c778d1015a33072a11efdb4ef8593`
 - Protected refs verified unchanged: `main` `90898bfe`, `develop` `01a8a4ab`, `recovery/phase0-backup` `476ad447`
@@ -36,6 +36,8 @@ Gate 4 — dynamic shortcut hosts complete; Calendar presentation persistence co
   can switch to a grid, and keep the same date and tri-state list filter in either presentation.
 - Dynamic current-list, chart, and season shortcuts now use main-destination route identities;
   their reused hosts omit the Back action while original nested routes keep it.
+- The navigation state registers the resolved dynamic routes as top-level back stacks, so shortcut
+  tabs are selectable in Bottom Bar and Rail instead of being appended to Home's nested stack.
 
 ## Build status
 

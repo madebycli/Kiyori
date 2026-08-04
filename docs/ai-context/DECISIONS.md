@@ -32,3 +32,5 @@
   the date range or tri-state filter semantics.
 - Dynamic current-list, chart and season routes carry a serializable `isMainDestination` flag so a
   reused host can remove only its main-tab Back affordance without altering nested navigation.
+- The app creates navigation back stacks from the resolved registry, not a static destination set;
+  adding or removing a typed shortcut therefore remains a real top-level navigation change.

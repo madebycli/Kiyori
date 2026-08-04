@@ -74,3 +74,5 @@
   connector publication had omitted the source hunk.
 - Gradle 9.5.0 was downloaded and started successfully. JVM DNS for Maven repositories remains
   unavailable in Work, so dependency hydration is proceeding through a local curl-backed mirror.
+- Corrected the app shell to construct navigation state from the resolved registry. Without this,
+  typed shortcut taps were incorrectly pushed onto Home rather than receiving their own top-level stack.
