@@ -41,3 +41,5 @@
   an unavailable marker rather than a misleading zero.
 - Existing version metadata remains unchanged until CI, signed artifacts and device acceptance pass;
   release-candidate documentation must not be interpreted as a published release.
+- The independent `main` README change is not incorporated automatically: this campaign prohibits
+  merge and rebase. A maintainer must explicitly choose the permitted conflict-resolution workflow.

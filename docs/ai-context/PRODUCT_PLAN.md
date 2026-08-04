@@ -120,6 +120,8 @@ Reuse current upstream full-list, chart and Season views/ViewModels. Main hosts 
   descriptions, variant-safe notification routing, credential backup exclusion, phone-scoped branding,
   and English release-candidate documentation.
 - Pending external verification: the full CI/Gradle matrix, signed artifact inspection, and owner device acceptance.
+- Integration note: a single independent `main` README append causes a three-way merge conflict.
+  Its resolution is deferred because this campaign expressly forbids merge and rebase operations.
 
 ## Test strategy
 

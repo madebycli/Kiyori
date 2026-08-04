@@ -90,6 +90,13 @@
 - Gradle 9.5.0 and Java 17 reached project configuration in Work. The remaining compile limitation is
   infrastructure-only: the Work runtime kills the temporary localhost Maven proxy before all uncached AGP artifacts resolve.
 
+## 2026-08-04 — Validation-matrix completion and mergeability check
+
+- Extended the CI matrix to compile and lint Wear debug, and to assemble both FOSS and GMS minified phone releases.
+- A read-only three-way merge simulation against `main` found exactly one conflict: `README.md`.
+  The only `main` delta is its independent `hello again` README append. No merge, rebase, force-push,
+  or protected-branch change was performed because the campaign rules prohibit those operations.
+
 ## 2026-08-04 — Stabilization documentation and boundary coverage
 
 - Added unit coverage for selectable Calendar dates and the previous/next week limits.

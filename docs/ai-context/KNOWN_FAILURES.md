@@ -40,3 +40,6 @@ These failures occurred during the previous implementation and must be prevented
     or a persistent proxy for the validation matrix.
 26. **Premature release metadata** — release-candidate documentation is not approval to bump a version,
     create a tag, or publish an artifact. Keep metadata stable until signed CI and device acceptance finish.
+27. **Independent main README conflict** — `main` has a post-branch README append while the Kiyori
+    feature replaces the inherited README. Do not silently merge/rebase under the campaign rules;
+    obtain an explicit maintainer choice for resolving that one file.

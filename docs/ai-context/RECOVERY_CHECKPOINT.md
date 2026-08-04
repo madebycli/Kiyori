@@ -21,3 +21,6 @@
 - Next exact action: run the CI validation matrix on PR #2 or compile with a persistent Maven proxy,
   then inspect artifacts and complete the release-readiness gate.
 - Last successful remote publication: `20e096b54dc55ab2b08fa251500e25ef0f5e2fb3`.
+- Latest source publication: `b573abdda21191cee9d41e98b72a05cebc254e68` adds Wear and both release variants to CI.
+- Read-only merge simulation against `main` reports one README conflict. Its resolution requires an
+  explicitly authorized merge/rebase workflow, which remains prohibited by the campaign rules.

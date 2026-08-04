@@ -52,6 +52,8 @@ Gradle 9.5.0 has been downloaded and starts with Java 17 plus a workspace tempor
 The wrapper reaches project configuration; the remaining validation blocker is that the Work runtime
 terminates the local curl-backed Maven proxy before Gradle can finish hydrating uncached artifacts.
 
+The CI script now explicitly covers Wear debug/lint and both minified phone release variants.
+
 ## Tests and checks
 
 - Passed: `git diff --check`; resource source/manifest inspection; 512×512 PNG dimensions; protected Auth/API source content comparison.
@@ -65,6 +67,8 @@ terminates the local curl-backed Maven proxy before Gradle can finish hydrating 
 - The Java process cannot resolve public Maven hostnames in this Work container even though curl can;
   the ephemeral process model also prevents a local curl-backed Maven proxy from surviving full dependency hydration.
 - The master prompt names `00_USE_THIS_FILE.md` and `02_CHECKPOINT_POLICY.md`, but neither file exists in this checkout, its reachable history, or the provided upload. The explicit checkpoint rules in the master prompt are being followed.
+- Read-only merge simulation reports a README conflict with the independent `main` commit `90898bfe`.
+  Resolving it requires a merge or rebase against `main`, both explicitly prohibited for this campaign.
 
 ## Next exact action
 
