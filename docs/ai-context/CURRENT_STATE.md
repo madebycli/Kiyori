@@ -1,9 +1,9 @@
 # Current State — Kiyori
 
-- Updated: 2026-08-04T18:10:00+02:00
+- Updated: 2026-08-04T18:18:00+02:00
 - Repository: `madebycli/Kiyori`
 - Branch: `feature/kiyori-integrated-rebuild`
-- Last published product checkpoint: `3e6e5b6b0b400ceba7f9eacaf825c40f59e59903`
+- Last published product checkpoint: `0aecd7af6c02a5a7e8a876d020be5f9378c1f699`
 - Upstream `develop`: `01a8a4abe98c778d1015a33072a11efdb4ef8593`
 - Merge-base with `origin/develop`: `01a8a4abe98c778d1015a33072a11efdb4ef8593`
 - Protected refs verified unchanged: `main` `90898bfe`, `develop` `01a8a4ab`, `recovery/phase0-backup` `476ad447`
@@ -43,6 +43,8 @@ Gate 5 — stabilization and release-readiness verification.
 - The Calendar week header now shows exact per-day filtered counts, disables unavailable dates and
   boundary arrows, announces each count to accessibility services, and renders a thin accent line
   for the selected day. Count queries use the same local-day/DST bounds and tri-state filter as the pager.
+- Calendar date-range boundary behavior is covered by focused JVM unit tests. Public README,
+  Fastlane changelog and release-candidate notes now describe Kiyori in English without choosing final metadata.
 
 ## Build status
 

@@ -89,3 +89,10 @@
   date/count accessibility description, and gives the selected day a two-dp accent underline.
 - Gradle 9.5.0 and Java 17 reached project configuration in Work. The remaining compile limitation is
   infrastructure-only: the Work runtime kills the temporary localhost Maven proxy before all uncached AGP artifacts resolve.
+
+## 2026-08-04 — Stabilization documentation and boundary coverage
+
+- Added unit coverage for selectable Calendar dates and the previous/next week limits.
+- Replaced the inherited public README with English Kiyori product/build/security information and
+  added an English Fastlane changelog plus unreleased release-candidate notes.
+- Deliberately retained `version.properties`: final release metadata is owner/validation-gated and no tag or release was created.

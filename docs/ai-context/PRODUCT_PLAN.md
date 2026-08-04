@@ -114,6 +114,13 @@ Reuse current upstream full-list, chart and Season views/ViewModels. Main hosts 
 - Wear compile SDK compatible with current dependencies while target changes remain explicit;
 - FOSS, GMS, Wear, tests, lint and minified release candidate in CI.
 
+### Progress
+
+- Completed in source: focused navigation/date-range tests, 48dp Calendar controls, TalkBack count
+  descriptions, variant-safe notification routing, credential backup exclusion, phone-scoped branding,
+  and English release-candidate documentation.
+- Pending external verification: the full CI/Gradle matrix, signed artifact inspection, and owner device acceptance.
+
 ## Test strategy
 
 No repeated owner approval after every historical phase. The coding AI must keep internal slices compiling and tested. After all slices, produce one installable universal FOSS debug APK for consolidated owner acceptance.

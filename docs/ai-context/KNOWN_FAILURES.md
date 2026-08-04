@@ -38,3 +38,5 @@ These failures occurred during the previous implementation and must be prevented
 25. **Ephemeral localhost dependency proxy** — a proxy started inside a short-lived Work command can
     be terminated before Gradle finishes. Do not change production repositories to compensate; use CI
     or a persistent proxy for the validation matrix.
+26. **Premature release metadata** — release-candidate documentation is not approval to bump a version,
+    create a tag, or publish an artifact. Keep metadata stable until signed CI and device acceptance finish.

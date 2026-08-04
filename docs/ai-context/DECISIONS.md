@@ -39,3 +39,5 @@
 - Calendar week-header counts are exact filtered counts. They use the same timezone-safe daily bounds,
   adult setting and tri-state list filter as the associated pager page; failed count requests display
   an unavailable marker rather than a misleading zero.
+- Existing version metadata remains unchanged until CI, signed artifacts and device acceptance pass;
+  release-candidate documentation must not be interpreted as a published release.
