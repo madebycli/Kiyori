@@ -3,6 +3,7 @@ package com.axiel7.anihyou.feature.calendar
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -11,6 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.layout.weight
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -26,6 +30,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
@@ -33,8 +38,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -66,6 +74,8 @@ import com.axiel7.anihyou.core.ui.theme.AniHyouTheme
 import com.axiel7.anihyou.feature.editmedia.EditMediaSheet
 import org.koin.compose.viewmodel.koinViewModel
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import kotlinx.coroutines.launch
 
 @Composable
 fun CalendarView(
@@ -97,6 +107,16 @@ private fun CalendarViewContent(
     isMainDestination: Boolean,
     contentPadding: PaddingValues,
 ) {
+    if (isMainDestination) {
+        DateCalendarContent(
+            isLoggedIn = isLoggedIn,
+            onMyList = onMyList,
+            onMyListChanged = onMyListChanged,
+            navActionManager = navActionManager,
+            contentPadding = contentPadding,
+        )
+        return
+    }
     val topAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
         rememberTopAppBarState()
     )
@@ -156,6 +176,118 @@ private fun CalendarViewContent(
                     bottom = padding.calculateBottomPadding() + contentPadding.calculateBottomPadding()
                 )
             )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DateCalendarContent(
+    isLoggedIn: Boolean,
+    onMyList: Boolean?,
+    onMyListChanged: (Boolean?) -> Unit,
+    navActionManager: NavActionManager,
+    contentPadding: PaddingValues,
+) {
+    val range = remember { CalendarDateRange(LocalDate.now()) }
+    var selectedPage by rememberSaveable { mutableIntStateOf(0) }
+    val pagerState = rememberPagerState(initialPage = selectedPage) { range.pageCount }
+    val scope = rememberCoroutineScope()
+    val snackbarManager = rememberSnackbarManager()
+    val showEditSheet = remember { mutableStateOf(false) }
+
+    LaunchedEffect(pagerState.settledPage) {
+        selectedPage = pagerState.settledPage.coerceIn(0, range.pageCount - 1)
+    }
+
+    DefaultScaffoldWithSmallTopAppBar(
+        title = stringResource(R.string.calendar),
+        actions = { AppBarActions(onMyList = onMyList, onMyListChanged = onMyListChanged) },
+        snackbarHost = snackbarManager::SnackbarHost,
+        scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState()),
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(
+                    start = padding.calculateStartPadding(LocalLayoutDirection.current),
+                    top = padding.calculateTopPadding(),
+                    end = padding.calculateEndPadding(LocalLayoutDirection.current),
+                ),
+        ) {
+            CalendarWeekHeader(
+                dates = range.visibleWeek(range.dateForPage(selectedPage)),
+                selectedDate = range.dateForPage(selectedPage),
+                onDateSelected = { date ->
+                    scope.launch { pagerState.animateScrollToPage(range.pageForDate(date)) }
+                },
+                onPreviousWeek = {
+                    scope.launch { pagerState.animateScrollToPage((selectedPage - 7).coerceAtLeast(0)) }
+                },
+                onNextWeek = {
+                    scope.launch { pagerState.animateScrollToPage((selectedPage + 7).coerceAtMost(range.pageCount - 1)) }
+                },
+            )
+            HorizontalPager(
+                state = pagerState,
+                beyondViewportPageCount = 1,
+                modifier = Modifier.weight(1f),
+            ) { page ->
+                val date = range.dateForPage(page)
+                val viewModel: CalendarViewModel = koinViewModel(key = "calendar-$date")
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                ErrorDialogHandler(uiState, onDismiss = viewModel::onErrorDisplayed)
+                LaunchedEffect(date) { viewModel.setDate(date) }
+                LaunchedEffect(onMyList) {
+                    if (uiState.onMyList != onMyList) viewModel.setOnMyList(onMyList)
+                }
+                CalendarDayView(
+                    isLoggedIn = isLoggedIn,
+                    snackbarManager = snackbarManager,
+                    uiState = uiState,
+                    events = viewModel,
+                    showEditSheet = showEditSheet,
+                    navActionManager = navActionManager,
+                    modifier = Modifier.fillMaxHeight(),
+                    contentPadding = PaddingValues(
+                        top = 16.dp,
+                        bottom = padding.calculateBottomPadding() + contentPadding.calculateBottomPadding(),
+                    ),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun CalendarWeekHeader(
+    dates: List<LocalDate>,
+    selectedDate: LocalDate,
+    onDateSelected: (LocalDate) -> Unit,
+    onPreviousWeek: () -> Unit,
+    onNextWeek: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        IconButton(onClick = onPreviousWeek, modifier = Modifier.size(48.dp)) {
+            Icon(painterResource(R.drawable.arrow_back_24), contentDescription = "Previous week")
+        }
+        dates.forEach { date ->
+            val selected = date == selectedDate
+            TextButton(
+                onClick = { onDateSelected(date) },
+                modifier = Modifier.weight(1f),
+            ) {
+                Text(
+                    text = date.format(DateTimeFormatter.ofPattern("EE\nd")),
+                    color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                )
+            }
+        }
+        IconButton(onClick = onNextWeek, modifier = Modifier.size(48.dp)) {
+            Icon(painterResource(R.drawable.arrow_forward_24), contentDescription = "Next week")
         }
     }
 }
