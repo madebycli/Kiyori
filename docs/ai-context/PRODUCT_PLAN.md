@@ -59,7 +59,9 @@ Rebuild the previously accepted product experience on the newer upstream base in
 ### Progress
 
 - Completed: Calendar's persisted list/grid presentation. The list is the default; both modes use
-  the same selected local date, bounded pager and tri-state list filter.
+  the same selected local date, bounded pager and tri-state list filter. The Monday–Sunday header
+  now has exact filtered day counts, a thin selected-day accent line, accessible alternatives and
+  disabled out-of-window controls.
 
 ## Slice 4 — Home, Discover and Season shortcuts
 

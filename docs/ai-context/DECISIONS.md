@@ -36,3 +36,6 @@
   adding or removing a typed shortcut therefore remains a real top-level navigation change.
 - Dynamic shortcut icons are category-specific, while the localized destination label remains the
   sole TalkBack description supplied by the standard navigation item.
+- Calendar week-header counts are exact filtered counts. They use the same timezone-safe daily bounds,
+  adult setting and tri-state list filter as the associated pager page; failed count requests display
+  an unavailable marker rather than a misleading zero.

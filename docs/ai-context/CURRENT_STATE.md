@@ -1,16 +1,16 @@
 # Current State — Kiyori
 
-- Updated: 2026-08-04T17:51:43+02:00
+- Updated: 2026-08-04T18:10:00+02:00
 - Repository: `madebycli/Kiyori`
 - Branch: `feature/kiyori-integrated-rebuild`
-- Last published product checkpoint: `c40a7dbcdd11da07f770b69608231a6bb5a132cb`
+- Last published product checkpoint: `3e6e5b6b0b400ceba7f9eacaf825c40f59e59903`
 - Upstream `develop`: `01a8a4abe98c778d1015a33072a11efdb4ef8593`
 - Merge-base with `origin/develop`: `01a8a4abe98c778d1015a33072a11efdb4ef8593`
 - Protected refs verified unchanged: `main` `90898bfe`, `develop` `01a8a4ab`, `recovery/phase0-backup` `476ad447`
 
 ## Current gate
 
-Gate 4 — dynamic shortcut hosts complete; Calendar presentation persistence complete.
+Gate 5 — stabilization and release-readiness verification.
 
 ## Completed
 
@@ -40,24 +40,28 @@ Gate 4 — dynamic shortcut hosts complete; Calendar presentation persistence co
   tabs are selectable in Bottom Bar and Rail instead of being appended to Home's nested stack.
 - Added unit coverage for default/migrated configuration, duplicate shortcut repair, Home protection
   and the visible-tab capacity. Dynamic shortcut icons now identify their list/chart category.
+- The Calendar week header now shows exact per-day filtered counts, disables unavailable dates and
+  boundary arrows, announces each count to accessibility services, and renders a thin accent line
+  for the selected day. Count queries use the same local-day/DST bounds and tri-state filter as the pager.
 
 ## Build status
 
 Gradle 9.5.0 has been downloaded and starts with Java 17 plus a workspace temporary directory.
-The remaining validation blocker is JVM DNS resolution for Maven repositories; a local curl-backed
-mirror is being used to hydrate the Gradle cache before compiling the changed modules.
+The wrapper reaches project configuration; the remaining validation blocker is that the Work runtime
+terminates the local curl-backed Maven proxy before Gradle can finish hydrating uncached artifacts.
 
 ## Tests and checks
 
 - Passed: `git diff --check`; resource source/manifest inspection; 512×512 PNG dimensions; protected Auth/API source content comparison.
 - Passed: targeted auth/API reference comparison; no protected auth/API source files changed.
-- In progress: `:app:assembleFossDebug --no-daemon --stacktrace` through the local dependency mirror.
+- Attempted: `:feature:calendar:compileFossDebugKotlin --no-daemon --stacktrace`; source compilation
+  is not reached because uncached Android Gradle Plugin artifacts lose their localhost proxy mid-resolution.
 
 ## Known blockers
 
 - No local GitHub Git credential or GitHub CLI. Published commits use the connected GitHub integration and are synchronized back to the local feature branch.
 - The Java process cannot resolve public Maven hostnames in this Work container even though curl can;
-  this is an environment networking constraint, not a source or wrapper failure.
+  the ephemeral process model also prevents a local curl-backed Maven proxy from surviving full dependency hydration.
 - The master prompt names `00_USE_THIS_FILE.md` and `02_CHECKPOINT_POLICY.md`, but neither file exists in this checkout, its reachable history, or the provided upload. The explicit checkpoint rules in the master prompt are being followed.
 
 ## Next exact action
@@ -71,7 +75,7 @@ PATH=/usr/lib/jvm/java-17-openjdk-amd64/bin:$PATH \\
 ./gradlew :app:assembleFossDebug --no-daemon --stacktrace
 ```
 
-Finish dependency hydration, compile the changed modules, then add route and migration tests.
+Run the CI validation matrix on PR #2 or use a persistent Maven proxy, then complete the release matrix.
 
 ## 2026-08-04 continuation
 

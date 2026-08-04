@@ -32,3 +32,9 @@ These failures occurred during the previous implementation and must be prevented
     rather than changing production dependency coordinates.
 23. **Dynamic shortcut treated as nested navigation** — construct `NavigationState` from the
     resolved typed route set, not a static list of destinations.
+24. **Calendar header count mismatch** — do not derive a count from an unfiltered first page. Use the
+    same date bounds, filters and pagination as the selected Calendar page; show unavailable rather
+    than zero after a query error.
+25. **Ephemeral localhost dependency proxy** — a proxy started inside a short-lived Work command can
+    be terminated before Gradle finishes. Do not change production repositories to compensate; use CI
+    or a persistent proxy for the validation matrix.

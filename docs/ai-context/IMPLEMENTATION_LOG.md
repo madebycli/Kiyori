@@ -80,3 +80,12 @@
   shortcuts. Updated the two affected modules with explicit Kotlin/JUnit test dependencies.
 - Mapped dynamic navigation icons to the actual list/chart category so visual distinctions do not
   depend on inaccessible decorative markers.
+
+## 2026-08-04 — Calendar counts and accessible bounded week controls
+
+- Added exact visible-week day counts, including pagination when a day has more than one result page.
+  Count requests reuse the Calendar pager's local timezone/DST day bounds, adult preference and tri-state filter.
+- The main Calendar header now disables out-of-range days and boundary arrows, exposes a concise
+  date/count accessibility description, and gives the selected day a two-dp accent underline.
+- Gradle 9.5.0 and Java 17 reached project configuration in Work. The remaining compile limitation is
+  infrastructure-only: the Work runtime kills the temporary localhost Maven proxy before all uncached AGP artifacts resolve.
