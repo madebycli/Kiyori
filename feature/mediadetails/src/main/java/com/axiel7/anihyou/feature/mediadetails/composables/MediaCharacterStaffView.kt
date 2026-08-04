@@ -6,12 +6,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -20,7 +18,6 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,12 +44,13 @@ import com.axiel7.anihyou.core.network.fragment.MediaCharacter
 import com.axiel7.anihyou.core.resources.R as CoreR
 import com.axiel7.anihyou.core.ui.common.TabRowItem
 import com.axiel7.anihyou.core.ui.composables.ConnectedButtonGroup
-import com.axiel7.anihyou.core.ui.composables.person.PERSON_IMAGE_SIZE_SMALL
 import com.axiel7.anihyou.core.ui.composables.person.PersonImage
 import com.axiel7.anihyou.core.ui.composables.person.PersonItemHorizontalPlaceholder
 import com.axiel7.anihyou.core.ui.theme.AniHyouTheme
 import com.axiel7.anihyou.feature.mediadetails.MediaDetailsUiState
 import com.axiel7.anihyou.feature.mediadetails.R
+
+private val PEOPLE_IMAGE_SIZE = 56.dp
 
 private enum class PeopleSection {
     CHARACTERS,
@@ -115,7 +113,7 @@ fun MediaCharacterStaffView(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             selectedIndex = selectedSection,
             onItemSelection = { selectedSection = it },
         )
@@ -169,8 +167,8 @@ private fun CharactersSection(
         modifier = Modifier
             .fillMaxWidth()
             .horizontalScroll(rememberScrollState())
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+            .padding(horizontal = 12.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         CharacterRoleFilter.entries.forEach { filter ->
@@ -191,14 +189,20 @@ private fun CharactersSection(
 
         if (languages.isNotEmpty()) {
             Box {
-                OutlinedButton(onClick = { languageMenuExpanded = true }) {
-                    Text(selectedLanguage ?: stringResource(R.string.media_people_language))
-                    Spacer(Modifier.width(8.dp))
-                    Icon(
-                        painter = painterResource(CoreR.drawable.expand_more_24),
-                        contentDescription = stringResource(R.string.media_people_language),
-                    )
-                }
+                FilterChip(
+                    selected = selectedLanguage != null,
+                    onClick = { languageMenuExpanded = true },
+                    label = {
+                        Text(selectedLanguage ?: stringResource(R.string.media_people_language))
+                    },
+                    trailingIcon = {
+                        Icon(
+                            painter = painterResource(CoreR.drawable.expand_more_24),
+                            contentDescription = stringResource(R.string.media_people_language),
+                            modifier = Modifier.size(18.dp),
+                        )
+                    },
+                )
                 DropdownMenu(
                     expanded = languageMenuExpanded,
                     onDismissRequest = { languageMenuExpanded = false },
@@ -247,8 +251,8 @@ private fun CharacterVoiceActorRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = 132.dp)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+            .heightIn(min = 88.dp)
+            .padding(horizontal = 12.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Row(
@@ -261,23 +265,23 @@ private fun CharacterVoiceActorRow(
         ) {
             PersonImage(
                 url = node?.image?.medium,
-                modifier = Modifier.size(PERSON_IMAGE_SIZE_SMALL.dp),
+                modifier = Modifier.size(PEOPLE_IMAGE_SIZE),
                 showShadow = true,
             )
             Column(
-                modifier = Modifier.padding(start = 12.dp, end = 8.dp),
+                modifier = Modifier.padding(start = 10.dp, end = 6.dp),
             ) {
                 Text(
                     text = characterName,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
-                    maxLines = 3,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
                 character.role?.localized()?.let { role ->
                     Text(
                         text = role,
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
@@ -296,22 +300,22 @@ private fun CharacterVoiceActorRow(
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(horizontal = 8.dp),
+                    .padding(horizontal = 6.dp),
                 horizontalAlignment = Alignment.End,
             ) {
                 Text(
                     text = voiceActor?.name?.userPreferred
                         ?: stringResource(R.string.media_people_no_voice_actor),
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.End,
-                    maxLines = 3,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
                 voiceActor?.languageV2?.let { language ->
                     Text(
                         text = language,
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.End,
                     )
@@ -319,12 +323,12 @@ private fun CharacterVoiceActorRow(
             }
             PersonImage(
                 url = voiceActor?.image?.medium,
-                modifier = Modifier.size(PERSON_IMAGE_SIZE_SMALL.dp),
+                modifier = Modifier.size(PEOPLE_IMAGE_SIZE),
                 showShadow = true,
             )
         }
     }
-    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+    HorizontalDivider(modifier = Modifier.padding(horizontal = 12.dp))
 }
 
 @Composable
@@ -340,32 +344,32 @@ private fun TeamSection(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = 112.dp)
+                    .heightIn(min = 80.dp)
                     .clickable(enabled = node != null) {
                         node?.id?.let(navigateToStaffDetails)
                     }
-                    .padding(horizontal = 24.dp, vertical = 12.dp),
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 PersonImage(
                     url = node?.image?.medium,
-                    modifier = Modifier.size(PERSON_IMAGE_SIZE_SMALL.dp),
+                    modifier = Modifier.size(PEOPLE_IMAGE_SIZE),
                     showShadow = true,
                 )
-                Column(modifier = Modifier.padding(start = 16.dp)) {
+                Column(modifier = Modifier.padding(start = 12.dp)) {
                     Text(
                         text = node?.name?.userPreferred.orEmpty(),
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold,
                     )
                     Text(
                         text = staff.roleLocalized().orEmpty(),
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
-            HorizontalDivider(modifier = Modifier.padding(start = 120.dp, end = 16.dp))
+            HorizontalDivider(modifier = Modifier.padding(start = 84.dp, end = 12.dp))
         }
     }
 }
