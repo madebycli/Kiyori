@@ -10,4 +10,7 @@ android {
 
 dependencies {
     implementation(project(":feature:editmedia"))
+
+    testImplementation(kotlin("test"))
+    testImplementation(libs.junit)
 }
