@@ -62,3 +62,15 @@
 - Projected current-list, chart and semantic current/next-season shortcuts through the shared compact/wide resolver.
 - Added a date-based Calendar main host with a bounded local-date pager, Monday-first week controls and DST-safe interval tests.
 - Added Home Account and Settings actions and excluded the credential-bearing DataStore from backup and device transfer.
+
+## 2026-08-04 — Calendar presentation and dynamic shortcut hosts
+
+- Added the persisted Calendar list/grid preference; list is the default and both renderings share
+  the same selected day, pager range and tri-state list filter.
+- Dynamic current-list, chart and season entries now carry a main-host route flag. Their existing
+  screens remove the Back affordance only when opened from main navigation; nested source routes
+  remain unchanged.
+- Restored the Home account/settings actions in the published tree after verifying that an earlier
+  connector publication had omitted the source hunk.
+- Gradle 9.5.0 was downloaded and started successfully. JVM DNS for Maven repositories remains
+  unavailable in Work, so dependency hydration is proceeding through a local curl-backed mirror.

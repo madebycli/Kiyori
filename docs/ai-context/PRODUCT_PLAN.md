@@ -39,7 +39,9 @@ Rebuild the previously accepted product experience on the newer upstream base in
   schema values, with an explicit legacy-rewrite migration.
 - Completed: app initialization performs the explicit normalized rewrite; one resolver drives both
   Bottom Bar and Navigation Rail, Home is the startup/fallback, and Calendar is a typed main target.
-- Next: settings editor, dynamic shortcut hosts, and tests.
+- Completed: settings editor and typed dynamic shortcut hosts. Reused current-list, chart and season
+  screens distinguish a main-tab host from their retained nested route framing.
+- Next: compile and cover migration/route behavior with focused tests.
 
 ## Slice 3 — Date-based Calendar
 
@@ -53,6 +55,11 @@ Rebuild the previously accepted product experience on the newer upstream base in
 - swipe left/right between days;
 - week header changes automatically across Sunday/Monday;
 - arrows and day taps remain accessible alternatives.
+
+### Progress
+
+- Completed: Calendar's persisted list/grid presentation. The list is the default; both modes use
+  the same selected local date, bounded pager and tri-state list filter.
 
 ## Slice 4 — Home, Discover and Season shortcuts
 
@@ -87,6 +94,11 @@ Discover shortcuts:
 - Releasing Manga.
 
 Reuse current upstream full-list, chart and Season views/ViewModels. Main hosts remove the back arrow; original nested entry points remain unchanged.
+
+### Progress
+
+- Completed: typed shortcuts project to distinct main-host route identities. Existing Home/Discover
+  entry points remain nested and retain their Back affordance.
 
 ## Slice 5 — Stabilization
 

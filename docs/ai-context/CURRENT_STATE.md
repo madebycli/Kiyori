@@ -1,16 +1,16 @@
 # Current State — Kiyori
 
-- Updated: 2026-08-04T11:25:59+02:00
+- Updated: 2026-08-04T17:51:43+02:00
 - Repository: `madebycli/Kiyori`
 - Branch: `feature/kiyori-integrated-rebuild`
-- Last published product checkpoint: `eb7e0d9ba2ccbbfebc0892e203a72640a32ac2fa`
+- Last published product checkpoint: `dc4972f6ac2d5448e688773132104b5dd28f75ef`
 - Upstream `develop`: `01a8a4abe98c778d1015a33072a11efdb4ef8593`
 - Merge-base with `origin/develop`: `01a8a4abe98c778d1015a33072a11efdb4ef8593`
 - Protected refs verified unchanged: `main` `90898bfe`, `develop` `01a8a4ab`, `recovery/phase0-backup` `476ad447`
 
 ## Current gate
 
-Gate 2 — shared app-shell resolver complete; navigation editor and dynamic shortcut hosts remain.
+Gate 4 — dynamic shortcut hosts complete; Calendar presentation persistence complete.
 
 ## Completed
 
@@ -32,21 +32,28 @@ Gate 2 — shared app-shell resolver complete; navigation editor and dynamic sho
 - The app now rewrites legacy navigation preferences on initialization and drives both the compact
   bottom bar and wide navigation rail from the same normalized resolver. Hidden active tabs are
   redirected to mandatory Home; Calendar is available as a configurable main destination.
+- Calendar presentation is persisted independently: new Calendar tabs open in a detail-rich list,
+  can switch to a grid, and keep the same date and tri-state list filter in either presentation.
+- Dynamic current-list, chart, and season shortcuts now use main-destination route identities;
+  their reused hosts omit the Back action while original nested routes keep it.
 
 ## Build status
 
-Not yet validated by Gradle. Java 17 runs when `LD_LIBRARY_PATH` includes its JDK library directory, but the Gradle wrapper cannot download Gradle 9.5.0 because this Work environment has no route to `services.gradle.org`.
+Gradle 9.5.0 has been downloaded and starts with Java 17 plus a workspace temporary directory.
+The remaining validation blocker is JVM DNS resolution for Maven repositories; a local curl-backed
+mirror is being used to hydrate the Gradle cache before compiling the changed modules.
 
 ## Tests and checks
 
 - Passed: `git diff --check`; resource source/manifest inspection; 512×512 PNG dimensions; protected Auth/API source content comparison.
 - Passed: targeted auth/API reference comparison; no protected auth/API source files changed.
-- Blocked: `:app:assembleFossDebug --no-daemon --stacktrace` before task configuration because Gradle 9.5.0 cannot be downloaded.
+- In progress: `:app:assembleFossDebug --no-daemon --stacktrace` through the local dependency mirror.
 
 ## Known blockers
 
 - No local GitHub Git credential or GitHub CLI. Published commits use the connected GitHub integration and are synchronized back to the local feature branch.
-- Gradle wrapper distribution is absent from the cache and network access to its upstream download is unavailable.
+- The Java process cannot resolve public Maven hostnames in this Work container even though curl can;
+  this is an environment networking constraint, not a source or wrapper failure.
 - The master prompt names `00_USE_THIS_FILE.md` and `02_CHECKPOINT_POLICY.md`, but neither file exists in this checkout, its reachable history, or the provided upload. The explicit checkpoint rules in the master prompt are being followed.
 
 ## Next exact action
@@ -60,7 +67,7 @@ PATH=/usr/lib/jvm/java-17-openjdk-amd64/bin:$PATH \\
 ./gradlew :app:assembleFossDebug --no-daemon --stacktrace
 ```
 
-Implement the settings editor and typed dynamic shortcut hosts, then add model and route tests.
+Finish dependency hydration, compile the changed modules, then add route and migration tests.
 
 ## 2026-08-04 continuation
 

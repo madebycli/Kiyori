@@ -28,3 +28,7 @@
   any hidden or removed active top-level target to Home instead of retaining an unreachable route.
 - The top-level Calendar route is distinct from the retained nested route so only the nested view has a Back action.
 - The current default DataStore carries credentials, so its file is excluded from cloud backup and device transfer.
+- Calendar's list/grid choice is a separate Boolean preference; it defaults to list and never changes
+  the date range or tri-state filter semantics.
+- Dynamic current-list, chart and season routes carry a serializable `isMainDestination` flag so a
+  reused host can remove only its main-tab Back affordance without altering nested navigation.

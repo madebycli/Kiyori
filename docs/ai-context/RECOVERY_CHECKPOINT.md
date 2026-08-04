@@ -1,16 +1,21 @@
 # Recovery Checkpoint
 
-- Updated: 2026-08-04T12:15:00+02:00
+- Updated: 2026-08-04T17:51:43+02:00
 - Branch: `feature/kiyori-integrated-rebuild`
-- Last synchronized remote HEAD: `0da3b8611a6cba15a7d57d06fcba43c2c86fd1ef`
+- Last synchronized remote HEAD: `dc4972f6ac2d5448e688773132104b5dd28f75ef`
 - Upstream develop: `01a8a4abe98c778d1015a33072a11efdb4ef8593`
 - Merge-base: `01a8a4abe98c778d1015a33072a11efdb4ef8593`
-- Current gate: Gate 4 / typed shortcut projection complete; Calendar presentation and stabilization pending
+- Current gate: Gate 4 / typed shortcut hosts and Calendar presentation persistence complete; tests and stabilization pending
 - Completed: Preflight, sensitive-file scan, auth/API contract scans, Draft PR #2, Kiyori identity and phone assets, variant-safe notification routing, typed navigation model/codec, normalized preferences persistence, shared resolver, navigation editor, typed current-list/chart/season projection, nested-profile Home action, date-based Calendar main host, bounded pager/DST tests, and DataStore backup exclusion.
-- Build state: Source validation is blocked before Gradle configuration because the wrapper needs Gradle 9.5.0 and this environment cannot reach `services.gradle.org`. Java 17 itself succeeds with `LD_LIBRARY_PATH=/usr/lib/jvm/java-17-openjdk-amd64/lib`.
+- Build state: Gradle 9.5.0 is locally available and starts under Java 17 with the JDK library path
+  and a workspace temporary directory. JVM Maven DNS fails in Work, so a local curl-backed mirror
+  is hydrating dependencies before compilation.
 - Passed checks: `git diff --check`; targeted protected auth/API source comparison; manifest/resource inspection; 512×512 preview dimension check.
-- Failing command: `./gradlew :app:assembleFossDebug --no-daemon --stacktrace`
-- Exact error summary: `Downloading https://services.gradle.org/distributions/gradle-9.5.0-bin.zip` then `java.net.SocketException: Network is unreachable`.
-- Uncommitted files: context checkpoint only.
-- Next exact action: finish Calendar list/grid persistence and run the complete Gradle matrix when the Gradle 9.5.0 distribution is available.
-- Last successful remote publication: `0da3b8611a6cba15a7d57d06fcba43c2c86fd1ef`.
+- Failing command: `:app:assembleFossDebug --no-daemon --stacktrace` while the dependency mirror cache is incomplete.
+- Exact error summary: Gradle's JVM reports `Temporary failure in name resolution` for public Maven
+  hosts although curl can reach them; the wrapper itself is verified.
+- Uncommitted files: none in the remote tree; local clone index is intentionally behind published
+  connector commits and is used only as a content workspace.
+- Next exact action: complete dependency hydration, compile the changed modules, then add focused
+  Calendar, navigation migration and route tests.
+- Last successful remote publication: `dc4972f6ac2d5448e688773132104b5dd28f75ef`.
