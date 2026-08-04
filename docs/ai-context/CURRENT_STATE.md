@@ -1,16 +1,16 @@
 # Current State — Kiyori
 
-- Updated: 2026-08-04T04:35:00+02:00
+- Updated: 2026-08-04T04:45:29+02:00
 - Repository: `madebycli/Kiyori`
 - Branch: `feature/kiyori-integrated-rebuild`
-- Local/remote checkpoint before this context update: `af5bef6b2a0ae69cb2dda69da8087d6e9a467411`
+- Local/remote checkpoint before this context update: `44b56f02b9fea8f20c15adf6b4612c23b55608b4`
 - Upstream `develop`: `01a8a4abe98c778d1015a33072a11efdb4ef8593`
 - Merge-base with `origin/develop`: `01a8a4abe98c778d1015a33072a11efdb4ef8593`
 - Protected refs verified unchanged: `main` `90898bfe`, `develop` `01a8a4ab`, `recovery/phase0-backup` `476ad447`
 
 ## Current gate
 
-Gate 1 — Kiyori branding, part 1: application identity and visible labels.
+Gate 1 — Kiyori branding, parts 1–2: application identity and phone launcher/splash assets.
 
 ## Completed
 
@@ -18,6 +18,10 @@ Gate 1 — Kiyori branding, part 1: application identity and visible labels.
 - Release application ID changed to `app.kiyori`; debug resolves to `app.kiyori.debug` through the existing suffix.
 - Internal Kotlin namespace remains `com.axiel7.anihyou`.
 - Visible release/debug labels changed to `Kiyori` / `Kiyori Debug`.
+- Added original Kiyori launcher resources in the phone app module: adaptive foreground/background,
+  API-26 monochrome layer, legacy vector fallback, dedicated transparent splash mark, editable SVG
+  source, and 512×512 PNG preview.
+- The application manifest now uses the Kiyori icon and splash theme; shared Wear resources were not changed.
 - Auth/API/OAuth contract scan completed before the branding edit; none of its files changed.
 
 ## Build status
@@ -26,7 +30,7 @@ Not yet validated by Gradle. Java 17 runs when `LD_LIBRARY_PATH` includes its JD
 
 ## Tests and checks
 
-- Passed: `git diff --check`.
+- Passed: `git diff --check`; resource source/manifest inspection; 512×512 PNG dimensions.
 - Passed: targeted auth/API reference comparison; no protected auth/API source files changed.
 - Blocked: `:app:assembleFossDebug --no-daemon --stacktrace` before task configuration because Gradle 9.5.0 cannot be downloaded.
 
@@ -38,7 +42,8 @@ Not yet validated by Gradle. Java 17 runs when `LD_LIBRARY_PATH` includes its JD
 
 ## Next exact action
 
-In an environment with the Gradle 9.5.0 wrapper distribution available, run:
+Finish Gate 1 by adding the phone notification icon/branding without changing shared Wear resources,
+then re-run the protected Auth/API diff scan. In an environment with the Gradle 9.5.0 wrapper distribution available, run:
 
 ```bash
 JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 \\

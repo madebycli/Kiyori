@@ -20,3 +20,10 @@
 - Changed only the phone application ID and visible names: release `app.kiyori`, debug `app.kiyori.debug`, `Kiyori`, and `Kiyori Debug`.
 - Preserved the internal `com.axiel7.anihyou` namespace, OAuth callback, AniList client ID, GraphQL endpoints, and token handling.
 - `git diff --check` passed. The FOSS debug assembly is blocked before configuration because Gradle 9.5.0 is not cached and this Work environment cannot reach `services.gradle.org`; Java 17 itself works with the JDK library directory on `LD_LIBRARY_PATH`.
+
+## 2026-08-04 — Gate 1, phone launcher and splash assets
+
+- Added an original abstract Kiyori K mark as editable SVG plus a 512×512 PNG preview and short design/originality note.
+- Added phone-scoped adaptive foreground/background, legacy vector fallback, API-26 themed monochrome layer, and a dedicated transparent splash vector; no common/Wear resource changed.
+- The app manifest now selects the Kiyori launcher resource and `Theme.KiyoriSplash`, which uses the dark navy splash background and transparent mark.
+- A remote tree-construction mistake was detected and repaired immediately with a forward-only commit; the verified remote head again contains the complete repository tree and the intended four source/preview files.

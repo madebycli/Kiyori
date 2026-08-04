@@ -17,3 +17,5 @@
 - Dynamic remove/X actions must be vertically centered in fixed 48dp slots.
 - Public README, changelog and release notes are English.
 - No signing key, password or token enters Git history.
+- Kiyori launcher and splash assets live in the phone app module; the upstream shared resource module is
+  intentionally not repurposed, keeping Wear identity outside this phone-first rebuild scope.

@@ -13,6 +13,13 @@ Rebuild the previously accepted product experience on the newer upstream base in
 - preserve AniList OAuth/API behavior and internal namespace;
 - adapt current upstream CI/NixOS rather than copying stale full files.
 
+### Progress
+
+- Completed: release/debug identity plus phone-scoped launcher, adaptive, monochrome, legacy, splash,
+  SVG source, and 512×512 preview assets.
+- Remaining: notification branding, repository-facing English branding, protected Auth/API post-diff,
+  and a Gradle validation when the pinned wrapper distribution is available.
+
 ## Slice 2 — Typed configurable main navigation
 
 - two to five visible targets;
