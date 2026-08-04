@@ -41,3 +41,9 @@
   preserves user order where possible, and rewrites all accepted values as v3.
 - Normalization protects Home, restores all static destinations, limits visibility to two through five,
   prevents duplicate items and permits only one Season shortcut.
+
+## 2026-08-04 — Gate 2, preferences persistence
+
+- Added a shared `main_navigation_config` preferences flow, a normalized writer, and an idempotent
+  migration method to the existing default preferences repository.
+- The schema stays separate from credentials and stores only the compact v3 technical-item contract.

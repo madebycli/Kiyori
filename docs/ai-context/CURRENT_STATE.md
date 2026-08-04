@@ -10,7 +10,7 @@
 
 ## Current gate
 
-Gate 2 — configurable main navigation / models and codec complete locally; publication pending.
+Gate 2 — configurable main navigation / DataStore persistence complete locally; publication pending.
 
 ## Completed
 
@@ -27,6 +27,8 @@ Gate 2 — configurable main navigation / models and codec complete locally; pub
 - Added the versioned typed main-navigation model and compact codec. It migrates legacy and v2
   static configurations, preserves a previously-visible Profile, and normalizes unknown, duplicate,
   invalid, over-capacity and missing-Home configurations without persisting Compose routes.
+- Added the shared preferences flow and explicit rewrite migration for the schema. Both always encode
+  a normalized v3 value and are ready to drive one app-shell resolver.
 
 ## Build status
 
@@ -55,5 +57,4 @@ PATH=/usr/lib/jvm/java-17-openjdk-amd64/bin:$PATH \\
 ./gradlew :app:assembleFossDebug --no-daemon --stacktrace
 ```
 
-Commit and publish the Gate 2 model/codec checkpoint, then wire the normalized config to the
-preferences DataStore before changing the app shell.
+Publish the DataStore checkpoint, then connect the normalized flow to the app shell and route resolver.

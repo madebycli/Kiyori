@@ -22,3 +22,5 @@ These failures occurred during the previous implementation and must be prevented
 17. **Variant-specific notification intent** — never use a compile-time package constant for notification launch intents; use the installed application context package.
 18. **Navigation config repair drift** — always pass decoded, migrated and edited configuration
     through one normalizer; Home must remain visible and malformed data must not select a hidden tab.
+19. **Silent legacy persistence** — decode-only migration leaves corrupt values on disk. Invoke the
+    explicit normalized rewrite during app initialization before the editor can modify the config.

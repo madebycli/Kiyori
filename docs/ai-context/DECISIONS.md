@@ -22,3 +22,5 @@
 - Notification code resolves a phone-provided Kiyori monochrome resource at runtime and falls back to the upstream mark for non-phone consumers.
 - Main navigation persistence uses stable item IDs plus semantic shortcut parameters only. It never
   serializes a Compose route, a concrete season/year, or a ViewModel instance key.
+- The navigation schema shares the existing default-preferences DataStore; normalization is explicit
+  and idempotent, so migrating legacy values cannot disturb credential storage.

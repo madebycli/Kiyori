@@ -14,6 +14,8 @@ import com.axiel7.anihyou.core.domain.setValue
 import com.axiel7.anihyou.core.model.AppColorMode
 import com.axiel7.anihyou.core.model.DefaultTab
 import com.axiel7.anihyou.core.model.HomeTab
+import com.axiel7.anihyou.core.model.navigation.MainNavigationConfig
+import com.axiel7.anihyou.core.model.navigation.MainNavigationConfigCodec
 import com.axiel7.anihyou.core.model.Theme
 import com.axiel7.anihyou.core.model.TranslatorApp
 import com.axiel7.anihyou.core.model.notification.NotificationInterval
@@ -229,6 +231,22 @@ class DefaultPreferencesRepository (
         dataStore.setValue(DEFAULT_TAB_KEY, value.ordinal)
     }
 
+    // main navigation: one versioned schema shared by compact bottom navigation and wide rails
+    val mainNavigationConfig = dataStore.getValue(MAIN_NAVIGATION_CONFIG_KEY)
+        .map(MainNavigationConfigCodec::decode)
+
+    suspend fun setMainNavigationConfig(value: MainNavigationConfig) {
+        dataStore.setValue(MAIN_NAVIGATION_CONFIG_KEY, MainNavigationConfigCodec.encode(value))
+    }
+
+    /** Rewrites legacy or malformed stored data as the current normalized schema. */
+    suspend fun normalizeMainNavigationConfig() {
+        dataStore.edit { preferences ->
+            val normalized = MainNavigationConfigCodec.decode(preferences[MAIN_NAVIGATION_CONFIG_KEY])
+            preferences[MAIN_NAVIGATION_CONFIG_KEY] = MainNavigationConfigCodec.encode(normalized)
+        }
+    }
+
     // home
     val defaultHomeTab =
         dataStore.getValue(key = DEFAULT_HOME_TAB_KEY, default = HomeTab.CURRENT.ordinal)
@@ -327,6 +345,7 @@ class DefaultPreferencesRepository (
         private val USE_BLACK_COLORS_KEY = booleanPreferencesKey("use_black_colors")
         private val LAST_TAB_KEY = intPreferencesKey("last_tab")
         private val DEFAULT_TAB_KEY = intPreferencesKey("default_tab")
+        private val MAIN_NAVIGATION_CONFIG_KEY = stringPreferencesKey("main_navigation_config")
 
         private val DEFAULT_HOME_TAB_KEY = intPreferencesKey("default_home_tab")
         private val AIRING_ON_MY_LIST_KEY = booleanPreferencesKey("airing_on_my_list")
