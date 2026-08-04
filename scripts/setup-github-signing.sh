@@ -27,61 +27,81 @@ gh auth status >/dev/null
 mkdir -p "$OUTPUT_DIR"
 chmod 700 "$OUTPUT_DIR"
 
-if [ -e "$KEYSTORE_PATH" ] || [ -e "$CERTIFICATE_PATH" ]; then
-  echo "Refusing to overwrite existing signing material:" >&2
-  echo "  $KEYSTORE_PATH" >&2
+if [ -e "$CERTIFICATE_PATH" ] && [ ! -f "$KEYSTORE_PATH" ]; then
+  echo "Certificate exists, but the private keystore is missing:" >&2
   echo "  $CERTIFICATE_PATH" >&2
+  echo "Restore the matching keystore before continuing." >&2
   exit 3
 fi
 
 read -r -p "Key alias [$DEFAULT_ALIAS]: " KEY_ALIAS
 KEY_ALIAS="${KEY_ALIAS:-$DEFAULT_ALIAS}"
 
-read -r -p "Certificate identity [$DEFAULT_DNAME]: " CERTIFICATE_DNAME
-CERTIFICATE_DNAME="${CERTIFICATE_DNAME:-$DEFAULT_DNAME}"
+if [ -f "$KEYSTORE_PATH" ]; then
+  echo "Existing keystore found; it will be reused: $KEYSTORE_PATH"
+  read -r -s -p "Existing keystore password: " STORE_PASSWORD
+  echo
+  trap 'unset STORE_PASSWORD' EXIT
 
-read -r -s -p "New keystore password: " STORE_PASSWORD
-echo
-read -r -s -p "Repeat keystore password: " CONFIRM_PASSWORD
-echo
+  if ! keytool -list \
+    -keystore "$KEYSTORE_PATH" \
+    -storepass "$STORE_PASSWORD" \
+    -alias "$KEY_ALIAS" >/dev/null; then
+    echo "The password or key alias is not valid for the existing keystore." >&2
+    exit 4
+  fi
+else
+  read -r -p "Certificate identity [$DEFAULT_DNAME]: " CERTIFICATE_DNAME
+  CERTIFICATE_DNAME="${CERTIFICATE_DNAME:-$DEFAULT_DNAME}"
 
-if [ "$STORE_PASSWORD" != "$CONFIRM_PASSWORD" ]; then
-  echo "Passwords do not match." >&2
-  exit 4
+  read -r -s -p "New keystore password: " STORE_PASSWORD
+  echo
+  read -r -s -p "Repeat keystore password: " CONFIRM_PASSWORD
+  echo
+
+  if [ "$STORE_PASSWORD" != "$CONFIRM_PASSWORD" ]; then
+    echo "Passwords do not match." >&2
+    exit 5
+  fi
+  if [ "${#STORE_PASSWORD}" -lt 16 ]; then
+    echo "Use a password with at least 16 characters." >&2
+    exit 6
+  fi
+
+  trap 'unset STORE_PASSWORD CONFIRM_PASSWORD' EXIT
+
+  keytool -genkeypair \
+    -keystore "$KEYSTORE_PATH" \
+    -storetype PKCS12 \
+    -storepass "$STORE_PASSWORD" \
+    -keypass "$STORE_PASSWORD" \
+    -alias "$KEY_ALIAS" \
+    -keyalg RSA \
+    -keysize 4096 \
+    -validity 10000 \
+    -dname "$CERTIFICATE_DNAME"
 fi
-if [ "${#STORE_PASSWORD}" -lt 16 ]; then
-  echo "Use a password with at least 16 characters." >&2
-  exit 5
-fi
 
-trap 'unset STORE_PASSWORD CONFIRM_PASSWORD' EXIT
-
-keytool -genkeypair \
-  -keystore "$KEYSTORE_PATH" \
-  -storetype PKCS12 \
-  -storepass "$STORE_PASSWORD" \
-  -keypass "$STORE_PASSWORD" \
-  -alias "$KEY_ALIAS" \
-  -keyalg RSA \
-  -keysize 4096 \
-  -validity 10000 \
-  -dname "$CERTIFICATE_DNAME"
-
+certificate_tmp="$CERTIFICATE_PATH.tmp"
+rm -f "$certificate_tmp"
 keytool -exportcert \
   -rfc \
   -keystore "$KEYSTORE_PATH" \
   -storepass "$STORE_PASSWORD" \
   -alias "$KEY_ALIAS" \
-  -file "$CERTIFICATE_PATH"
+  -file "$certificate_tmp"
+mv "$certificate_tmp" "$CERTIFICATE_PATH"
+chmod 600 "$KEYSTORE_PATH" "$CERTIFICATE_PATH"
 
 # Signing secrets are environment-scoped. The release workflow itself must be
 # dispatched from main, while its source_ref input can select another commit.
+# prevent_self_review is intentionally omitted because GitHub only accepts that
+# field when at least one required reviewer is configured.
 gh api --method PUT \
   "repos/$REPOSITORY/environments/$RELEASE_ENVIRONMENT" \
   --input - >/dev/null <<'JSON'
 {
   "wait_timer": 0,
-  "prevent_self_review": false,
   "deployment_branch_policy": {
     "protected_branches": false,
     "custom_branch_policies": true
@@ -91,7 +111,7 @@ JSON
 
 if ! gh api \
   "repos/$REPOSITORY/environments/$RELEASE_ENVIRONMENT/deployment-branch-policies" \
-  --jq '.branch_policies[].name' 2>/dev/null | grep -Fxq main; then
+  --jq '.branch_policies[]?.name' 2>/dev/null | grep -Fxq main; then
   gh api --method POST \
     "repos/$REPOSITORY/environments/$RELEASE_ENVIRONMENT/deployment-branch-policies" \
     -f name=main \
