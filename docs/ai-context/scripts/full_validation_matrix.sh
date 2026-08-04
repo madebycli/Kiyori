@@ -9,8 +9,14 @@ chmod +x ./gradlew
   :core:model:testDebugUnitTest \
   :core:domain:testDebugUnitTest \
   :feature:calendar:testDebugUnitTest \
+  :wearos:assembleDebug \
+  :wearos:lintDebug \
   :app:lintFossDebug \
   :app:lintGmsDebug \
   --no-daemon \
   --stacktrace
-./gradlew :app:assembleFossRelease --no-daemon --stacktrace
+./gradlew \
+  :app:assembleFossRelease \
+  :app:assembleGmsRelease \
+  --no-daemon \
+  --stacktrace
