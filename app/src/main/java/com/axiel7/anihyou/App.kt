@@ -37,6 +37,7 @@ class App : Application(), SingletonImageLoader.Factory {
                 networkModule,
                 apiModule,
                 repositoryModule,
+                appLockModule,
                 viewModelModule,
                 workerModule,
             )
