@@ -1,15 +1,16 @@
 # Recovery Checkpoint
 
-- Updated: 2026-08-04T04:15:30+02:00
+- Updated: 2026-08-04T04:35:00+02:00
 - Branch: `feature/kiyori-integrated-rebuild`
-- Local HEAD: local documentation checkpoint pending synchronization
-- Remote HEAD: publication in progress through the connected GitHub integration
-- Current gate: Preflight / pull-request bootstrap
-- Completed: Read the operational prompt and project handoff; fetched all remotes; verified feature branch, protected refs, merge-base, clean worktree, sensitive-file absence, and AniList/OAuth/API contract; created the documentation-only preflight checkpoint.
-- Build state: Not run; no production source change in this checkpoint.
-- Passing tests: Not applicable.
-- Failing command: `git push origin feature/kiyori-integrated-rebuild`
-- Exact error summary: Git has no credential helper or GitHub token in this Work workspace and returned `fatal: could not read Username for 'https://github.com': No such device or address`. `gh` is also not installed. The repository's connected GitHub integration is being used to publish the equivalent documented checkpoint safely on the existing feature branch.
-- Uncommitted files: None in the committed checkpoint.
-- Next exact action: Fetch `origin/feature/kiyori-integrated-rebuild`, synchronize the local checkout to the published checkpoint without rebase or merge, verify its remote SHA, and create the draft PR against `main`.
-- Last successful push: publication through the connected GitHub integration in this Work session.
+- Last synchronized remote HEAD: `af5bef6b2a0ae69cb2dda69da8087d6e9a467411`
+- Upstream develop: `01a8a4abe98c778d1015a33072a11efdb4ef8593`
+- Merge-base: `01a8a4abe98c778d1015a33072a11efdb4ef8593`
+- Current gate: Gate 1 / Kiyori branding / application IDs and labels
+- Completed: Preflight, sensitive-file scan, auth/API contract scan, remote checkpoint publication, Draft PR #2, `app.kiyori` release ID, existing `.debug` suffix, and Kiyori release/debug labels. Kotlin namespace and all Auth/API contract files remain unchanged.
+- Build state: Source validation is blocked before Gradle configuration because the wrapper needs Gradle 9.5.0 and this environment cannot reach `services.gradle.org`. Java 17 itself succeeds with `LD_LIBRARY_PATH=/usr/lib/jvm/java-17-openjdk-amd64/lib`.
+- Passed checks: `git diff --check`; targeted protected auth/API source comparison.
+- Failing command: `./gradlew :app:assembleFossDebug --no-daemon --stacktrace`
+- Exact error summary: `Downloading https://services.gradle.org/distributions/gradle-9.5.0-bin.zip` then `java.net.SocketException: Network is unreachable`.
+- Uncommitted files: context-file update being published with this checkpoint.
+- Next exact action: restore or permit the Gradle 9.5.0 wrapper distribution, rerun the FOSS debug assembly using the JDK library-path invocation documented in `CURRENT_STATE.md`, then begin the vector/adaptive/splash/notification asset subpart of Gate 1.
+- Last successful remote publication: `af5bef6b2a0ae69cb2dda69da8087d6e9a467411`.
