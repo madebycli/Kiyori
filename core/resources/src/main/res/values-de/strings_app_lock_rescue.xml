@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="main_navigation">Hauptnavigation</string>
+    <string name="main_navigation_summary">Bis zu fünf Haupttabs auswählen, hinzufügen und anordnen.</string>
     <string name="app_lock">App-Sperre</string>
     <string name="app_lock_summary">Beim Öffnen von Kiyori Biometrie oder die Gerätesperre verlangen.</string>
     <string name="app_lock_timeout">Sperren nach</string>
