@@ -114,3 +114,25 @@
   layout import, retained the nested Back action directly, and used `LazyListScope.item` placeholders.
 - `:core:model:testDebugUnitTest`, `:core:ui:compileDebugKotlin` and `:feature:calendar:testDebugUnitTest`
   pass after the repair. The fix was published as `5f9f7aad` without touching protected refs.
+
+## 2026-08-04 — Full Work validation and release dependency isolation
+
+- Continued the real Kotlin validation through the Explore, Home and Settings feature modules. Dynamic
+  top-level hosts now use valid non-null Material navigation-icon slots; the main navigation settings
+  screen uses the current experimental Material 3 top-app-bar and scroll-behavior API.
+- `:feature:explore:compileDebugKotlin`, `:feature:home:compileDebugKotlin`, and
+  `:feature:settings:compileDebugKotlin` pass after the respective focused fixes. The source repairs
+  were published in `e192bd34`, `93d2976a`, and `618ce7aa`.
+- Wear's debug assembly initially stopped in Android AAR metadata validation because shared dependencies
+  now require API 37. Raised only Wear `compileSdk` to 37 in `02986688`; Wear target SDK and all
+  production dependency coordinates remain unchanged. `:wearos:clean :wearos:assembleDebug
+  :wearos:lintDebug` then passed.
+- FOSS and GMS universal debug APKs assembled successfully. Their SHA-256 values are respectively
+  `01fcf6036914f8cab54a3e1bc40d792a58b0e7f2231ca1723cf41abc503b59ae` and
+  `d5e78a25811b29897b973d5f466c9c2f003d468ae49ff8878137412d047e83c2`.
+- `:app:lintFossDebug` and `:app:lintGmsDebug` pass offline. Existing Android string-format and native
+  library strip warnings are non-fatal and were not silently altered during this task.
+- Both minified phone release tasks stop before compilation/R8 because the Work cache lacks the exact
+  release-only coordinate `sh.calvin.reorderable:reorderable-android:3.1.0`. Its debug counterpart is
+  cached but is intentionally not a valid release substitute. Maven hydration was blocked when the Work
+  network guard cancelled the Gradle and direct requests, so release verification remains external.

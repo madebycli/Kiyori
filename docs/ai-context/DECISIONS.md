@@ -45,3 +45,7 @@
   merge and rebase. A maintainer must explicitly choose the permitted conflict-resolution workflow.
 - Android-local unit tests use the established JUnit 4 annotation from `libs.junit`; assertion helpers may remain
   from `kotlin.test`, but the platform test annotation must resolve on the Android unit-test classpath.
+- Validation may use a workspace-local Java 17, Gradle cache, SDK and writable temporary directory; none
+  of those environment aids are committed as product dependencies or source changes.
+- A release artifact must resolve its declared release coordinates. Debug-only artifacts are never copied
+  or substituted to produce an apparently successful offline release validation.

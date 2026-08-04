@@ -1,9 +1,9 @@
 # Current State — Kiyori
 
-- Updated: 2026-08-04T21:16:33+02:00
+- Updated: 2026-08-04T21:55:51+02:00
 - Repository: `madebycli/Kiyori`
 - Branch: `feature/kiyori-integrated-rebuild`
-- Last published product checkpoint: `5f9f7aad25e2168fe229dd5138d17428c6d990da`
+- Last published product checkpoint: `02986688e755672415f6e7629c59592e2c36c294`
 - Upstream `develop`: `01a8a4abe98c778d1015a33072a11efdb4ef8593`
 - Merge-base with `origin/develop`: `01a8a4abe98c778d1015a33072a11efdb4ef8593`
 - Protected refs verified unchanged: `main` `90898bfe`, `develop` `01a8a4ab`, `recovery/phase0-backup` `476ad447`
@@ -49,32 +49,47 @@ Gate 5 — stabilization and release-readiness verification.
 ## Build status
 
 Gradle 9.5.0 now runs under a workspace-local full Java 17 and Android SDK through the Work proxy.
-The initial Kotlin compilation uncovered four source-level defects, all corrected in `5f9f7aad`.
-The CI script explicitly covers Wear debug/lint and both minified phone release variants; its complete
-execution is now the remaining release-readiness validation.
+The Work matrix reached and repaired all affected Kotlin modules. FOSS/GMS debug APKs, focused JVM
+tests, Wear debug/lint, and FOSS/GMS app lint pass. Wear now compiles at API 37 to match the shared
+module dependency metadata; its target SDK was not changed. Minified phone release validation remains
+blocked before R8 because the Work cache lacks a release-only Maven artifact and its network guard
+cancelled the required Maven request.
 
 ## Tests and checks
 
 - Passed: `git diff --check`; resource source/manifest inspection; 512×512 PNG dimensions; protected Auth/API source content comparison.
 - Passed: targeted auth/API reference comparison; no protected auth/API source files changed.
 - Passed: `:core:model:testDebugUnitTest`, including the typed navigation repair invariants.
-- Passed: `:core:ui:compileDebugKotlin` and `:feature:calendar:testDebugUnitTest`.
+- Passed: `:core:ui:compileDebugKotlin`, `:feature:calendar:testDebugUnitTest`,
+  `:feature:explore:compileDebugKotlin`, `:feature:home:compileDebugKotlin`, and
+  `:feature:settings:compileDebugKotlin`.
+- Passed: FOSS and GMS universal debug assembly, `:app:lintFossDebug`, `:app:lintGmsDebug`, and
+  `:wearos:clean :wearos:assembleDebug :wearos:lintDebug`.
+- Produced: FOSS universal debug APK SHA-256
+  `01fcf6036914f8cab54a3e1bc40d792a58b0e7f2231ca1723cf41abc503b59ae`;
+  GMS universal debug APK SHA-256
+  `d5e78a25811b29897b973d5f466c9c2f003d468ae49ff8878137412d047e83c2`.
 
 ## Known blockers
 
 - No local GitHub Git credential or GitHub CLI. Published commits use the connected GitHub integration and are synchronized back to the local feature branch.
-- No product-source blocker is currently known. The remaining work is the complete FOSS/GMS/Wear/test/lint/R8 matrix,
-  artifact inspection and owner device acceptance.
+- Release assembly cannot yet enter R8: `sh.calvin.reorderable:reorderable-android:3.1.0` is absent
+  from the Work cache. Debug uses the distinct cached `reorderable-android-debug:3.1.0` artifact;
+  it must not be substituted into a release build.
+- The Work network guard cancelled both Gradle and direct Maven hydration for that exact release
+  coordinate. This is an external environment permission blocker, not a source or repository failure.
 - The master prompt names `00_USE_THIS_FILE.md` and `02_CHECKPOINT_POLICY.md`, but neither file exists in this checkout, its reachable history, or the provided upload. The explicit checkpoint rules in the master prompt are being followed.
 - Read-only merge simulation reports a README conflict with the independent `main` commit `90898bfe`.
   Resolving it requires a merge or rebase against `main`, both explicitly prohibited for this campaign.
 
 ## Next exact action
 
-Run the full validation matrix from `docs/ai-context/scripts/full_validation_matrix.sh`, inspect the generated
-FOSS debug APK and record its SHA-256. Do not create release metadata before the owner device acceptance.
+Once Maven access is available, hydrate the exact release artifact and run
+`:app:assembleFossRelease :app:assembleGmsRelease --no-daemon --max-workers=1 -Dkotlin.compiler.execution.strategy=in-process`;
+then inspect unsigned release artifacts and complete
+owner device acceptance. Do not create release metadata before those checks.
 
 ## 2026-08-04 continuation
 
-Remote checkpoint `5f9f7aad` fixes the first actual Kotlin validation findings: Android JUnit annotations in the
-new tests, a valid non-data shortcut destination, and Compose-compatible Calendar scaffold/loading code.
+Remote checkpoints through `02986688` repair the actual Kotlin findings in Calendar, dynamic top-level
+hosts and navigation settings, then align Wear compile SDK with shared dependencies. No protected ref changed.

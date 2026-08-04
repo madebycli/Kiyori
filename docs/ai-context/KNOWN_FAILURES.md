@@ -52,3 +52,16 @@ These failures occurred during the previous implementation and must be prevented
     parameters to `BottomDestination`; use a regular class when only the stable shortcut ID is state.
 31. **Calendar lazy placeholder overload** — the aliased list `items` import does not provide the count overload.
     Use `repeat { item { ... } }` for LazyColumn placeholders and keep the grid overload separate.
+32. **Main-host navigation lambda typing** — `navigationIcon` is a composable slot, not a nullable
+    lambda value. Keep the slot non-null and render the Back action conditionally inside it.
+33. **Settings top-app-bar API drift** — Material 3's `TopAppBar` needs the current experimental opt-in
+    and a real `TopAppBarScrollBehavior`; do not pass a bare remembered state as `scrollBehavior`.
+34. **Release-only reorderable artifact** — the debug and release coordinates are distinct. Never copy
+    `reorderable-android-debug` into a release cache or change production dependencies merely to make
+    an offline release task configure.
+35. **Work network approval cancellation** — an error stating that network approval was cancelled before
+    a decision was returned is an external sandbox condition. Preserve the exact missing coordinate and
+    retry only when Maven access is available; do not diagnose it as a Gradle or source defect.
+36. **Kotlin temporary-directory fallback** — set `TMPDIR`, `java.io.tmpdir`, and Kotlin daemon JVM args
+    to a writable workspace directory before compiling. An unusable `/tmp` can make daemon fallback
+    surface misleading duplicate-declaration diagnostics.
