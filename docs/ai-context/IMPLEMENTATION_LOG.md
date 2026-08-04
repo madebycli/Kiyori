@@ -13,3 +13,10 @@
 
 - Local Git lacks a GitHub credential helper and the GitHub CLI is unavailable in this Work workspace.
 - The preflight checkpoint is therefore being published through the repository's connected GitHub integration; no protected branch is being altered.
+
+## 2026-08-04 — Gate 1, application identity
+
+- Published the application-identity checkpoint through the connected GitHub integration and synchronized the local feature checkout to `af5bef6b`.
+- Changed only the phone application ID and visible names: release `app.kiyori`, debug `app.kiyori.debug`, `Kiyori`, and `Kiyori Debug`.
+- Preserved the internal `com.axiel7.anihyou` namespace, OAuth callback, AniList client ID, GraphQL endpoints, and token handling.
+- `git diff --check` passed. The FOSS debug assembly is blocked before configuration because Gradle 9.5.0 is not cached and this Work environment cannot reach `services.gradle.org`; Java 17 itself works with the JDK library directory on `LD_LIBRARY_PATH`.
