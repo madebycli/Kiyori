@@ -10,6 +10,7 @@ import androidx.compose.material3.Badge
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
@@ -91,6 +92,18 @@ fun HomeView(
                         }
                     },
                     onClick = { navActionManager.toNotifications(unreadNotificationCount) }
+                )
+                IconButton(onClick = { navActionManager.toUserDetails(null, null) }) {
+                    Icon(
+                        painter = painterResource(R.drawable.person_24),
+                        contentDescription = stringResource(R.string.profile),
+                    )
+                }
+            }
+            IconButton(onClick = navActionManager::toSettings) {
+                Icon(
+                    painter = painterResource(R.drawable.settings_24),
+                    contentDescription = stringResource(R.string.settings),
                 )
             }
         },
