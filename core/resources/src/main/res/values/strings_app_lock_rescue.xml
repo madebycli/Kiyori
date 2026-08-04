@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="main_navigation">Main navigation</string>
+    <string name="main_navigation_summary">Choose, add and arrange up to five main tabs.</string>
     <string name="app_lock">App lock</string>
     <string name="app_lock_summary">Require biometrics or the device screen lock when opening Kiyori.</string>
     <string name="app_lock_timeout">Lock after</string>
