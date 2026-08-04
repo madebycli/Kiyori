@@ -1,48 +1,50 @@
 # Current State — Kiyori
 
-## Repository
-
+- Updated: 2026-08-04T04:35:00+02:00
 - Repository: `madebycli/Kiyori`
-- Product name: **Kiyori**
-- Product branch: `main`
-- Upstream mirror: `develop`
-- Preserved immutable backup ref: `recovery/phase0-backup`
-- Integrated rebuild branch to create next: `feature/kiyori-integrated-rebuild`
+- Branch: `feature/kiyori-integrated-rebuild`
+- Local/remote checkpoint before this context update: `af5bef6b2a0ae69cb2dda69da8087d6e9a467411`
+- Upstream `develop`: `01a8a4abe98c778d1015a33072a11efdb4ef8593`
+- Merge-base with `origin/develop`: `01a8a4abe98c778d1015a33072a11efdb4ef8593`
+- Protected refs verified unchanged: `main` `90898bfe`, `develop` `01a8a4ab`, `recovery/phase0-backup` `476ad447`
 
-## Verified refs at context bootstrap
+## Current gate
 
-- Preserved Phase-0 backup HEAD: `476ad447217ecae2b7c7ae710f7981ca55d9a003`
-- Historical upstream base contained by backup: `259e81de6cd3ea51a488849bbd4777a2c3c7f342`
-- Newer repository `develop` HEAD: `01a8a4abe98c778d1015a33072a11efdb4ef8593`
-- Backup version metadata: `1.6.0`, Android code `112`
+Gate 1 — Kiyori branding, part 1: application identity and visible labels.
 
-## Exact phase classification
+## Completed
 
-The preserved source is **Phase 0 / pre-Phase-1 infrastructure baseline**.
+- Preflight completed and Draft PR #2 opened against `main`.
+- Release application ID changed to `app.kiyori`; debug resolves to `app.kiyori.debug` through the existing suffix.
+- Internal Kotlin namespace remains `com.axiel7.anihyou`.
+- Visible release/debug labels changed to `Kiyori` / `Kiyori Debug`.
+- Auth/API/OAuth contract scan completed before the branding edit; none of its files changed.
 
-Present:
+## Build status
 
-- NixOS build shell;
-- Android CI and manual signing workflow foundations;
-- Crowdin workflow hardening;
-- signing file ignore rules;
-- build/signing documentation;
-- one staged SDK channel fix, committed during Kiyori bootstrap.
+Not yet validated by Gradle. Java 17 runs when `LD_LIBRARY_PATH` includes its JDK library directory, but the Gradle wrapper cannot download Gradle 9.5.0 because this Work environment has no route to `services.gradle.org`.
 
-Missing from source and therefore to rebuild:
+## Tests and checks
 
-1. configurable primary navigation;
-2. date-based Calendar main tab;
-3. modular Home/Discover/Season shortcuts;
-4. Phase-4 migration, accessibility, security, branding, Wear and CI hardening;
-5. final Kiyori branding and first public release.
+- Passed: `git diff --check`.
+- Passed: targeted auth/API reference comparison; no protected auth/API source files changed.
+- Blocked: `:app:assembleFossDebug --no-daemon --stacktrace` before task configuration because Gradle 9.5.0 cannot be downloaded.
 
-## Important naming rule
+## Known blockers
 
-The previous product name in the lost implementation was Navori. It is retained only in historical recovery notes. All new product code, documentation, branches, release titles and visible branding must use **Kiyori**.
+- No local GitHub Git credential or GitHub CLI. Published commits use the connected GitHub integration and are synchronized back to the local feature branch.
+- Gradle wrapper distribution is absent from the cache and network access to its upstream download is unavailable.
+- The master prompt names `00_USE_THIS_FILE.md` and `02_CHECKPOINT_POLICY.md`, but neither file exists in this checkout, its reachable history, or the provided upload. The explicit checkpoint rules in the master prompt are being followed.
 
-The internal Kotlin namespace `com.axiel7.anihyou` should remain unchanged unless an explicit architecture decision says otherwise.
+## Next exact action
 
-## Next implementation action
+In an environment with the Gradle 9.5.0 wrapper distribution available, run:
 
-Create `feature/kiyori-integrated-rebuild` from the current `develop` branch. Port compatible Phase-0 infrastructure intentionally, then implement the full integrated rebuild described in `PRODUCT_PLAN.md` and `PHASE_PROMPTS.md`. The owner will perform one consolidated device test after the complete FOSS debug build.
+```bash
+JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 \\
+LD_LIBRARY_PATH=/usr/lib/jvm/java-17-openjdk-amd64/lib \\
+PATH=/usr/lib/jvm/java-17-openjdk-amd64/bin:$PATH \\
+./gradlew :app:assembleFossDebug --no-daemon --stacktrace
+```
+
+On success, continue Gate 1 with the Kiyori vector/adaptive launcher assets, splash mark, notification icon, SVG source, preview, and design/originality note.
