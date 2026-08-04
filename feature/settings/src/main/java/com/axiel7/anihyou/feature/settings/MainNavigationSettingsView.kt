@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -50,7 +49,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.axiel7.anihyou.core.model.CurrentListType
-import com.axiel7.anihyou.core.model.base.Localizable
 import com.axiel7.anihyou.core.model.media.ChartType
 import com.axiel7.anihyou.core.model.navigation.MAX_VISIBLE_MAIN_DESTINATIONS
 import com.axiel7.anihyou.core.model.navigation.MainNavigationConfig
@@ -64,7 +62,6 @@ import com.axiel7.anihyou.core.model.navigation.SeasonShortcutMode
 import com.axiel7.anihyou.core.model.navigation.canSetVisibility
 import com.axiel7.anihyou.core.model.navigation.containsShortcut
 import com.axiel7.anihyou.core.model.navigation.iconKey
-import com.axiel7.anihyou.core.model.navigation.shortcuts
 import com.axiel7.anihyou.core.resources.R as CoreR
 import com.axiel7.anihyou.core.ui.common.navigation.NavActionManager
 import com.axiel7.anihyou.core.ui.composables.common.BackIconButton
@@ -418,19 +415,14 @@ private fun ShortcutPickerItem(
 }
 
 @Composable
-private fun MainNavigationItem.label(): String = when (val value = destination ?: shortcut) {
+private fun MainNavigationItem.label(): String = shortcut?.label() ?: when (destination) {
     MainNavigationDestination.HOME -> stringResource(CoreR.string.home)
     MainNavigationDestination.ANIME -> stringResource(CoreR.string.anime)
     MainNavigationDestination.MANGA -> stringResource(CoreR.string.manga)
     MainNavigationDestination.PROFILE -> stringResource(CoreR.string.profile)
     MainNavigationDestination.EXPLORE -> stringResource(CoreR.string.explore)
     MainNavigationDestination.CALENDAR -> stringResource(CoreR.string.calendar)
-    is Localizable -> value.localized()
-    is MainNavigationShortcut.Season -> when (value.mode) {
-        SeasonShortcutMode.CURRENT -> stringResource(CoreR.string.season)
-        SeasonShortcutMode.NEXT -> stringResource(CoreR.string.next_season)
-    }
-    else -> stableId
+    null -> stableId
 }
 
 @Composable
