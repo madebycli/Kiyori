@@ -19,3 +19,4 @@
 - No signing key, password or token enters Git history.
 - Kiyori launcher and splash assets live in the phone app module; the upstream shared resource module is
   intentionally not repurposed, keeping Wear identity outside this phone-first rebuild scope.
+- Notification code resolves a phone-provided Kiyori monochrome resource at runtime and falls back to the upstream mark for non-phone consumers.

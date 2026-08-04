@@ -10,7 +10,7 @@
 
 ## Current gate
 
-Gate 1 — Kiyori branding, parts 1–2: application identity and phone launcher/splash assets.
+Gate 1 — Kiyori branding complete in source; Gradle validation remains environment-blocked.
 
 ## Completed
 
@@ -22,6 +22,7 @@ Gate 1 — Kiyori branding, parts 1–2: application identity and phone launcher
   API-26 monochrome layer, legacy vector fallback, dedicated transparent splash mark, editable SVG
   source, and 512×512 PNG preview.
 - The application manifest now uses the Kiyori icon and splash theme; shared Wear resources were not changed.
+- Added a monochrome Kiyori notification icon with a runtime resource lookup and installed-variant package routing.
 - Auth/API/OAuth contract scan completed before the branding edit; none of its files changed.
 
 ## Build status
@@ -30,7 +31,7 @@ Not yet validated by Gradle. Java 17 runs when `LD_LIBRARY_PATH` includes its JD
 
 ## Tests and checks
 
-- Passed: `git diff --check`; resource source/manifest inspection; 512×512 PNG dimensions.
+- Passed: `git diff --check`; resource source/manifest inspection; 512×512 PNG dimensions; protected Auth/API source content comparison.
 - Passed: targeted auth/API reference comparison; no protected auth/API source files changed.
 - Blocked: `:app:assembleFossDebug --no-daemon --stacktrace` before task configuration because Gradle 9.5.0 cannot be downloaded.
 
@@ -42,8 +43,7 @@ Not yet validated by Gradle. Java 17 runs when `LD_LIBRARY_PATH` includes its JD
 
 ## Next exact action
 
-Finish Gate 1 by adding the phone notification icon/branding without changing shared Wear resources,
-then re-run the protected Auth/API diff scan. In an environment with the Gradle 9.5.0 wrapper distribution available, run:
+In an environment with the Gradle 9.5.0 wrapper distribution available, run:
 
 ```bash
 JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 \\

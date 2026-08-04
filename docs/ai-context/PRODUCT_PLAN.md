@@ -17,8 +17,7 @@ Rebuild the previously accepted product experience on the newer upstream base in
 
 - Completed: release/debug identity plus phone-scoped launcher, adaptive, monochrome, legacy, splash,
   SVG source, and 512×512 preview assets.
-- Remaining: notification branding, repository-facing English branding, protected Auth/API post-diff,
-  and a Gradle validation when the pinned wrapper distribution is available.
+- Remaining: repository-facing English branding and a Gradle validation when the pinned wrapper distribution is available.
 
 ## Slice 2 — Typed configurable main navigation
 

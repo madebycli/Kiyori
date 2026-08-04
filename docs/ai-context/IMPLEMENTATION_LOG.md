@@ -27,3 +27,9 @@
 - Added phone-scoped adaptive foreground/background, legacy vector fallback, API-26 themed monochrome layer, and a dedicated transparent splash vector; no common/Wear resource changed.
 - The app manifest now selects the Kiyori launcher resource and `Theme.KiyoriSplash`, which uses the dark navy splash background and transparent mark.
 - A remote tree-construction mistake was detected and repaired immediately with a forward-only commit; the verified remote head again contains the complete repository tree and the intended four source/preview files.
+
+## 2026-08-04 — Gate 1, notification and protected-contract closeout
+
+- Added an all-white Kiyori notification mark in the phone app module. The shared notification utility uses it only when supplied by the installed package and otherwise retains the upstream fallback.
+- Notification launch intents now resolve `applicationContext.packageName`, preventing a release-package constant from breaking the debug variant.
+- Post-branding protected-contract comparison found no semantic change to the AniList client ID, callback, GraphQL endpoint, or token handling.

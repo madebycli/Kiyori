@@ -19,3 +19,4 @@ These failures occurred during the previous implementation and must be prevented
 15. **Pager state desynchronization** — selected page is canonical, date is derived, page range is clamped 0..14, and week header derives from selected date.
 16. **Shared-resource branding leak** — launcher/splash resources inherited from the common module also
    affect Wear. Keep Kiyori phone identity in app resource overlays unless a Wear-specific change is explicitly scoped.
+17. **Variant-specific notification intent** — never use a compile-time package constant for notification launch intents; use the installed application context package.
