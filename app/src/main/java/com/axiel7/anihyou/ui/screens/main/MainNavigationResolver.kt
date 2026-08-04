@@ -47,7 +47,13 @@ object MainNavigationResolver {
                 com.axiel7.anihyou.core.model.CurrentListType.MANGA -> R.string.reading
                 com.axiel7.anihyou.core.model.CurrentListType.NEXT_SEASON -> R.string.next_season
             },
-            icon = R.drawable.play_arrow_24,
+            icon = when (type) {
+                com.axiel7.anihyou.core.model.CurrentListType.AIRING -> R.drawable.live_tv_24
+                com.axiel7.anihyou.core.model.CurrentListType.BEHIND -> R.drawable.schedule_24
+                com.axiel7.anihyou.core.model.CurrentListType.ANIME -> R.drawable.play_arrow_24
+                com.axiel7.anihyou.core.model.CurrentListType.MANGA -> R.drawable.book_24
+                com.axiel7.anihyou.core.model.CurrentListType.NEXT_SEASON -> R.drawable.calendar_today_24
+            },
         )
         is MainNavigationShortcut.Chart -> BottomDestination.Shortcut(
             stableId = stableId,
@@ -64,7 +70,17 @@ object MainNavigationResolver {
                 com.axiel7.anihyou.core.model.media.ChartType.TOP_MOVIES -> R.string.top_movies
                 com.axiel7.anihyou.core.model.media.ChartType.PUBLISHING_MANGA -> R.string.publishing
             },
-            icon = R.drawable.star_24,
+            icon = when (type) {
+                com.axiel7.anihyou.core.model.media.ChartType.TOP_ANIME,
+                com.axiel7.anihyou.core.model.media.ChartType.TOP_MANGA -> R.drawable.star_24
+                com.axiel7.anihyou.core.model.media.ChartType.POPULAR_ANIME,
+                com.axiel7.anihyou.core.model.media.ChartType.POPULAR_MANGA -> R.drawable.trending_up_24
+                com.axiel7.anihyou.core.model.media.ChartType.UPCOMING_ANIME,
+                com.axiel7.anihyou.core.model.media.ChartType.UPCOMING_MANGA,
+                com.axiel7.anihyou.core.model.media.ChartType.PUBLISHING_MANGA -> R.drawable.schedule_24
+                com.axiel7.anihyou.core.model.media.ChartType.AIRING_ANIME -> R.drawable.live_tv_24
+                com.axiel7.anihyou.core.model.media.ChartType.TOP_MOVIES -> R.drawable.movie_24
+            },
         )
         is MainNavigationShortcut.Season -> {
             val season = if (mode == SeasonShortcutMode.CURRENT) LocalDateTime.now().currentAnimeSeason()
