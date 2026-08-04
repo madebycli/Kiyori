@@ -64,6 +64,15 @@ sealed class BottomDestination(
         iconSelected = R.drawable.calendar_month_24,
     )
 
+    /** A typed, persisted shortcut projected into the same bottom/rail UI as static tabs. */
+    data class Shortcut(
+        val stableId: String,
+        index: Int,
+        route: NavKey,
+        @StringRes title: Int,
+        @DrawableRes icon: Int,
+    ) : BottomDestination(index, route, title, icon, icon)
+
     @Composable
     fun Icon(selected: Boolean) {
         androidx.compose.material3.Icon(
@@ -91,6 +100,7 @@ sealed class BottomDestination(
                 is Profile -> "ProfileTab"
                 is Explore -> "ExploreTab"
                 is Calendar -> "CalendarTab"
+                is Shortcut -> stableId
             }
     }
 }

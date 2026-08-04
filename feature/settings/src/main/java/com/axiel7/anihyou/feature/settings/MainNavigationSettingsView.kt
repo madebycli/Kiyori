@@ -131,9 +131,35 @@ private fun NavigationRow(
 private fun AddShortcuts(onAdd: (MainNavigationShortcut) -> Unit) {
     Column(modifier = Modifier.padding(16.dp)) {
         Text("Add shortcuts", style = MaterialTheme.typography.titleMedium)
+        Text("Shortcuts are hidden automatically when five tabs are already visible.", style = MaterialTheme.typography.bodySmall)
+        ShortcutButtons(
+            listOf(
+                "Current season" to MainNavigationShortcut.Season(com.axiel7.anihyou.core.model.navigation.SeasonShortcutMode.CURRENT),
+                "Next season" to MainNavigationShortcut.Season(com.axiel7.anihyou.core.model.navigation.SeasonShortcutMode.NEXT),
+            ),
+            onAdd,
+        )
+        ShortcutButtons(
+            com.axiel7.anihyou.core.model.CurrentListType.entries.map { it.name.replace('_', ' ') to MainNavigationShortcut.CurrentList(it) },
+            onAdd,
+        )
+        ShortcutButtons(
+            com.axiel7.anihyou.core.model.media.ChartType.entries.map { it.name.replace('_', ' ') to MainNavigationShortcut.Chart(it) },
+            onAdd,
+        )
+    }
+}
+
+@Composable
+private fun ShortcutButtons(
+    shortcuts: List<Pair<String, MainNavigationShortcut>>,
+    onAdd: (MainNavigationShortcut) -> Unit,
+) {
+    shortcuts.chunked(2).forEach { row ->
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            TextButton(onClick = { onAdd(MainNavigationShortcut.Season(com.axiel7.anihyou.core.model.navigation.SeasonShortcutMode.CURRENT)) }) { Text("Current season") }
-            TextButton(onClick = { onAdd(MainNavigationShortcut.CurrentList(com.axiel7.anihyou.core.model.CurrentListType.AIRING)) }) { Text("Airing") }
+            row.forEach { (label, shortcut) ->
+                TextButton(onClick = { onAdd(shortcut) }) { Text(label.lowercase().replaceFirstChar(Char::uppercase)) }
+            }
         }
     }
 }
