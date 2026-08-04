@@ -11,19 +11,26 @@ CERTIFICATE_PATH="$OUTPUT_DIR/kiyori-release-certificate.pem"
 DEFAULT_ALIAS="kiyori-release"
 DEFAULT_DNAME="CN=Kiyori Release, O=Kiyori, C=DE"
 
-for command in gh keytool base64 grep; do
+for command in gh keytool base64 grep tr; do
   command -v "$command" >/dev/null 2>&1 || {
     echo "Missing required command: $command" >&2
     exit 2
   }
 done
 
+if ! gh auth status >/dev/null 2>&1; then
+  echo "GitHub CLI is not authenticated. Starting login..."
+  gh auth login
+fi
 gh auth status >/dev/null
+
 mkdir -p "$OUTPUT_DIR"
 chmod 700 "$OUTPUT_DIR"
 
-if [ -e "$KEYSTORE_PATH" ]; then
-  echo "Refusing to overwrite existing keystore: $KEYSTORE_PATH" >&2
+if [ -e "$KEYSTORE_PATH" ] || [ -e "$CERTIFICATE_PATH" ]; then
+  echo "Refusing to overwrite existing signing material:" >&2
+  echo "  $KEYSTORE_PATH" >&2
+  echo "  $CERTIFICATE_PATH" >&2
   exit 3
 fi
 
@@ -67,9 +74,8 @@ keytool -exportcert \
   -alias "$KEY_ALIAS" \
   -file "$CERTIFICATE_PATH"
 
-# Keep signing secrets out of repository-wide scope. The release environment is
-# restricted to workflow runs dispatched from main; release.yml can still build
-# another source ref through its source_ref input.
+# Signing secrets are environment-scoped. The release workflow itself must be
+# dispatched from main, while its source_ref input can select another commit.
 gh api --method PUT \
   "repos/$REPOSITORY/environments/$RELEASE_ENVIRONMENT" \
   --input - >/dev/null <<'JSON'
