@@ -2,9 +2,9 @@ package com.axiel7.anihyou.feature.calendar
 
 import java.time.LocalDate
 import java.time.ZoneId
-import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import org.junit.Test
 
 class CalendarDateRangeTest {
     private val range = CalendarDateRange(LocalDate.of(2026, 3, 8))

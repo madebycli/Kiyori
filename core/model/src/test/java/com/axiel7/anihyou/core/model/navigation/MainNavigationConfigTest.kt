@@ -1,10 +1,10 @@
 package com.axiel7.anihyou.core.model.navigation
 
 import com.axiel7.anihyou.core.model.CurrentListType
-import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import org.junit.Test
 
 class MainNavigationConfigTest {
     @Test

@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.layout.weight
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.background
@@ -154,7 +153,7 @@ private fun CalendarViewContent(
 
     DefaultScaffoldWithSmallTopAppBar(
         title = stringResource(R.string.calendar),
-        navigationIcon = if (isMainDestination) ({}) else { BackIconButton(onClick = navActionManager::goBack) },
+        navigationIcon = { BackIconButton(onClick = navActionManager::goBack) },
         actions = {
             AppBarActions(
                 onMyList = onMyList,
@@ -454,7 +453,9 @@ private fun CalendarDayView(
                     },
                 )
             }
-            if (uiState.isLoading) listItems(8) { MediaItemHorizontalPlaceholder() }
+            if (uiState.isLoading) {
+                repeat(8) { item { MediaItemHorizontalPlaceholder() } }
+            }
         }
         return
     }

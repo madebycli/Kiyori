@@ -65,7 +65,7 @@ sealed class BottomDestination(
     )
 
     /** A typed, persisted shortcut projected into the same bottom/rail UI as static tabs. */
-    data class Shortcut(
+    class Shortcut(
         val stableId: String,
         index: Int,
         route: NavKey,
