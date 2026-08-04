@@ -146,8 +146,10 @@ private fun SeasonAnimeContent(
                 )
             }
         },
-        navigationIcon = if (isMainDestination) ({}) else {
-            BackIconButton(onClick = navActionManager::goBack)
+        navigationIcon = {
+            if (!isMainDestination) {
+                BackIconButton(onClick = navActionManager::goBack)
+            }
         },
         actions = {
             IconButton(

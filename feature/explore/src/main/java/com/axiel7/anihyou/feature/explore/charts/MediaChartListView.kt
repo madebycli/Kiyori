@@ -97,8 +97,10 @@ private fun MediaChartListContent(
 
     DefaultScaffoldWithMediumTopAppBar(
         title = uiState.chartType?.localized().orEmpty(),
-        navigationIcon = if (isMainDestination) ({}) else {
-            BackIconButton(onClick = navActionManager::goBack)
+        navigationIcon = {
+            if (!isMainDestination) {
+                BackIconButton(onClick = navActionManager::goBack)
+            }
         },
         scrollBehavior = topAppBarScrollBehavior,
         snackbarHost = snackbarManager::SnackbarHost
