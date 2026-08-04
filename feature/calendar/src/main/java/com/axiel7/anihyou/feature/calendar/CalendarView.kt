@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.layout.weight
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -56,6 +58,8 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -94,6 +98,8 @@ fun CalendarView(
     val viewModel: CalendarHostViewModel = koinViewModel()
     val onMyList by viewModel.onMyList.collectAsStateWithLifecycle(initialValue = null)
     val displayGrid by viewModel.displayGrid.collectAsStateWithLifecycle(initialValue = false)
+    val displayAdult by viewModel.displayAdult.collectAsStateWithLifecycle(initialValue = null)
+    val dateCounts by viewModel.dateCounts.collectAsStateWithLifecycle()
 
     CalendarViewContent(
         isLoggedIn = isLoggedIn,
@@ -101,6 +107,9 @@ fun CalendarView(
         onMyListChanged = viewModel::onMyListChanged,
         displayGrid = displayGrid,
         onDisplayGridChanged = viewModel::onDisplayGridChanged,
+        displayAdult = displayAdult,
+        dateCounts = dateCounts,
+        onVisibleWeekChanged = viewModel::loadDateCounts,
         navActionManager = navActionManager,
         isMainDestination = isMainDestination,
         contentPadding = contentPadding,
@@ -115,6 +124,9 @@ private fun CalendarViewContent(
     onMyListChanged: (Boolean?) -> Unit,
     displayGrid: Boolean,
     onDisplayGridChanged: (Boolean) -> Unit,
+    displayAdult: Boolean?,
+    dateCounts: Map<LocalDate, Int?>,
+    onVisibleWeekChanged: (List<LocalDate>, Boolean?, Boolean?) -> Unit,
     navActionManager: NavActionManager,
     isMainDestination: Boolean,
     contentPadding: PaddingValues,
@@ -126,6 +138,9 @@ private fun CalendarViewContent(
             onMyListChanged = onMyListChanged,
             displayGrid = displayGrid,
             onDisplayGridChanged = onDisplayGridChanged,
+            displayAdult = displayAdult,
+            dateCounts = dateCounts,
+            onVisibleWeekChanged = onVisibleWeekChanged,
             navActionManager = navActionManager,
             contentPadding = contentPadding,
         )
@@ -205,6 +220,9 @@ private fun DateCalendarContent(
     onMyListChanged: (Boolean?) -> Unit,
     displayGrid: Boolean,
     onDisplayGridChanged: (Boolean) -> Unit,
+    displayAdult: Boolean?,
+    dateCounts: Map<LocalDate, Int?>,
+    onVisibleWeekChanged: (List<LocalDate>, Boolean?, Boolean?) -> Unit,
     navActionManager: NavActionManager,
     contentPadding: PaddingValues,
 ) {
@@ -214,6 +232,12 @@ private fun DateCalendarContent(
     val scope = rememberCoroutineScope()
     val snackbarManager = rememberSnackbarManager()
     val showEditSheet = remember { mutableStateOf(false) }
+    val selectedDate = range.dateForPage(selectedPage)
+    val visibleWeek = range.visibleWeek(selectedDate)
+
+    LaunchedEffect(visibleWeek, onMyList, displayAdult) {
+        onVisibleWeekChanged(visibleWeek, onMyList, displayAdult)
+    }
 
     LaunchedEffect(pagerState.settledPage) {
         selectedPage = pagerState.settledPage.coerceIn(0, range.pageCount - 1)
@@ -242,8 +266,11 @@ private fun DateCalendarContent(
                 ),
         ) {
             CalendarWeekHeader(
-                dates = range.visibleWeek(range.dateForPage(selectedPage)),
-                selectedDate = range.dateForPage(selectedPage),
+                dates = visibleWeek,
+                selectedDate = selectedDate,
+                dateCounts = dateCounts,
+                firstDate = range.firstDate,
+                lastDate = range.lastDate,
                 onDateSelected = { date ->
                     scope.launch { pagerState.animateScrollToPage(range.pageForDate(date)) }
                 },
@@ -290,6 +317,9 @@ private fun DateCalendarContent(
 private fun CalendarWeekHeader(
     dates: List<LocalDate>,
     selectedDate: LocalDate,
+    dateCounts: Map<LocalDate, Int?>,
+    firstDate: LocalDate,
+    lastDate: LocalDate,
     onDateSelected: (LocalDate) -> Unit,
     onPreviousWeek: () -> Unit,
     onNextWeek: () -> Unit,
@@ -298,22 +328,60 @@ private fun CalendarWeekHeader(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        IconButton(onClick = onPreviousWeek, modifier = Modifier.size(48.dp)) {
+        IconButton(
+            onClick = onPreviousWeek,
+            enabled = selectedDate > firstDate,
+            modifier = Modifier.size(48.dp),
+        ) {
             Icon(painterResource(R.drawable.arrow_back_24), contentDescription = "Previous week")
         }
         dates.forEach { date ->
             val selected = date == selectedDate
-            TextButton(
-                onClick = { onDateSelected(date) },
-                modifier = Modifier.weight(1f),
+            val enabled = date in firstDate..lastDate
+            val count = dateCounts[date]
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(48.dp)
+                    .semantics {
+                        contentDescription = buildString {
+                            append(date.format(DateTimeFormatter.ofPattern("EEEE, d MMMM")))
+                            if (count != null) append(", $count airing")
+                        }
+                    },
             ) {
-                Text(
-                    text = date.format(DateTimeFormatter.ofPattern("EE\nd")),
-                    color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
-                )
+                TextButton(
+                    onClick = { onDateSelected(date) },
+                    enabled = enabled,
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    Text(
+                        text = buildString {
+                            append(date.format(DateTimeFormatter.ofPattern("EE\nd")))
+                            append('\n')
+                            append(count?.toString() ?: if (date in dateCounts) "—" else "…")
+                        },
+                        color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                        fontSize = 11.sp,
+                        lineHeight = 13.sp,
+                    )
+                }
+                if (selected) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .fillMaxWidth()
+                            .height(2.dp)
+                            .background(MaterialTheme.colorScheme.primary),
+                    )
+                }
             }
         }
-        IconButton(onClick = onNextWeek, modifier = Modifier.size(48.dp)) {
+        IconButton(
+            onClick = onNextWeek,
+            enabled = selectedDate < lastDate,
+            modifier = Modifier.size(48.dp),
+        ) {
             Icon(painterResource(R.drawable.arrow_forward_24), contentDescription = "Next week")
         }
     }
