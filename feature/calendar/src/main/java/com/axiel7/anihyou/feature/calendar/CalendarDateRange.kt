@@ -23,6 +23,12 @@ data class CalendarDateRange(val today: LocalDate) {
         .toInt()
         .coerceIn(0, LAST_PAGE)
 
+    fun contains(date: LocalDate): Boolean = date in firstDate..lastDate
+
+    fun canMoveToPreviousWeek(date: LocalDate): Boolean = date > firstDate
+
+    fun canMoveToNextWeek(date: LocalDate): Boolean = date < lastDate
+
     fun visibleWeek(date: LocalDate): List<LocalDate> {
         val monday = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
         return (0L..6L).map(monday::plusDays)

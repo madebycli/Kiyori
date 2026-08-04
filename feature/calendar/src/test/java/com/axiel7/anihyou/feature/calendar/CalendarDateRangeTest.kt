@@ -26,6 +26,17 @@ class CalendarDateRangeTest {
     }
 
     @Test
+    fun `range exposes safe week-control boundaries`() {
+        assertTrue(range.contains(range.firstDate))
+        assertTrue(range.contains(range.lastDate))
+        assertTrue(!range.contains(range.firstDate.minusDays(1)))
+        assertTrue(!range.canMoveToPreviousWeek(range.firstDate))
+        assertTrue(range.canMoveToNextWeek(range.firstDate))
+        assertTrue(range.canMoveToPreviousWeek(range.lastDate))
+        assertTrue(!range.canMoveToNextWeek(range.lastDate))
+    }
+
+    @Test
     fun `local date bounds survive DST`() {
         val (start, end) = range.bounds(LocalDate.of(2026, 3, 29), ZoneId.of("Europe/Berlin"))
         assertTrue(end.isAfter(start))
