@@ -60,6 +60,8 @@ The CI script now explicitly covers Wear debug/lint and both minified phone rele
 - Passed: targeted auth/API reference comparison; no protected auth/API source files changed.
 - Attempted: `:feature:calendar:compileFossDebugKotlin --no-daemon --stacktrace`; source compilation
   is not reached because uncached Android Gradle Plugin artifacts lose their localhost proxy mid-resolution.
+- Attempted offline: the current cache is still missing `org.gradle.kotlin.kotlin-dsl` `6.5.7` from
+  the included build. This confirms dependency hydration, not Kotlin source, is the immediate blocker.
 
 ## Known blockers
 

@@ -43,3 +43,6 @@ These failures occurred during the previous implementation and must be prevented
 27. **Independent main README conflict** — `main` has a post-branch README append while the Kiyori
     feature replaces the inherited README. Do not silently merge/rebase under the campaign rules;
     obtain an explicit maintainer choice for resolving that one file.
+28. **Partial offline Gradle cache** — Gradle may start but still lack the included-build Kotlin DSL
+    marker/plugin. Treat the exact missing coordinate as dependency hydration work, never as evidence
+    of a Kiyori Kotlin compile failure.

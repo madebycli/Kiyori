@@ -16,6 +16,8 @@
 - Exact error summary: Gradle's JVM reports `Temporary failure in name resolution` for public Maven
   hosts although curl can reach them; the wrapper is verified, but its temporary localhost mirror
   is no longer reachable once the Work command process ends.
+- Offline detail: `org.gradle.kotlin.kotlin-dsl:org.gradle.kotlin.kotlin-dsl.gradle.plugin:6.5.7`
+  is not yet cached for `build-logic`; source compilation has not been reached.
 - Uncommitted files: none in the remote tree; local clone index is intentionally behind published
   connector commits and is used only as a content workspace.
 - Next exact action: run the CI validation matrix on PR #2 or compile with a persistent Maven proxy,
