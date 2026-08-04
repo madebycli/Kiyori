@@ -119,8 +119,10 @@ private fun CurrentFullListContent(
     DefaultScaffoldWithMediumTopAppBar(
         title = listType.localized(),
         modifier = modifier,
-        navigationIcon = if (isMainDestination) ({}) else {
-            BackIconButton(onClick = navActionManager::goBack)
+        navigationIcon = {
+            if (!isMainDestination) {
+                BackIconButton(onClick = navActionManager::goBack)
+            }
         },
         scrollBehavior = topAppBarScrollBehavior,
         snackbarHost = snackbarManager::SnackbarHost,
