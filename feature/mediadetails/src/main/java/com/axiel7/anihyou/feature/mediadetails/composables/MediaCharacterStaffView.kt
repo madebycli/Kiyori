@@ -237,7 +237,7 @@ private fun CharacterVoiceActorRow(
     navigateToCharacterDetails: (Int) -> Unit,
     showVoiceActorsSheet: (MediaCharacter) -> Unit,
 ) {
-    val node = character.node?.commonCharacter
+    val node = character.node
     val voiceActors = character.availableVoiceActors()
     val voiceActor = voiceActors.firstOrNull {
         it.languageV2.equals(selectedLanguage, ignoreCase = true)
@@ -336,7 +336,7 @@ private fun TeamSection(
     when {
         isLoading -> repeat(5) { PersonItemHorizontalPlaceholder() }
         else -> uiState.staff.orEmpty().forEach { staff ->
-            val node = staff.node?.commonStaff
+            val node = staff.node
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -359,7 +359,7 @@ private fun TeamSection(
                         fontWeight = FontWeight.SemiBold,
                     )
                     Text(
-                        text = staff.roleLocalized(),
+                        text = staff.roleLocalized().orEmpty(),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
