@@ -78,11 +78,12 @@ import com.axiel7.anihyou.core.ui.composables.DefaultScaffoldWithSmallTopAppBar
 import com.axiel7.anihyou.core.ui.composables.common.BackIconButton
 import com.axiel7.anihyou.core.ui.composables.common.ErrorDialogHandler
 import com.axiel7.anihyou.core.ui.composables.list.OnBottomReached
-import com.axiel7.anihyou.core.ui.composables.media.AiringAnimeHorizontalItem
-import com.axiel7.anihyou.core.ui.composables.media.AiringAnimeHorizontalItemPlaceholder
 import com.axiel7.anihyou.core.ui.composables.media.MEDIA_POSTER_SMALL_WIDTH
+import com.axiel7.anihyou.core.ui.composables.media.MediaItemHorizontal
+import com.axiel7.anihyou.core.ui.composables.media.MediaItemHorizontalPlaceholder
 import com.axiel7.anihyou.core.ui.composables.media.MediaItemVertical
 import com.axiel7.anihyou.core.ui.composables.media.MediaItemVerticalPlaceholder
+import com.axiel7.anihyou.core.ui.composables.scores.SmallScoreIndicator
 import com.axiel7.anihyou.core.ui.theme.AniHyouTheme
 import com.axiel7.anihyou.feature.editmedia.EditMediaSheet
 import kotlinx.coroutines.launch
@@ -237,7 +238,7 @@ private fun CalendarViewContent(
                     navActionManager = navActionManager,
                     modifier = Modifier.fillMaxHeight(),
                     contentPadding = PaddingValues(
-                        top = 8.dp,
+                        top = 2.dp,
                         bottom = padding.calculateBottomPadding() +
                             contentPadding.calculateBottomPadding(),
                     ),
@@ -267,8 +268,8 @@ private fun CalendarDateStrip(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(64.dp)
-                .padding(horizontal = 16.dp),
+                .height(48.dp)
+                .padding(horizontal = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             IconButton(
@@ -284,7 +285,7 @@ private fun CalendarDateStrip(
                 text = "${dates.first().format(dateFormatter)} – ${dates.last().format(dateFormatter)}",
                 modifier = Modifier.weight(1f),
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
             )
             IconButton(
@@ -301,7 +302,7 @@ private fun CalendarDateStrip(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = 8.dp),
         ) {
             dates.forEach { date ->
                 CalendarDateTab(
@@ -341,7 +342,7 @@ private fun CalendarDateTab(
 
     Column(
         modifier = modifier
-            .height(112.dp)
+            .height(72.dp)
             .semantics {
                 contentDescription = listOfNotNull(fullDate, semanticCount).joinToString(", ")
                 this.selected = selected
@@ -354,15 +355,15 @@ private fun CalendarDateTab(
             .alpha(if (enabled) 1f else 0.45f),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(2.dp))
         Text(
             text = dayLabel,
-            style = MaterialTheme.typography.labelLarge,
+            style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Text(
             text = date.dayOfMonth.toString(),
-            style = MaterialTheme.typography.headlineMedium,
+            style = MaterialTheme.typography.titleMedium,
             color = if (selected) {
                 MaterialTheme.colorScheme.onSurface
             } else {
@@ -375,14 +376,14 @@ private fun CalendarDateTab(
                 countLoaded -> "—"
                 else -> ""
             },
-            style = MaterialTheme.typography.labelLarge,
+            style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Spacer(Modifier.weight(1f))
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(3.dp)
+                .height(2.dp)
                 .background(
                     if (selected) MaterialTheme.colorScheme.primary
                     else MaterialTheme.colorScheme.surface
@@ -457,53 +458,50 @@ private fun CalendarList(
         modifier = modifier,
         state = listState,
         contentPadding = contentPadding,
-        verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         listItems(
             items = uiState.weeklyAnime,
             key = AiringAnimesQuery.AiringSchedule::id,
             contentType = { "calendar-airing" },
         ) { item ->
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp),
-            ) {
-                AiringAnimeHorizontalItem(
-                    title = item.media?.basicMediaDetails?.title?.userPreferred.orEmpty(),
-                    subtitle = stringResource(
-                        CoreR.string.episode_airing_at,
-                        item.episode,
-                        item.airingAt.toLong().timestampToTimeString() ?: UNKNOWN_CHAR,
-                    ),
-                    imageUrl = item.media?.coverImage?.large,
-                    blurImage = blurAdult && item.media?.isAdult == true,
-                    score = item.media?.meanScore,
-                    status = item.media?.mediaListEntry?.basicMediaListEntry?.status,
-                    onClick = { navActionManager.toMediaDetails(item.mediaId) },
-                    onLongClick = {
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        openEditSheet(
-                            item = item,
-                            events = events,
-                            isLoggedIn = isLoggedIn,
-                            snackbarManager = snackbarManager,
-                            showEditSheet = showEditSheet,
-                        )
-                    },
-                )
-            }
+            MediaItemHorizontal(
+                title = item.media?.basicMediaDetails?.title?.userPreferred.orEmpty(),
+                imageUrl = item.media?.coverImage?.large,
+                blurImage = blurAdult && item.media?.isAdult == true,
+                subtitle1 = {
+                    Text(
+                        text = stringResource(
+                            CoreR.string.episode_airing_at,
+                            item.episode,
+                            item.airingAt.toLong().timestampToTimeString() ?: UNKNOWN_CHAR,
+                        ),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                },
+                subtitle2 = {
+                    item.media?.meanScore?.let { score ->
+                        SmallScoreIndicator(score = score)
+                    }
+                },
+                status = item.media?.mediaListEntry?.basicMediaListEntry?.status,
+                onClick = { navActionManager.toMediaDetails(item.mediaId) },
+                onLongClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                    openEditSheet(
+                        item = item,
+                        events = events,
+                        isLoggedIn = isLoggedIn,
+                        snackbarManager = snackbarManager,
+                        showEditSheet = showEditSheet,
+                    )
+                },
+            )
         }
 
         if (uiState.isLoading) {
             items(8, contentType = { "calendar-placeholder" }) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp),
-                ) {
-                    AiringAnimeHorizontalItemPlaceholder()
-                }
+                MediaItemHorizontalPlaceholder()
             }
         }
     }
