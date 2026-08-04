@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -137,7 +136,12 @@ private fun MainNavigationSettingsContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.main_navigation_editor_title)) },
+                title = {
+                    Text(
+                        text = stringResource(R.string.main_navigation_editor_title),
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                },
                 navigationIcon = { BackIconButton(onClick = onBack) },
                 actions = {
                     TextButton(onClick = onReset) {
@@ -164,14 +168,14 @@ private fun MainNavigationSettingsContent(
         ) {
             Text(
                 text = stringResource(R.string.main_navigation_editor_help),
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Text(
                 text = stringResource(R.string.main_navigation_editor_rule),
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
-                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.primary,
                 fontWeight = FontWeight.SemiBold,
             )
@@ -179,7 +183,7 @@ private fun MainNavigationSettingsContent(
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 state = lazyListState,
-                contentPadding = PaddingValues(bottom = 104.dp),
+                contentPadding = PaddingValues(bottom = 88.dp),
             ) {
                 itemsIndexed(
                     items = displayedItems,
@@ -262,30 +266,30 @@ private fun MainNavigationEditorItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(min = 108.dp)
-                .padding(start = 24.dp, end = 8.dp),
+                .heightIn(min = 80.dp)
+                .padding(start = 16.dp, end = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
                 painter = painterResource(item.iconResource()),
                 contentDescription = null,
-                modifier = Modifier.size(32.dp),
+                modifier = Modifier.size(28.dp),
                 tint = MaterialTheme.colorScheme.onSurface,
             )
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 12.dp),
                 verticalArrangement = Arrangement.Center,
             ) {
                 Text(
                     text = label,
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleMedium,
                 )
                 if (mandatory) {
                     Text(
                         text = stringResource(R.string.main_navigation_required),
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary,
                     )
                 }
@@ -302,12 +306,10 @@ private fun MainNavigationEditorItem(
                         contentDescription = stringResource(R.string.main_navigation_remove, label),
                     )
                 }
-            } else {
-                Spacer(Modifier.size(48.dp))
             }
             dragHandle()
         }
-        HorizontalDivider(modifier = Modifier.padding(start = 106.dp))
+        HorizontalDivider(modifier = Modifier.padding(start = 56.dp))
     }
 }
 
@@ -326,8 +328,8 @@ private fun MainNavigationShortcutPicker(
         item {
             Text(
                 text = stringResource(R.string.main_navigation_add),
-                modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
-                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
+                style = MaterialTheme.typography.titleLarge,
             )
         }
 
@@ -342,8 +344,8 @@ private fun MainNavigationShortcutPicker(
                             MainNavigationShortcutCategory.HOME -> stringResource(R.string.main_navigation_shortcut_home)
                             MainNavigationShortcutCategory.DISCOVER -> stringResource(R.string.main_navigation_shortcut_discover)
                         },
-                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp),
-                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
+                        style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.SemiBold,
                     )
@@ -371,7 +373,7 @@ private fun MainNavigationShortcutPicker(
             item {
                 Text(
                     text = stringResource(R.string.main_navigation_shortcut_limit),
-                    modifier = Modifier.padding(24.dp),
+                    modifier = Modifier.padding(20.dp),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -403,7 +405,7 @@ private fun ShortcutPickerItem(
             Icon(
                 painter = painterResource(shortcut.iconKey.iconResource()),
                 contentDescription = null,
-                modifier = Modifier.size(32.dp),
+                modifier = Modifier.size(28.dp),
             )
         },
         modifier = Modifier.clickable(
