@@ -76,3 +76,7 @@
   unavailable in Work, so dependency hydration is proceeding through a local curl-backed mirror.
 - Corrected the app shell to construct navigation state from the resolved registry. Without this,
   typed shortcut taps were incorrectly pushed onto Home rather than receiving their own top-level stack.
+- Added model tests for default state, legacy Profile preservation, capacity repair and duplicate
+  shortcuts. Updated the two affected modules with explicit Kotlin/JUnit test dependencies.
+- Mapped dynamic navigation icons to the actual list/chart category so visual distinctions do not
+  depend on inaccessible decorative markers.

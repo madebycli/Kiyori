@@ -34,3 +34,5 @@
   reused host can remove only its main-tab Back affordance without altering nested navigation.
 - The app creates navigation back stacks from the resolved registry, not a static destination set;
   adding or removing a typed shortcut therefore remains a real top-level navigation change.
+- Dynamic shortcut icons are category-specific, while the localized destination label remains the
+  sole TalkBack description supplied by the standard navigation item.

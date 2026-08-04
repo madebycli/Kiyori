@@ -41,7 +41,7 @@ Rebuild the previously accepted product experience on the newer upstream base in
   Bottom Bar and Navigation Rail, Home is the startup/fallback, and Calendar is a typed main target.
 - Completed: settings editor and typed dynamic shortcut hosts. Reused current-list, chart and season
   screens distinguish a main-tab host from their retained nested route framing.
-- Next: compile and cover migration/route behavior with focused tests.
+- Completed: focused normalized-registry unit coverage; compile validation remains pending dependency hydration.
 
 ## Slice 3 — Date-based Calendar
 

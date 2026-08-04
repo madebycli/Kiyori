@@ -3,7 +3,7 @@
 - Updated: 2026-08-04T17:51:43+02:00
 - Repository: `madebycli/Kiyori`
 - Branch: `feature/kiyori-integrated-rebuild`
-- Last published product checkpoint: `c56ccd90f9a9295f6638d39a56fe2c37cf7f6e7d`
+- Last published product checkpoint: `c40a7dbcdd11da07f770b69608231a6bb5a132cb`
 - Upstream `develop`: `01a8a4abe98c778d1015a33072a11efdb4ef8593`
 - Merge-base with `origin/develop`: `01a8a4abe98c778d1015a33072a11efdb4ef8593`
 - Protected refs verified unchanged: `main` `90898bfe`, `develop` `01a8a4ab`, `recovery/phase0-backup` `476ad447`
@@ -38,6 +38,8 @@ Gate 4 — dynamic shortcut hosts complete; Calendar presentation persistence co
   their reused hosts omit the Back action while original nested routes keep it.
 - The navigation state registers the resolved dynamic routes as top-level back stacks, so shortcut
   tabs are selectable in Bottom Bar and Rail instead of being appended to Home's nested stack.
+- Added unit coverage for default/migrated configuration, duplicate shortcut repair, Home protection
+  and the visible-tab capacity. Dynamic shortcut icons now identify their list/chart category.
 
 ## Build status
 

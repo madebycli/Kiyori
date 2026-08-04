@@ -30,3 +30,5 @@ These failures occurred during the previous implementation and must be prevented
 22. **JVM-only repository DNS failure** — Gradle can fail before source configuration although curl
     reaches the same repository. Validate the wrapper separately, then use a local cached mirror
     rather than changing production dependency coordinates.
+23. **Dynamic shortcut treated as nested navigation** — construct `NavigationState` from the
+    resolved typed route set, not a static list of destinations.
