@@ -46,7 +46,6 @@ import com.axiel7.anihyou.core.model.Theme
 import com.axiel7.anihyou.core.resources.dark_scrim
 import com.axiel7.anihyou.core.resources.light_scrim
 import com.axiel7.anihyou.core.ui.common.BottomDestination
-import com.axiel7.anihyou.core.ui.common.BottomDestination.Companion.isBottomDestination
 import com.axiel7.anihyou.core.ui.common.LocalBlurAdult
 import com.axiel7.anihyou.core.ui.common.LocalHideScores
 import com.axiel7.anihyou.core.ui.common.LocalScoreFormat
@@ -212,10 +211,13 @@ fun MainView(
     val resolvedRoutes = remember(resolvedDestinations) {
         MainNavigationResolver.routes(navigationConfig)
     }
-    val navigationState = rememberNavigationState(BottomDestination.Home.route, BottomDestination.routes)
+    val navigationState = rememberNavigationState(BottomDestination.Home.route, resolvedRoutes)
     val navigator = remember { Navigator(navigationState) }
-    val isBottomDestination by remember {
-        derivedStateOf { navigationState.getCurrentRoute()?.isBottomDestination() == true }
+    val isBottomDestination by remember(resolvedRoutes) {
+        derivedStateOf {
+            navigationState.topLevelRoute in resolvedRoutes &&
+                navigationState.getCurrentRoute() == navigationState.topLevelRoute
+        }
     }
     val navActionManager = NavActionManager.rememberNavActionManager(navigator)
     val isCompactScreen = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
