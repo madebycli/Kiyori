@@ -1,71 +1,34 @@
-package com.axiel7.anihyou
-
-import com.axiel7.anihyou.feature.activitydetails.ActivityDetailsViewModel
-import com.axiel7.anihyou.feature.activitydetails.publish.PublishActivityViewModel
-import com.axiel7.anihyou.feature.calendar.CalendarHostViewModel
-import com.axiel7.anihyou.feature.calendar.CalendarViewModel
-import com.axiel7.anihyou.feature.characterdetails.CharacterDetailsViewModel
-import com.axiel7.anihyou.feature.editmedia.EditMediaViewModel
-import com.axiel7.anihyou.feature.explore.charts.MediaChartViewModel
-import com.axiel7.anihyou.feature.explore.search.SearchViewModel
-import com.axiel7.anihyou.feature.explore.search.genretag.GenresTagsViewModel
-import com.axiel7.anihyou.feature.explore.season.SeasonAnimeViewModel
-import com.axiel7.anihyou.feature.home.HomeViewModel
-import com.axiel7.anihyou.feature.home.activity.ActivityFeedViewModel
-import com.axiel7.anihyou.feature.home.current.CurrentViewModel
-import com.axiel7.anihyou.feature.explore.discover.DiscoverViewModel
-import com.axiel7.anihyou.feature.mediadetails.MediaDetailsViewModel
-import com.axiel7.anihyou.feature.mediadetails.activity.MediaActivityViewModel
-import com.axiel7.anihyou.feature.notifications.NotificationsViewModel
-import com.axiel7.anihyou.feature.profile.ProfileViewModel
-import com.axiel7.anihyou.feature.profile.favorites.UserFavoritesViewModel
-import com.axiel7.anihyou.feature.profile.favorites.reorder.ReorderFavoritesViewModel
-import com.axiel7.anihyou.feature.profile.social.UserSocialViewModel
-import com.axiel7.anihyou.feature.profile.stats.UserStatsViewModel
-import com.axiel7.anihyou.feature.reviewdetails.ReviewDetailsViewModel
-import com.axiel7.anihyou.feature.settings.SettingsViewModel
-import com.axiel7.anihyou.feature.settings.customlists.CustomListsViewModel
-import com.axiel7.anihyou.feature.settings.liststyle.ListStyleSettingsViewModel
-import com.axiel7.anihyou.feature.staffdetails.StaffDetailsViewModel
-import com.axiel7.anihyou.feature.studiodetails.StudioDetailsViewModel
-import com.axiel7.anihyou.feature.thread.ThreadDetailsViewModel
-import com.axiel7.anihyou.feature.thread.publish.PublishCommentViewModel
-import com.axiel7.anihyou.feature.usermedialist.UserMediaListViewModel
-import com.axiel7.anihyou.ui.screens.main.MainViewModel
-import org.koin.dsl.module
-import org.koin.plugin.module.dsl.viewModel
-
-val viewModelModule = module {
-    viewModel<MainViewModel>()
-    viewModel<ActivityDetailsViewModel>()
-    viewModel<PublishActivityViewModel>()
-    viewModel<CalendarViewModel>()
-    viewModel<CalendarHostViewModel>()
-    viewModel<CharacterDetailsViewModel>()
-    viewModel<EditMediaViewModel>()
-    viewModel<SearchViewModel>()
-    viewModel<GenresTagsViewModel>()
-    viewModel<MediaChartViewModel>()
-    viewModel<SeasonAnimeViewModel>()
-    viewModel<HomeViewModel>()
-    viewModel<ActivityFeedViewModel>()
-    viewModel<CurrentViewModel>()
-    viewModel<DiscoverViewModel>()
-    viewModel<MediaDetailsViewModel>()
-    viewModel<MediaActivityViewModel>()
-    viewModel<NotificationsViewModel>()
-    viewModel<ProfileViewModel>()
-    viewModel<UserFavoritesViewModel>()
-    viewModel<UserSocialViewModel>()
-    viewModel<UserStatsViewModel>()
-    viewModel<ReviewDetailsViewModel>()
-    viewModel<SettingsViewModel>()
-    viewModel<CustomListsViewModel>()
-    viewModel<ListStyleSettingsViewModel>()
-    viewModel<StaffDetailsViewModel>()
-    viewModel<StudioDetailsViewModel>()
-    viewModel<ThreadDetailsViewModel>()
-    viewModel<PublishCommentViewModel>()
-    viewModel<UserMediaListViewModel>()
-    viewModel<ReorderFavoritesViewModel>()
-}
+YªçŠx-®éÜj×¢ëiºÚ+Š§j[h‘éÜ¢éí×mùN‹Z–‹­¦ëeŠw¬ÕÁ…­…”½´¹…á¥•°Ü¹…¹¥¡å½Ô()¥µÁ½ÉĞ½´¹…á¥•°Ü¹…¹¥¡å½Ô¹™•…ÑÕÉ”¹…Ñ¥Ù¥Ñå‘•Ñ…¥±Ì¹Ñ¥Ù¥Ñå•Ñ…¥±ÍY¥•İ5½‘•°)¥µÁ½ÉĞ½´¹…á¥•°Ü¹…¹¥¡å½Ô¹™•…ÑÕÉ”¹…Ñ¥Ù¥Ñå‘•Ñ…¥±Ì¹ÁÕ‰±¥Í ¹AÕ‰±¥Í¡Ñ¥Ù¥ÑåY¥•İ5½‘•°)¥µÁ½ÉĞ½´¹…á¥•°Ü¹…¹¥¡å½Ô¹™•…ÑÕÉ”¹…±•¹‘…È¹…±•¹‘…É!½ÍÑY¥•İ5½‘•°)¥µÁ½ÉĞ½´¹…á¥•°Ü¹…¹¥¡å½Ô¹™•…ÑÕÉ”¹…±•¹‘…È¹…±•¹‘…ÉY¥•İ5½‘•°)¥µÁ½ÉĞ½´¹…á¥•°Ü¹…¹¥¡å½Ô¹™•…ÑÕÉ”¹¡…É…Ñ•É‘•Ñ…¥±Ì¹¡…É…Ñ•É•Ñ…¥±ÍY¥•İ5½‘•°)¥µÁ½ÉĞ½´¹…á¥•°Ü¹…¹¥¡å½Ô¹™•…ÑÕÉ”¹•‘¥Ñµ•‘¥„¹‘¥Ñ5•‘¥…Y¥•İ5½‘•°)¥µÁ½ÉĞ½´¹…á¥•°Ü¹…¹¥¡å½Ô¹™•…ÑÕÉ”¹•áÁ±½É”¹¡…ÉÑÌ¹5•‘¥…¡…ÉÑY¥•İ5½‘•°)¥µÁ½ÉĞ½´¹…á¥•°Ü¹…¹¥¡å½Ô¹™•…ÑÕÉ”¹•áÁ±½É”¹Í•…É ¹M•…É¡Y¥•İ5½‘•°)¥µÁ½ÉĞ½´¹…á¥•°Ü¹…¹¥¡å½Ô¹™•…ÑÕÉ”¹•áÁ±½É”¹Í•…É ¹•¹É•Ñ…œ¹•¹É•ÍQ…ÍY¥•İ5½‘•°)¥µÁ½ÉĞ½´¹…á¥•°Ü¹…¹¥¡å½Ô¹™•…ÑÕÉ”¹•áÁ±½É”¹Í•…Í½¸¹M•…Í½¹¹¥µ•Y¥•İ5½‘•°)¥µÁ½ÉĞ½´¹…á¥•°Ü¹…¹¥¡å½Ô¹™•…ÑÕÉ”¹¡½µ”¹!½µ•Y¥•İ5½‘•°)¥µÁ½ÉĞ½´¹…á¥•°Ü¹…¹¥¡å½Ô¹™•…ÑÕÉ”¹¡½µ”¹…Ñ¥Ù¥Ñä¹Ñ¥Ù¥Ñå••‘Y¥•İ5½‘•°)¥µÁ½ÉĞ½´¹…á¥•°Ü¹…¹¥¡å½Ô¹™•…ÑÕÉ”¹¡½µ”¹ÕÉÉ•¹Ğ¹ÕÉÉ•¹ÑY¥•İ5½‘•°)¥µÁ½ÉĞ½´¹…á¥•°Ü¹…¹¥¡å½Ô¹™•…ÑÕÉ”¹•áÁ±½É”¹‘¥Í½Ù•È¹¥Í½Ù•ÉY¥•İ5½‘•°)¥µÁ½ÉĞ½´¹…á¥•°Ü¹…¹¥¡å½Ô¹™•…ÑÕÉ”¹µ•‘¥…‘•Ñ…¥±Ì¹5•‘¥…•Ñ…¥±ÍY¥•İ5½‘•°)¥µÁ½ÉĞ½´¹…á¥•°Ü¹…¹¥¡å½Ô¹™•…ÑÕÉ”¹µ•‘¥…‘•Ñ…¥±Ì¹…Ñ¥Ù¥Ñä¹5•‘¥…Ñ¥Ù¥ÑåY¥•İ5½‘•°)¥µÁ½ÉĞ½´¹…á¥•°Ü¹…¹¥¡å½Ô¹™•…ÑÕÉ”¹¹½Ñ¥™¥…Ñ¥½¹Ì¹9½Ñ¥™¥…Ñ¥½¹ÍY¥•İ5½‘•°)¥µÁ½ÉĞ½´¹…á¥•°Ü¹…¹¥¡å½Ô¹™•…ÑÕÉ”¹ÁÉ½™¥±”¹AÉ½™¥±•Y¥•İ5½‘•°)¥µÁ½ÉĞ½´¹…á¥•°Ü¹…¹¥¡å½Ô¹™•…ÑÕÉ”¹ÁÉ½™¥±”¹™…Ù½É¥Ñ•Ì¹UÍ•É…Ù½É¥Ñ•ÍY¥•İ5½‘•°)¥µÁ½ÉĞ½´¹…á¥•°Ü¹…¹¥¡å½Ô¹™•…ÑÕÉ”¹ÁÉ½™¥±”¹™…Ù½É¥Ñ•Ì¹É•½É‘•È¹I•½É‘•É…Ù½É¥Ñ•ÍY¥•İ5½‘•°)¥µÁ½ÉĞ½´¹…á¥•°Ü¹…¹¥¡å½Ô¹™•…ÑÕÉ”¹ÁÉ½™¥±”¹Í½¥…°¹UÍ•ÉM½¥…±Y¥•İ5½‘•°)¥·mù¶‰ËkºwµçZ[\ÜÛÛK˜^Y[Ë˜[šZ[İK™™X]\™K\Ù\›YYX[\İ•\Ù\“YYXS\İšY]Ó[Ù[š[\ÜÛÛK˜^Y[Ë˜[šZ[İKZKœØÜ™Y[œË›XZ[‹“XZ[•šY]Ó[Ù[š[\ÜÜ™ËšÛÚ[‹™Û›[Ù[Bš[\ÜÜ™ËšÛÚ[‹œYÚ[‹›[Ù[K™ÛšY]Ó[Ù[‚˜[šY]Ó[Ù[[Ù[HH[Ù[HÂˆšY]Ó[Ù[XZ[•šY]Ó[Ù[Š
+BˆšY]Ó[Ù[Xİ]š]Q]Z[ÕšY]Ó[Ù[Š
+BˆšY]Ó[Ù[X›\ÚXİ]š]UšY]Ó[Ù[Š
+BˆšY]Ó[Ù[Ø[[™\•šY]Ó[Ù[Š
+BˆšY]Ó[Ù[Ø[[™\’ÜİšY]Ó[Ù[Š
+BˆšY]Ó[Ù[Ú\˜Xİ\‘]Z[ÕšY]Ó[Ù[Š
+BˆšY]Ó[Ù[Y]YYXUšY]Ó[Ù[Š
+BˆšY]Ó[Ù[ÙX\˜ÚšY]Ó[Ù[Š
+BˆšY]Ó[Ù[Ù[œ™\ÕYÜÕšY]Ó[Ù[Š
+BˆšY]Ó[Ù[YYXPÚ\šY]Ó[Ù[Š
+BˆšY]Ó[Ù[ÙX\ÛÛ[š[YUšY]Ó[Ù[Š
+BˆšY]Ó[Ù[ÛYUšY]Ó[Ù[Š
+BˆšY]Ó[Ù[Xİ]š]Q™YYšY]Ó[Ù[Š
+BˆšY]Ó[Ù[İ\œ™[šY]Ó[Ù[Š
+BˆšY]Ó[Ù[\ØÛİ™\•šY]Ó[Ù[Š
+BˆšY]Ó[Ù[YYXQ]Z[ÕšY]Ó[Ù[Š
+BˆšY]Ó[Ù[YYXPXİ]š]UšY]Ó[Ù[Š
+BˆšY]Ó[Ù[›İYšXØ][ÛœÕšY]Ó[Ù[Š
+BˆšY]Ó[Ù[›Ùš[UšY]Ó[Ù[Š
+BˆšY]Ó[Ù[\Ù\‘˜]›Üš]\ÕšY]Ó[Ù[Š
+BˆšY]Ó[Ù[\Ù\”ÛØÚX[šY]Ó[Ù[Š
+BˆšY]Ó[Ù[\Ù\”İ]ÕšY]Ó[Ù[Š
+BˆšY]Ó[Ù[™]šY]Ñ]Z[ÕšY]Ó[Ù[Š
+BˆšY]Ó[Ù[Ù][™ÜÕšY]Ó[Ù[Š
+BˆšY]Ó[Ù[XZ[“˜]šYØ][Û”Ù][™ÜÕšY]Ó[Ù[Š
+BˆšY]Ó[Ù[İ\İÛS\İÕšY]Ó[Ù[Š
+BˆšY]Ó[Ù[\İİ[TÙ][™ÜÕšY]Ó[Ù[Š
+BˆšY]Ó[Ù[İY™‘]Z[ÕšY]Ó[Ù[Š
+BˆšY]Ó[Ù[İY[Ñ]Z[ÕšY]Ó[Ù[Š
+BˆšY]Ó[Ù[™XY]Z[ÕšY]Ó[Ù[Š
+BˆšY]Ó[Ù[X›\ÚÛÛ[Y[šY]Ó[Ù[Š
+BˆšY]Ó[Ù[\Ù\“YYXS\İšY]Ó[Ù[Š
+BˆšY]Ó[Ù[™[Ü™\‘˜]›Üš]\ÕšY]Ó[Ù[Š
+BŸB

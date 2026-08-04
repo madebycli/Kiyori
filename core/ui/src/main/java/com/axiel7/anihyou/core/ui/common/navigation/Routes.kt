@@ -1,164 +1,12 @@
-package com.axiel7.anihyou.core.ui.common.navigation
-
-import androidx.compose.runtime.Immutable
-import androidx.navigation3.runtime.NavKey
-import com.axiel7.anihyou.core.model.CurrentListType
-import com.axiel7.anihyou.core.model.FavoritesType
-import kotlinx.serialization.Serializable
-
-object Routes {
-
-    @Serializable
-    @Immutable
-    object Home: NavKey
-
-    @Serializable
-    @Immutable
-    object AnimeTab: NavKey
-
-    @Serializable
-    @Immutable
-    object MangaTab: NavKey
-
-    @Serializable
-    @Immutable
-    data class UserMediaList(
-        val mediaType: String,
-        val userId: Int = 0,
-        val scoreFormat: String? = null,
-    ): NavKey
-
-    @Serializable
-    @Immutable
-    object Profile: NavKey
-
-    @Serializable
-    @Immutable
-    data class UserDetails(
-        val id: Int?,
-        val userName: String?
-    ): NavKey
-
-    @Serializable
-    object Explore: NavKey
-
-    @Serializable
-    @Immutable
-    data class Search(
-        val mediaType: String? = null,
-        val mediaSort: String? = null,
-        val genre: String? = null,
-        val tag: String? = null,
-        val onList: Boolean? = null,
-        val focus: Boolean = false,
-    ): NavKey
-
-    @Serializable
-    @Immutable
-    data class Notifications(val unreadCount: Int = 0): NavKey
-
-    @Serializable
-    @Immutable
-    data class MediaDetails(
-        val id: Int,
-        val isLoggedIn: Boolean = false,
-    ): NavKey
-
-    @Serializable
-    @Immutable
-    data class MediaChartList(val type: String): NavKey
-
-    @Serializable
-    @Immutable
-    data class SeasonAnime(
-        val season: String,
-        val year: Int,
-    ): NavKey
-
-    @Serializable
-    @Immutable
-    object Calendar: NavKey
-
-    @Serializable
-    @Immutable
-    data class CharacterDetails(val id: Int): NavKey
-
-    @Serializable
-    @Immutable
-    data class StaffDetails(val id: Int): NavKey
-
-    @Serializable
-    @Immutable
-    data class ReviewDetails(val id: Int): NavKey
-
-    @Serializable
-    @Immutable
-    data class ThreadDetails(val id: Int): NavKey
-
-    @Serializable
-    @Immutable
-    data class StudioDetails(val id: Int): NavKey
-
-    @Serializable
-    @Immutable
-    object Settings: NavKey
-
-    @Serializable
-    @Immutable
-    object ListStyleSettings: NavKey
-
-    @Serializable
-    object CustomLists: NavKey
-
-    @Serializable
-    @Immutable
-    object Translations: NavKey
-
-    @Serializable
-    @Immutable
-    object Contributors: NavKey
-
-    @Serializable
-    @Immutable
-    data class FullScreenImage(val imageUrl: String?): NavKey
-
-    @Serializable
-    @Immutable
-    data class ActivityDetails(val id: Int): NavKey
-
-    @Serializable
-    @Immutable
-    data class PublishActivity(
-        val activityId: Int?,
-        val id: Int?,
-        val text: String? = null
-    ): NavKey
-
-    @Serializable
-    @Immutable
-    data class PublishComment(
-        val threadId: Int = 0,
-        val parentCommentId: Int = 0,
-        val id: Int = 0,
-        val text: String? = null,
-    ): NavKey
-
-    @Serializable
-    @Immutable
-    data class MediaActivity(
-        val mediaId: Int
-    ): NavKey
-
-    @Serializable
-    @Immutable
-    data class CurrentFullList(
-        val listType: CurrentListType,
-    ): NavKey
-
-    @Serializable
-    @Immutable
-    data class ReorderFavorites(
-        val userId: Int,
-        val type: FavoritesType
-    ) : NavKey
-}
+YªçŠx-®éÜj×¢ëiºÚ+Š§j[h‘éÜ¢éí×^9N‹Z–‹­¦ëeŠw¬ÕÁ…­…”½´¹…á¥•°Ü¹…¹¥¡å½Ô¹½É”¹Õ¤¹½µµ½¸¹¹…Ù¥…Ñ¥½¸()¥µÁ½ÉĞ…¹‘É½¥‘à¹½µÁ½Í”¹ÉÕ¹Ñ¥µ”¹%µµÕÑ…‰±”)¥µÁ½ÉĞ…¹‘É½¥‘à¹¹…Ù¥…Ñ¥½¸Ì¹ÉÕ¹Ñ¥µ”¹9…Ù-•ä)¥µÁ½ÉĞ½´¹…á¥•°Ü¹…¹¥¡å½Ô¹½É”¹µ½‘•°¹ÕÉÉ•¹Ñ1¥ÍÑQåÁ”)¥µÁ½ÉĞ½´¹…á¥•°Ü¹…¹¥¡å½Ô¹½É”¹µ½‘•°¹…Ù½É¥Ñ•ÍQåÁ”)¥µÁ½ÉĞ­½Ñ±¥¹à¹Í•É¥…±¥é…Ñ¥½¸¹M•É¥…±¥é…‰±”()½‰©•ĞI½ÕÑ•Ìì((€€€M•É¥…±¥é…‰±”(€€€%µµÕÑ…‰±”(€€€½‰©•Ğ!½µ”è9…Ù-•ä((€€€M•É¥…±¥é…‰±”(€€€%µµÕÑ…‰±”(€€€½‰©•Ğ¹¥µ•Q…ˆè9…Ù-•ä((€€€M•É¥…±¥é…‰±”(€€€%µµÕÑ…‰±”(€€€½‰©•Ğ5…¹…Q…ˆè9…Ù-•ä((€€€M•É¥…±¥é…‰±”(€€€%µµÕÑ…‰±”(€€€‘…Ñ„±…ÍÌUÍ•É5•‘¥…1¥ÍĞ (€€€€€€€Ù…°µ•‘¥…QåÁ”èMÑÉ¥¹œ°(€€€€€€€Ù…°ÕÍ•É%è%¹Ğ€ô€À°(€€€€€€€Ù…°Í½É•½Éµ…ĞèMÑÉ¥¹œü€ô¹Õ±°°(€€€€¤è9…Ù-•ä((€€€M•É¥…±¥é…‰±”(€€€%µµÕÑ…‰±”(€€€½‰©•ĞAÉ½™¥±”è9…Ù-•ä((€€€M•É¥…±¥é…‰±”(€€€%µµÕÑ…‰±”(€€€‘…Ñ„±…ÍÌUÍ•É•Ñ…¥±Ì (€€€€€€€Ù…°¥è%¹Ğü°(€€€€€€€Ù…°ÕÍ•É9…µ”èMÑÉ¥¹œü(€€€€¤è9…Ù-•ä((€€€M•É¥…±¥é…‰±”(€€€½‰©•ĞáÁ±½É”è9…Ù-•ä((€€€M•É¥…±¥é…‰±”(€€€%µµÕÑ…‰±”(€€€‘…Ñ„±…ÍÌM•…É  (€€€€€€€Ù…°µ•‘¥…QåÁ”èMÑÉ¥¹œü€ô¹Õ±°°(€€€€€€€Ù…°µ•‘¥…M½ÉĞèMÑÉ¥¹œü€ô¹Õ±°°(€€€€€€€Ù…°•¹É”èMÑÉ¥¹œü€ô¹Õ±°°(€€€€€€€Ù…°Ñ…œèMÑÉ¥¹œü€ô¹Õ±°°(€€€€€€€Ù…°½¹1¥ÍĞè	½½±•…¸ü€ô¹Õ±°°(€€€€€€€Ù…°™½ÕÌè	½½±•…¸€ô™…±Í”°(€€€€¤è9…Ù-•ä((€€€M•É¥…±¥é…‰±”(€€€%µµÕÑ…‰±”(€€€‘…Ñ„±…ÍÌ9½Ñ¥™¥…Ñ¥½¹Ì¡Ù…°Õ¹É•…‘½Õ¹Ğè%¹Ğ€ô€À¤è9…Ù-•ä((€€€M•É¥…±¥é…‰±”(€€€%µµÕÑ…‰±”(€€€‘…Ñ„±…ÍÌ5•‘¥…•Ñ…¥±Ì (€€€€€€€Ù…°¥è%¹Ğ°(€€€€€€€Ù…°¥Í1½•‘%¸è	½½±•…¸€ô™…±Í”°(€€€€¤è9…Ù-•ä((€€€M•É¥…±¥é…‰±”(€€€%µµÕÑ…‰±”(€€€‘…Ñ„±…ÍÌ5•‘¥…¡…ÉÑ1¥ÍĞ¡Ù…°ÑåÁ”èMÓ^9¶‰ËkºwµçJ˜[Yˆ[
+Nˆ˜]’Ù^B‚ˆÙ\šX[^˜X›Bˆ[[]]X›Bˆ]HÛ\ÜÈ™XY]Z[Ê˜[Yˆ[
+Nˆ˜]’Ù^B‚ˆÙ\šX[^˜X›Bˆ[[]]X›Bˆ]HÛ\ÜÈİY[Ñ]Z[Ê˜[Yˆ[
+Nˆ˜]’Ù^B‚ˆÙ\šX[^˜X›Bˆ[[]]X›BˆØš™XİÙ][™ÜÎˆ˜]’Ù^B‚ˆÙ\šX[^˜X›Bˆ[[]]X›BˆØš™XİXZ[“˜]šYØ][Û”Ù][™ÜÎˆ˜]’Ù^B‚ˆÙ\šX[^˜X›Bˆ[[]]X›BˆØš™Xİ\İİ[TÙ][™ÜÎˆ˜]’Ù^B‚ˆÙ\šX[^˜X›BˆØš™Xİİ\İÛS\İÎˆ˜]’Ù^B‚ˆÙ\šX[^˜X›Bˆ[[]]X›BˆØš™Xİ˜[œÛ][ÛœÎˆ˜]’Ù^B‚ˆÙ\šX[^˜X›Bˆ[[]]X›BˆØš™XİÛÛšX]ÜœÎˆ˜]’Ù^B‚ˆÙ\šX[^˜X›Bˆ[[]]X›Bˆ]HÛ\ÜÈ[ØÜ™Y[’[XYÙJ˜[[XYÙU\›ˆİš[™ÏÊNˆ˜]’Ù^B‚ˆÙ\šX[^˜X›Bˆ[[]]X›Bˆ]HÛ\ÜÈXİ]š]Q]Z[Ê˜[Yˆ[
+Nˆ˜]’Ù^B‚ˆÙ\šX[^˜X›Bˆ[[]]X›Bˆ]HÛ\ÜÈX›\ÚXİ]š]Jˆ˜[Xİ]š]RYˆ[Ëˆ˜[Yˆ[Ëˆ˜[^ˆİš[™ÏÈH[ˆ
+Nˆ˜]’Ù^B‚ˆÙ\šX[^˜X›Bˆ[[]]X›Bˆ]HÛ\ÜÈX›\ÚÛÛ[Y[
+ˆ˜[™XYYˆ[Hˆ˜[\™[ÛÛ[Y[Yˆ[Hˆ˜[Yˆ[Hˆ˜[^ˆİš[™ÏÈH[ˆ
+Nˆ˜]’Ù^B‚ˆÙ\šX[^˜X›Bˆ[[]]X›Bˆ]HÛ\ÜÈYYXPXİ]š]Jˆ˜[YYXRYˆ[ˆ
+Nˆ˜]’Ù^B‚ˆÙ\šX[^˜X›Bˆ[[]]X›Bˆ]HÛ\ÜÈİ\œ™[[\İ
+ˆ˜[\İ\Nˆİ\œ™[\İ\Kˆ
+Nˆ˜]’Ù^B‚ˆÙ\šX[^˜X›Bˆ[[]]X›Bˆ]HÛ\ÜÈ™[Ü™\‘˜]›Üš]\Êˆ˜[\Ù\’Yˆ[ˆ˜[\Nˆ˜]›Üš]\Õ\Bˆ
+Hˆ˜]’Ù^BŸB
