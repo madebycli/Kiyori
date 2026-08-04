@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="main_navigation_editor_title">Hauptnavigation anpassen</string>
+    <string name="main_navigation_editor_reset">Zurücksetzen</string>
+    <string name="main_navigation_editor_help">Wähle sichtbare Ziele aus und ziehe am Griff, um ihre Reihenfolge zu ändern.</string>
+    <string name="main_navigation_editor_rule">Es müssen zwei bis fünf Ziele sichtbar sein. Start ist verpflichtend.</string>
+    <string name="main_navigation_required">Verpflichtend</string>
+    <string name="main_navigation_add">Haupttab hinzufügen</string>
+    <string name="main_navigation_remove">%1$s entfernen</string>
+    <string name="main_navigation_reorder">%1$s verschieben</string>
+    <string name="main_navigation_shortcut_home">Start</string>
+    <string name="main_navigation_shortcut_discover">Entdecken</string>
+    <string name="main_navigation_shortcut_existing_home">Öffnet diese bestehende Start-Liste direkt als Haupttab.</string>
+    <string name="main_navigation_shortcut_current_season">Öffnet automatisch die aktuelle Anime-Saison.</string>
+    <string name="main_navigation_shortcut_next_season">Öffnet automatisch die nächste Anime-Saison.</string>
+    <string name="main_navigation_shortcut_existing_discover">Öffnet diese bestehende Entdecken-Liste direkt als Haupttab.</string>
+    <string name="main_navigation_shortcut_already_added">Bereits hinzugefügt</string>
+    <string name="main_navigation_shortcut_limit">Es können höchstens fünf Tabs sichtbar sein. Neu hinzugefügte Tabs bleiben verfügbar, werden aber zunächst ausgeblendet.</string>
+</resources>
