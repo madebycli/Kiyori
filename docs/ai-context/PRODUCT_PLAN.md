@@ -41,7 +41,8 @@ Rebuild the previously accepted product experience on the newer upstream base in
   Bottom Bar and Navigation Rail, Home is the startup/fallback, and Calendar is a typed main target.
 - Completed: settings editor and typed dynamic shortcut hosts. Reused current-list, chart and season
   screens distinguish a main-tab host from their retained nested route framing.
-- Completed: focused normalized-registry unit coverage; compile validation remains pending dependency hydration.
+- Completed: focused normalized-registry unit coverage; `:core:model:testDebugUnitTest` and the affected
+  `:core:ui:compileDebugKotlin` task now pass on the Work runtime.
 
 ## Slice 3 — Date-based Calendar
 
@@ -62,6 +63,7 @@ Rebuild the previously accepted product experience on the newer upstream base in
   the same selected local date, bounded pager and tri-state list filter. The Monday–Sunday header
   now has exact filtered day counts, a thin selected-day accent line, accessible alternatives and
   disabled out-of-window controls.
+- Completed: `:feature:calendar:testDebugUnitTest` compiles and passes on the Work runtime.
 
 ## Slice 4 — Home, Discover and Season shortcuts
 
@@ -119,7 +121,7 @@ Reuse current upstream full-list, chart and Season views/ViewModels. Main hosts 
 - Completed in source: focused navigation/date-range tests, 48dp Calendar controls, TalkBack count
   descriptions, variant-safe notification routing, credential backup exclusion, phone-scoped branding,
   and English release-candidate documentation.
-- Pending external verification: the full CI/Gradle matrix, signed artifact inspection, and owner device acceptance.
+- Pending external verification: the full CI/Gradle matrix, unsigned candidate artifact inspection, and owner device acceptance.
 - Integration note: a single independent `main` README append causes a three-way merge conflict.
   Its resolution is deferred because this campaign expressly forbids merge and rebase operations.
 

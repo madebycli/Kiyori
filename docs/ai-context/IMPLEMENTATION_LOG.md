@@ -103,3 +103,14 @@
 - Replaced the inherited public README with English Kiyori product/build/security information and
   added an English Fastlane changelog plus unreleased release-candidate notes.
 - Deliberately retained `version.properties`: final release metadata is owner/validation-gated and no tag or release was created.
+
+## 2026-08-04 — First real Work compilation repair
+
+- Bootstrapped a workspace-local full Java 17, Gradle 9.5.0 and Android SDK through the Work proxy;
+  this made source compilation possible rather than merely resolving the wrapper.
+- `:core:model:testDebugUnitTest` exposed an Android JUnit annotation mismatch in the new navigation test.
+- `:feature:calendar:testDebugUnitTest` then exposed an invalid shortcut data class and three Compose API
+  mismatches in Calendar. Replaced the annotation, used a regular shortcut class, removed the invalid
+  layout import, retained the nested Back action directly, and used `LazyListScope.item` placeholders.
+- `:core:model:testDebugUnitTest`, `:core:ui:compileDebugKotlin` and `:feature:calendar:testDebugUnitTest`
+  pass after the repair. The fix was published as `5f9f7aad` without touching protected refs.

@@ -43,3 +43,5 @@
   release-candidate documentation must not be interpreted as a published release.
 - The independent `main` README change is not incorporated automatically: this campaign prohibits
   merge and rebase. A maintainer must explicitly choose the permitted conflict-resolution workflow.
+- Android-local unit tests use the established JUnit 4 annotation from `libs.junit`; assertion helpers may remain
+  from `kotlin.test`, but the platform test annotation must resolve on the Android unit-test classpath.

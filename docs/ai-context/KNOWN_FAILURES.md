@@ -46,3 +46,9 @@ These failures occurred during the previous implementation and must be prevented
 28. **Partial offline Gradle cache** — Gradle may start but still lack the included-build Kotlin DSL
     marker/plugin. Treat the exact missing coordinate as dependency hydration work, never as evidence
     of a Kiyori Kotlin compile failure.
+29. **Android test annotation mismatch** — `kotlin.test.Test` is not present on this Android unit-test
+    classpath even with `kotlin("test")`. Use the existing JUnit 4 dependency's `org.junit.Test` annotation.
+30. **Shortcut data-class constructor** — a data class cannot forward non-property primary constructor
+    parameters to `BottomDestination`; use a regular class when only the stable shortcut ID is state.
+31. **Calendar lazy placeholder overload** — the aliased list `items` import does not provide the count overload.
+    Use `repeat { item { ... } }` for LazyColumn placeholders and keep the grid overload separate.

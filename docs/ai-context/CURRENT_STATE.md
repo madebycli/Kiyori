@@ -1,9 +1,9 @@
 # Current State — Kiyori
 
-- Updated: 2026-08-04T18:18:00+02:00
+- Updated: 2026-08-04T21:16:33+02:00
 - Repository: `madebycli/Kiyori`
 - Branch: `feature/kiyori-integrated-rebuild`
-- Last published product checkpoint: `0aecd7af6c02a5a7e8a876d020be5f9378c1f699`
+- Last published product checkpoint: `5f9f7aad25e2168fe229dd5138d17428c6d990da`
 - Upstream `develop`: `01a8a4abe98c778d1015a33072a11efdb4ef8593`
 - Merge-base with `origin/develop`: `01a8a4abe98c778d1015a33072a11efdb4ef8593`
 - Protected refs verified unchanged: `main` `90898bfe`, `develop` `01a8a4ab`, `recovery/phase0-backup` `476ad447`
@@ -48,43 +48,33 @@ Gate 5 — stabilization and release-readiness verification.
 
 ## Build status
 
-Gradle 9.5.0 has been downloaded and starts with Java 17 plus a workspace temporary directory.
-The wrapper reaches project configuration; the remaining validation blocker is that the Work runtime
-terminates the local curl-backed Maven proxy before Gradle can finish hydrating uncached artifacts.
-
-The CI script now explicitly covers Wear debug/lint and both minified phone release variants.
+Gradle 9.5.0 now runs under a workspace-local full Java 17 and Android SDK through the Work proxy.
+The initial Kotlin compilation uncovered four source-level defects, all corrected in `5f9f7aad`.
+The CI script explicitly covers Wear debug/lint and both minified phone release variants; its complete
+execution is now the remaining release-readiness validation.
 
 ## Tests and checks
 
 - Passed: `git diff --check`; resource source/manifest inspection; 512×512 PNG dimensions; protected Auth/API source content comparison.
 - Passed: targeted auth/API reference comparison; no protected auth/API source files changed.
-- Attempted: `:feature:calendar:compileFossDebugKotlin --no-daemon --stacktrace`; source compilation
-  is not reached because uncached Android Gradle Plugin artifacts lose their localhost proxy mid-resolution.
-- Attempted offline: the current cache is still missing `org.gradle.kotlin.kotlin-dsl` `6.5.7` from
-  the included build. This confirms dependency hydration, not Kotlin source, is the immediate blocker.
+- Passed: `:core:model:testDebugUnitTest`, including the typed navigation repair invariants.
+- Passed: `:core:ui:compileDebugKotlin` and `:feature:calendar:testDebugUnitTest`.
 
 ## Known blockers
 
 - No local GitHub Git credential or GitHub CLI. Published commits use the connected GitHub integration and are synchronized back to the local feature branch.
-- The Java process cannot resolve public Maven hostnames in this Work container even though curl can;
-  the ephemeral process model also prevents a local curl-backed Maven proxy from surviving full dependency hydration.
+- No product-source blocker is currently known. The remaining work is the complete FOSS/GMS/Wear/test/lint/R8 matrix,
+  artifact inspection and owner device acceptance.
 - The master prompt names `00_USE_THIS_FILE.md` and `02_CHECKPOINT_POLICY.md`, but neither file exists in this checkout, its reachable history, or the provided upload. The explicit checkpoint rules in the master prompt are being followed.
 - Read-only merge simulation reports a README conflict with the independent `main` commit `90898bfe`.
   Resolving it requires a merge or rebase against `main`, both explicitly prohibited for this campaign.
 
 ## Next exact action
 
-In an environment with the Gradle 9.5.0 wrapper distribution available, run:
-
-```bash
-JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 \\
-LD_LIBRARY_PATH=/usr/lib/jvm/java-17-openjdk-amd64/lib \\
-PATH=/usr/lib/jvm/java-17-openjdk-amd64/bin:$PATH \\
-./gradlew :app:assembleFossDebug --no-daemon --stacktrace
-```
-
-Run the CI validation matrix on PR #2 or use a persistent Maven proxy, then complete the release matrix.
+Run the full validation matrix from `docs/ai-context/scripts/full_validation_matrix.sh`, inspect the generated
+FOSS debug APK and record its SHA-256. Do not create release metadata before the owner device acceptance.
 
 ## 2026-08-04 continuation
 
-Remote checkpoint `0da3b861` adds the editor, typed shortcut projection, Home actions, a separate date-based Calendar main host and DataStore backup exclusion. The source is still blocked from Gradle validation by the unavailable Gradle 9.5.0 distribution; Calendar list/grid persistence and the final stabilization matrix remain.
+Remote checkpoint `5f9f7aad` fixes the first actual Kotlin validation findings: Android JUnit annotations in the
+new tests, a valid non-data shortcut destination, and Compose-compatible Calendar scaffold/loading code.
