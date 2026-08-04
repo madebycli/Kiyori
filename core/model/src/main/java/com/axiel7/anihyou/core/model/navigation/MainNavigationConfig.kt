@@ -116,6 +116,21 @@ data class MainNavigationConfig(
             } else item
         }
     ).normalized()
+
+    fun move(stableId: String, toIndex: Int): MainNavigationConfig {
+        val fromIndex = items.indexOfFirst { it.stableId == stableId }
+        if (fromIndex < 0 || items[fromIndex].destination == MainNavigationDestination.HOME) return normalized()
+        val reordered = items.toMutableList()
+        val item = reordered.removeAt(fromIndex)
+        reordered.add(toIndex.coerceIn(1, reordered.size), item)
+        return copy(items = reordered).normalized()
+    }
+
+    fun removeShortcut(stableId: String): MainNavigationConfig = copy(
+        items = items.filterNot { it.stableId == stableId && it.shortcut != null }
+    ).normalized()
+
+    fun reset(): MainNavigationConfig = defaultMainNavigationConfig()
 }
 
 fun defaultMainNavigationConfig() = MainNavigationConfig(
