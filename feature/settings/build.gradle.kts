@@ -28,4 +28,5 @@ dependencies {
 
     implementation(libs.androidx.work.runtime)
     implementation(libs.accompanist.permissions)
+    implementation(libs.reorderable)
 }
