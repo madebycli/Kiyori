@@ -1,6 +1,6 @@
 # Current State — Kiyori
 
-- Updated: 2026-08-04T04:45:29+02:00
+- Updated: 2026-08-04T10:27:14+02:00
 - Repository: `madebycli/Kiyori`
 - Branch: `feature/kiyori-integrated-rebuild`
 - Local/remote checkpoint before this context update: `44b56f02b9fea8f20c15adf6b4612c23b55608b4`
@@ -10,7 +10,7 @@
 
 ## Current gate
 
-Gate 1 — Kiyori branding complete in source; Gradle validation remains environment-blocked.
+Gate 2 — configurable main navigation / models and codec complete locally; publication pending.
 
 ## Completed
 
@@ -24,6 +24,9 @@ Gate 1 — Kiyori branding complete in source; Gradle validation remains environ
 - The application manifest now uses the Kiyori icon and splash theme; shared Wear resources were not changed.
 - Added a monochrome Kiyori notification icon with a runtime resource lookup and installed-variant package routing.
 - Auth/API/OAuth contract scan completed before the branding edit; none of its files changed.
+- Added the versioned typed main-navigation model and compact codec. It migrates legacy and v2
+  static configurations, preserves a previously-visible Profile, and normalizes unknown, duplicate,
+  invalid, over-capacity and missing-Home configurations without persisting Compose routes.
 
 ## Build status
 
@@ -52,4 +55,5 @@ PATH=/usr/lib/jvm/java-17-openjdk-amd64/bin:$PATH \\
 ./gradlew :app:assembleFossDebug --no-daemon --stacktrace
 ```
 
-On success, continue Gate 1 with the Kiyori vector/adaptive launcher assets, splash mark, notification icon, SVG source, preview, and design/originality note.
+Commit and publish the Gate 2 model/codec checkpoint, then wire the normalized config to the
+preferences DataStore before changing the app shell.

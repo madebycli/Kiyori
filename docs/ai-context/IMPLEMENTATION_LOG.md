@@ -33,3 +33,11 @@
 - Added an all-white Kiyori notification mark in the phone app module. The shared notification utility uses it only when supplied by the installed package and otherwise retains the upstream fallback.
 - Notification launch intents now resolve `applicationContext.packageName`, preventing a release-package constant from breaking the debug variant.
 - Post-branding protected-contract comparison found no semantic change to the AniList client ID, callback, GraphQL endpoint, or token handling.
+
+## 2026-08-04 — Gate 2, typed navigation model and codec
+
+- Added a version-three, route-independent typed navigation contract in `core:model`.
+- The codec recognizes blank/default, legacy static-only, v2 and v3 values, discards unknown values,
+  preserves user order where possible, and rewrites all accepted values as v3.
+- Normalization protects Home, restores all static destinations, limits visibility to two through five,
+  prevents duplicate items and permits only one Season shortcut.

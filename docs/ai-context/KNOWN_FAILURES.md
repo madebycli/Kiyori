@@ -20,3 +20,5 @@ These failures occurred during the previous implementation and must be prevented
 16. **Shared-resource branding leak** — launcher/splash resources inherited from the common module also
    affect Wear. Keep Kiyori phone identity in app resource overlays unless a Wear-specific change is explicitly scoped.
 17. **Variant-specific notification intent** — never use a compile-time package constant for notification launch intents; use the installed application context package.
+18. **Navigation config repair drift** — always pass decoded, migrated and edited configuration
+    through one normalizer; Home must remain visible and malformed data must not select a hidden tab.
