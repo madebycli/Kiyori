@@ -4,6 +4,7 @@ import com.axiel7.anihyou.core.model.navigation.MainNavigationDestination
 import com.axiel7.anihyou.core.model.navigation.MainNavigationShortcutRegistry
 import com.axiel7.anihyou.core.model.navigation.defaultMainNavigationConfig
 import com.axiel7.anihyou.core.ui.common.BottomDestination
+import com.axiel7.anihyou.core.ui.common.navigation.Routes
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -42,6 +43,28 @@ class MainNavigationResolverTest {
                 assertTrue(
                     "Shortcut route is outside the stable route universe: ${shortcut.stableId}",
                     destination!!.route in allRoutes,
+                )
+            }
+    }
+
+    @Test
+    fun configurableShortcutsUseDedicatedTopLevelRouteTypes() {
+        MainNavigationShortcutRegistry.definitions
+            .flatMap { it.shortcuts }
+            .forEach { shortcut ->
+                val config = defaultMainNavigationConfig()
+                    .withVisibility(MainNavigationDestination.CALENDAR.stableId, false)
+                    .addShortcut(shortcut)
+                val route = MainNavigationResolver.destinations(config)
+                    .filterIsInstance<BottomDestination.Shortcut>()
+                    .first { it.stableId == shortcut.stableId }
+                    .route
+
+                assertTrue(
+                    "Shortcut still uses a sliding submenu route: ${shortcut.stableId} -> $route",
+                    route is Routes.CurrentFullListMain ||
+                        route is Routes.MediaChartListMain ||
+                        route is Routes.SeasonAnimeMain,
                 )
             }
     }
