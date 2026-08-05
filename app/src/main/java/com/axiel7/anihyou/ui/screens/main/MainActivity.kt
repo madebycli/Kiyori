@@ -78,8 +78,6 @@ class MainActivity : AppCompatActivity() {
         installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        val deepLink = findDeepLink()
-
         // Get necessary preferences while on the splashscreen.
         viewModel.setToken(viewModel.accessToken.firstBlocking())
         val initialIsLoggedIn = viewModel.isLoggedIn.firstBlocking()
@@ -95,6 +93,7 @@ class MainActivity : AppCompatActivity() {
         val initialNavigationConfig = viewModel.mainNavigationConfig.firstBlocking()
         val initialAppLockPreferences = viewModel.appLockPreferences.firstBlocking()
         viewModel.initializeAppLock(initialAppLockPreferences)
+        viewModel.queueDeepLink(findDeepLink(intent))
         ProcessLifecycleOwner.get().lifecycle.addObserver(appLockProcessObserver)
 
         setContent {
@@ -118,6 +117,7 @@ class MainActivity : AppCompatActivity() {
                 initialNavigationConfig
             )
             val appLockState by viewModel.appLockState.collectAsStateWithLifecycle()
+            val pendingDeepLink by viewModel.pendingDeepLink.collectAsStateWithLifecycle()
 
             DisposableEffect(isDark) {
                 enableEdgeToEdge(
@@ -160,7 +160,8 @@ class MainActivity : AppCompatActivity() {
                                 navigationConfig = navigationConfig,
                                 event = viewModel,
                                 homeTab = homeTab,
-                                deepLink = deepLink,
+                                deepLink = pendingDeepLink,
+                                onDeepLinkHandled = viewModel::consumeDeepLink,
                                 setNavigationBarContrastEnforced = {
                                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                                         window.isNavigationBarContrastEnforced = it
@@ -181,35 +182,37 @@ class MainActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        viewModel.onIntentDataReceived(this, intent.data)
+        setIntent(intent)
+        viewModel.queueDeepLink(findDeepLink(intent))
     }
 
-    private fun findDeepLink(): DeepLink? {
+    private fun findDeepLink(sourceIntent: Intent): DeepLink? {
         return when {
-            // Widget intent
-            intent.action == "media_details" -> {
+            // Widget and notification media intent.
+            sourceIntent.action == "media_details" -> {
                 DeepLink(
                     type = DeepLink.Type.ANIME,
-                    id = intent.getIntExtra("media_id", 0).toString(),
+                    id = sourceIntent.getIntExtra("media_id", 0).toString(),
                 )
             }
-            // Search shortcut
-            intent.action == "search" -> {
+            // Search shortcut.
+            sourceIntent.action == "search" -> {
                 DeepLink(
                     type = DeepLink.Type.SEARCH,
                     id = "search",
                 )
             }
-            // Login intent or AniList link
-            intent.data != null -> {
-                viewModel.onIntentDataReceived(this, intent.data)
-                val anilistSchemeIndex = intent.dataString?.indexOf("anilist.co")
+            // Login intent or AniList link.
+            sourceIntent.data != null -> {
+                viewModel.onIntentDataReceived(sourceIntent.data)
+                val anilistSchemeIndex = sourceIntent.dataString?.indexOf("anilist.co")
                 if (anilistSchemeIndex != null && anilistSchemeIndex != -1) {
-                    val linkSplit = intent.dataString!!.substring(anilistSchemeIndex).split('/')
-                    DeepLink(
-                        type = DeepLink.Type.valueOf(linkSplit[1].uppercase()),
-                        id = linkSplit[2],
-                    )
+                    val linkSplit = sourceIntent.dataString!!.substring(anilistSchemeIndex).split('/')
+                    val type = linkSplit.getOrNull(1)
+                        ?.uppercase()
+                        ?.let { runCatching { DeepLink.Type.valueOf(it) }.getOrNull() }
+                    val id = linkSplit.getOrNull(2)
+                    if (type != null && !id.isNullOrBlank()) DeepLink(type = type, id = id) else null
                 } else null
             }
 
@@ -227,6 +230,7 @@ fun MainView(
     event: MainEvent?,
     homeTab: HomeTab,
     deepLink: DeepLink?,
+    onDeepLinkHandled: (DeepLink) -> Unit,
     setNavigationBarContrastEnforced: (Boolean) -> Unit,
 ) {
     val resolvedDestinations = remember(navigationConfig) {
@@ -284,6 +288,7 @@ fun MainView(
                 isCompactScreen = true,
                 isLoggedIn = isLoggedIn,
                 deepLink = deepLink,
+                onDeepLinkHandled = onDeepLinkHandled,
                 homeTab = homeTab,
                 padding = padding,
             )
@@ -305,6 +310,7 @@ fun MainView(
                     isCompactScreen = false,
                     isLoggedIn = isLoggedIn,
                     deepLink = deepLink,
+                    onDeepLinkHandled = onDeepLinkHandled,
                     homeTab = homeTab,
                 )
             }
@@ -327,6 +333,7 @@ private fun MainPreview() {
             event = null,
             homeTab = HomeTab.CURRENT,
             deepLink = null,
+            onDeepLinkHandled = {},
             setNavigationBarContrastEnforced = {},
         )
     }
