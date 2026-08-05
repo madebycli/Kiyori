@@ -72,12 +72,25 @@ object Routes {
         val isMainDestination: Boolean = false,
     ): NavKey
 
+    /** Top-level chart host; the legacy route keeps submenu transitions and back behavior. */
+    @Serializable
+    @Immutable
+    data class MediaChartListMain(val type: String): NavKey
+
     @Serializable
     @Immutable
     data class SeasonAnime(
         val season: String,
         val year: Int,
         val isMainDestination: Boolean = false,
+    ): NavKey
+
+    /** Top-level season host; the legacy route keeps submenu transitions and back behavior. */
+    @Serializable
+    @Immutable
+    data class SeasonAnimeMain(
+        val season: String,
+        val year: Int,
     ): NavKey
 
     @Serializable
@@ -173,6 +186,11 @@ object Routes {
         val listType: CurrentListType,
         val isMainDestination: Boolean = false,
     ): NavKey
+
+    /** Top-level current-list host; the legacy route remains a sliding submenu. */
+    @Serializable
+    @Immutable
+    data class CurrentFullListMain(val listType: CurrentListType): NavKey
 
     @Serializable
     @Immutable
