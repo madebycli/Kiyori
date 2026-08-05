@@ -58,7 +58,7 @@ object MainNavigationResolver {
         is MainNavigationShortcut.CurrentList -> BottomDestination.Shortcut(
             stableId = stableId,
             index = index,
-            route = Routes.CurrentFullList(type, isMainDestination = true),
+            route = Routes.CurrentFullListMain(type),
             title = when (type) {
                 com.axiel7.anihyou.core.model.CurrentListType.AIRING -> R.string.airing
                 com.axiel7.anihyou.core.model.CurrentListType.BEHIND -> R.string.anime_behind
@@ -77,7 +77,7 @@ object MainNavigationResolver {
         is MainNavigationShortcut.Chart -> BottomDestination.Shortcut(
             stableId = stableId,
             index = index,
-            route = Routes.MediaChartList(type.name, isMainDestination = true),
+            route = Routes.MediaChartListMain(type.name),
             title = when (type) {
                 com.axiel7.anihyou.core.model.media.ChartType.TOP_ANIME,
                 com.axiel7.anihyou.core.model.media.ChartType.TOP_MANGA -> R.string.top_100
@@ -107,10 +107,9 @@ object MainNavigationResolver {
             BottomDestination.Shortcut(
                 stableId = stableId,
                 index = index,
-                route = Routes.SeasonAnime(
+                route = Routes.SeasonAnimeMain(
                     season = season.season.rawValue,
                     year = season.year,
-                    isMainDestination = true,
                 ),
                 title = if (mode == SeasonShortcutMode.CURRENT) R.string.season else R.string.next_season,
                 icon = R.drawable.calendar_today_24,
