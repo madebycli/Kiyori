@@ -1,0 +1,11 @@
+Kiyori 1.6.0.1 restores the complete phone experience and removes the retired Wear OS module.
+
+Highlights:
+- New default navigation: Home, Anime, Manga, Explore, and Calendar
+- Lossless migration for custom tabs and shortcuts
+- Responsive Discover actions on phones and wider screens
+- Strong biometric or device-credential app lock with timeout support
+- Notifications and deep links resume at the correct destination after unlock
+- Improved character/team loading, filters, voice-language fallback, and empty states
+- Updated typography, ratings, and nested thread comments
+- FOSS and GMS universal release builds with hardened signing verification

@@ -24,7 +24,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "AniHyou"
+rootProject.name = "Kiyori"
 include(":app")
 include(":baselineprofile")
 include(":core:base")
@@ -52,4 +52,3 @@ include(":feature:staffdetails")
 include(":feature:studiodetails")
 include(":feature:thread")
 include(":feature:usermedialist")
-include(":wearos")

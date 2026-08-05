@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import androidx.navigation3.runtime.NavKey
 import com.axiel7.anihyou.core.model.CurrentListType
 import com.axiel7.anihyou.core.model.FavoritesType
+import com.axiel7.anihyou.core.model.thread.ChildComment
 import kotlinx.serialization.Serializable
 
 object Routes {
@@ -66,11 +67,28 @@ object Routes {
 
     @Serializable
     @Immutable
-    data class MediaChartList(val type: String): NavKey
+    data class MediaChartList(
+        val type: String,
+        val isMainDestination: Boolean = false,
+    ): NavKey
+
+    /** Top-level chart host; the legacy route keeps submenu transitions and back behavior. */
+    @Serializable
+    @Immutable
+    data class MediaChartListMain(val type: String): NavKey
 
     @Serializable
     @Immutable
     data class SeasonAnime(
+        val season: String,
+        val year: Int,
+        val isMainDestination: Boolean = false,
+    ): NavKey
+
+    /** Top-level season host; the legacy route keeps submenu transitions and back behavior. */
+    @Serializable
+    @Immutable
+    data class SeasonAnimeMain(
         val season: String,
         val year: Int,
     ): NavKey
@@ -78,6 +96,11 @@ object Routes {
     @Serializable
     @Immutable
     object Calendar: NavKey
+
+    /** Top-level Calendar host; the legacy Calendar route keeps its back affordance. */
+    @Serializable
+    @Immutable
+    object CalendarMain: NavKey
 
     @Serializable
     @Immutable
@@ -97,11 +120,19 @@ object Routes {
 
     @Serializable
     @Immutable
+    data class ThreadCommentDetails(val childComment: ChildComment): NavKey
+
+    @Serializable
+    @Immutable
     data class StudioDetails(val id: Int): NavKey
 
     @Serializable
     @Immutable
     object Settings: NavKey
+
+    @Serializable
+    @Immutable
+    object MainNavigationSettings: NavKey
 
     @Serializable
     @Immutable
@@ -153,7 +184,13 @@ object Routes {
     @Immutable
     data class CurrentFullList(
         val listType: CurrentListType,
+        val isMainDestination: Boolean = false,
     ): NavKey
+
+    /** Top-level current-list host; the legacy route remains a sliding submenu. */
+    @Serializable
+    @Immutable
+    data class CurrentFullListMain(val listType: CurrentListType): NavKey
 
     @Serializable
     @Immutable

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.WorkManager
 import com.axiel7.anihyou.core.base.DataResult
 import com.axiel7.anihyou.core.common.viewmodel.UiStateViewModel
+import com.axiel7.anihyou.core.domain.repository.AppLockPreferencesRepository
 import com.axiel7.anihyou.core.domain.repository.DefaultPreferencesRepository
 import com.axiel7.anihyou.core.domain.repository.ListPreferencesRepository
 import com.axiel7.anihyou.core.domain.repository.LoginRepository
@@ -16,6 +17,7 @@ import com.axiel7.anihyou.core.model.ListStyle
 import com.axiel7.anihyou.core.model.Theme
 import com.axiel7.anihyou.core.model.TranslatorApp
 import com.axiel7.anihyou.core.model.notification.NotificationInterval
+import com.axiel7.anihyou.core.model.security.AppLockTimeout
 import com.axiel7.anihyou.core.network.type.ScoreFormat
 import com.axiel7.anihyou.core.network.type.UserStaffNameLanguage
 import com.axiel7.anihyou.core.network.type.UserTitleLanguage
@@ -40,6 +42,7 @@ class SettingsViewModel(
     private val listPreferencesRepository: ListPreferencesRepository,
     private val userRepository: UserRepository,
     private val loginRepository: LoginRepository,
+    private val appLockPreferencesRepository: AppLockPreferencesRepository,
     private val workManager: WorkManager,
 ) : UiStateViewModel<SettingsUiState>(), SettingsEvent {
 
@@ -66,10 +69,8 @@ class SettingsViewModel(
             defaultPreferencesRepository.setAppColorMode(value)
             when (value) {
                 AppColorMode.DEFAULT -> setAppColor(null)
-                AppColorMode.PROFILE -> {
-                    profileColor.firstOrNull()?.let { setAppColor(it) }
-                }
-                AppColorMode.CUSTOM -> {}
+                AppColorMode.PROFILE -> profileColor.firstOrNull()?.let { setAppColor(it) }
+                AppColorMode.CUSTOM -> Unit
             }
         }
     }
@@ -114,7 +115,6 @@ class SettingsViewModel(
         }
     }
 
-    // Notifications
     @OptIn(ExperimentalPermissionsApi::class)
     override fun setNotificationsEnabled(
         isEnabled: Boolean,
@@ -204,6 +204,18 @@ class SettingsViewModel(
         }
     }
 
+    override fun setAppLockEnabledAfterAuthentication(value: Boolean) {
+        viewModelScope.launch {
+            appLockPreferencesRepository.setEnabled(value)
+        }
+    }
+
+    override fun setAppLockTimeout(value: AppLockTimeout) {
+        viewModelScope.launch {
+            appLockPreferencesRepository.setTimeout(value)
+        }
+    }
+
     override fun logOut(recreate: () -> Unit) {
         viewModelScope.launch {
             loginRepository.logOut()
@@ -231,7 +243,7 @@ class SettingsViewModel(
                 if (result is DataResult.Success) {
                     it.copy(
                         isLoading = false,
-                        userSettings = result.data
+                        userSettings = result.data,
                     )
                 } else {
                     result.toUiState()
@@ -245,16 +257,11 @@ class SettingsViewModel(
                 mutableUiState.update { it.copy(isLoggedIn = value) }
             }
             .filter { it }
-            .flatMapLatest {
-                userRepository.getViewerSettings()
-            }
+            .flatMapLatest { userRepository.getViewerSettings() }
             .onEach { result ->
                 mutableUiState.update {
                     if (result is DataResult.Success) {
-                        it.copy(
-                            isLoading = false,
-                            userSettings = result.data
-                        )
+                        it.copy(isLoading = false, userSettings = result.data)
                     } else {
                         result.toUiState()
                     }
@@ -263,100 +270,79 @@ class SettingsViewModel(
             .launchIn(viewModelScope)
 
         defaultPreferencesRepository.theme
-            .onEach { value ->
-                mutableUiState.update { it.copy(theme = value) }
-            }
+            .onEach { value -> mutableUiState.update { it.copy(theme = value) } }
             .launchIn(viewModelScope)
 
         defaultPreferencesRepository.useBlackColors
-            .onEach { value ->
-                mutableUiState.update { it.copy(useBlackColors = value) }
-            }
+            .onEach { value -> mutableUiState.update { it.copy(useBlackColors = value) } }
             .launchIn(viewModelScope)
 
         defaultPreferencesRepository.appColorMode
-            .onEach { value ->
-                mutableUiState.update { it.copy(appColorMode = value) }
-            }
+            .onEach { value -> mutableUiState.update { it.copy(appColorMode = value) } }
             .launchIn(viewModelScope)
 
         defaultPreferencesRepository.appColor
-            .onEach { value ->
-                mutableUiState.update { it.copy(appColor = value) }
-            }
+            .onEach { value -> mutableUiState.update { it.copy(appColor = value) } }
             .launchIn(viewModelScope)
 
         defaultPreferencesRepository.colorPalette
             .filterNotNull()
-            .onEach { value ->
-                mutableUiState.update { it.copy(colorPaletteStyle = value) }
-            }
+            .onEach { value -> mutableUiState.update { it.copy(colorPaletteStyle = value) } }
             .launchIn(viewModelScope)
 
         defaultPreferencesRepository.blurAdult
-            .onEach { value ->
-                mutableUiState.update { it.copy(blurAdultContent = value) }
-            }
+            .onEach { value -> mutableUiState.update { it.copy(blurAdultContent = value) } }
             .launchIn(viewModelScope)
 
         defaultPreferencesRepository.defaultTab
             .filterNotNull()
-            .onEach { value ->
-                mutableUiState.update { it.copy(defaultTab = value) }
-            }
+            .onEach { value -> mutableUiState.update { it.copy(defaultTab = value) } }
             .launchIn(viewModelScope)
 
         listPreferencesRepository.useGeneralListStyle
-            .onEach { value ->
-                mutableUiState.update { it.copy(useGeneralListStyle = value) }
-            }
+            .onEach { value -> mutableUiState.update { it.copy(useGeneralListStyle = value) } }
             .launchIn(viewModelScope)
 
         listPreferencesRepository.generalListStyle
-            .onEach { value ->
-                mutableUiState.update { it.copy(generalListStyle = value) }
-            }
+            .onEach { value -> mutableUiState.update { it.copy(generalListStyle = value) } }
             .launchIn(viewModelScope)
 
         listPreferencesRepository.gridItemsPerRow
-            .onEach { value ->
-                mutableUiState.update { it.copy(gridItemsPerRow = value) }
-            }
+            .onEach { value -> mutableUiState.update { it.copy(gridItemsPerRow = value) } }
             .launchIn(viewModelScope)
 
         defaultPreferencesRepository.airingOnMyList
-            .onEach { value ->
-                mutableUiState.update { it.copy(airingOnMyList = value) }
-            }
+            .onEach { value -> mutableUiState.update { it.copy(airingOnMyList = value) } }
             .launchIn(viewModelScope)
 
         defaultPreferencesRepository.scoreFormat
-            .onEach { value ->
-                mutableUiState.update { it.copy(scoreFormat = value) }
-            }
+            .onEach { value -> mutableUiState.update { it.copy(scoreFormat = value) } }
             .launchIn(viewModelScope)
 
         defaultPreferencesRepository.isNotificationsEnabled
-            .onEach { value ->
-                mutableUiState.update { it.copy(isNotificationsEnabled = value) }
-            }
+            .onEach { value -> mutableUiState.update { it.copy(isNotificationsEnabled = value) } }
             .launchIn(viewModelScope)
 
         defaultPreferencesRepository.notificationCheckInterval
-            .onEach { value ->
-                mutableUiState.update { it.copy(notificationCheckInterval = value) }
-            }
+            .onEach { value -> mutableUiState.update { it.copy(notificationCheckInterval = value) } }
             .launchIn(viewModelScope)
 
         defaultPreferencesRepository.translatorApp
-            .onEach { value ->
-                mutableUiState.update { it.copy(translatorApp = value) }
-            }
+            .onEach { value -> mutableUiState.update { it.copy(translatorApp = value) } }
             .launchIn(viewModelScope)
 
         defaultPreferencesRepository.hideScores
-            .onEach { value ->
-                mutableUiState.update { it.copy(hideScores = value) }
+            .onEach { value -> mutableUiState.update { it.copy(hideScores = value) } }
+            .launchIn(viewModelScope)
+
+        appLockPreferencesRepository.preferences
+            .onEach { preferences ->
+                mutableUiState.update {
+                    it.copy(
+                        appLockEnabled = preferences.enabled,
+                        appLockTimeout = preferences.timeout,
+                    )
+                }
             }
             .launchIn(viewModelScope)
     }

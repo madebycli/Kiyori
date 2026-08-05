@@ -133,6 +133,18 @@ private fun SettingsContent(
         ) {
             PreferencesTitle(text = stringResource(R.string.display))
 
+            PlainPreference(
+                title = stringResource(R.string.main_navigation),
+                subtitle = stringResource(R.string.main_navigation_summary),
+                icon = R.drawable.sort_24,
+                onClick = navActionManager::toMainNavigationSettings,
+            )
+
+            AppLockSettings(
+                uiState = uiState,
+                event = event,
+            )
+
             ListPreference(
                 title = stringResource(R.string.theme),
                 entriesValues = Theme.entriesLocalized,
@@ -392,8 +404,8 @@ private fun SettingsContent(
                     }
                 )
             }
-        }//: Column
-    }//: Scaffold
+        }
+    }
 }
 
 @OptIn(ExperimentalPermissionsApi::class)

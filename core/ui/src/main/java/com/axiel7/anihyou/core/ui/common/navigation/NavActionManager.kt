@@ -7,6 +7,7 @@ import com.axiel7.anihyou.core.model.CurrentListType
 import com.axiel7.anihyou.core.model.FavoritesType
 import com.axiel7.anihyou.core.model.media.AnimeSeason
 import com.axiel7.anihyou.core.model.media.ChartType
+import com.axiel7.anihyou.core.model.thread.ChildComment
 import com.axiel7.anihyou.core.network.type.MediaSeason
 import com.axiel7.anihyou.core.network.type.MediaSort
 import com.axiel7.anihyou.core.network.type.MediaType
@@ -54,6 +55,10 @@ class NavActionManager(
 
     fun toThreadDetails(id: Int) {
         navigator.navigate(Routes.ThreadDetails(id))
+    }
+
+    fun toThreadCommentDetails(childComment: ChildComment) {
+        navigator.navigate(Routes.ThreadCommentDetails(childComment))
     }
 
     fun toReviewDetails(id: Int) {
@@ -181,6 +186,10 @@ class NavActionManager(
         navigator.navigate(Routes.Settings)
     }
 
+    fun toMainNavigationSettings() {
+        navigator.navigate(Routes.MainNavigationSettings)
+    }
+
     fun toListStyleSettings() {
         navigator.navigate(Routes.ListStyleSettings)
     }
@@ -204,7 +213,7 @@ class NavActionManager(
             )
         )
     }
-        
+
     fun toContributors() {
         navigator.navigate(Routes.Contributors)
     }
@@ -213,7 +222,7 @@ class NavActionManager(
         @Composable
         fun rememberNavActionManager(
             navigator: INavigator = PreviewNavigator()
-        ) = remember {
+        ) = remember(navigator) {
             NavActionManager(navigator)
         }
     }

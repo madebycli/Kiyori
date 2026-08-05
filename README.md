@@ -1,44 +1,42 @@
-# <img alt="app-icon" height="50" src="https://github.com/axiel7/AniHyou-android/blob/master/core/resources/src/main/res/mipmap-hdpi/ic_launcher_round.webp"/>AniHyou
+# Kiyori
 
-[![Downloads](https://img.shields.io/github/downloads/axiel7/AniHyou-android/total.svg)](https://github.com/axiel7/MoeList/releases/latest)
-[![Crowdin](https://badges.crowdin.net/anihyou/localized.svg)](https://crowdin.com/project/anihyou)
-[![Donate](https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg)](https://ko-fi.com/axiel7)
+Kiyori is a phone-only Android client for discovering, planning, and tracking anime and manga with AniList.
+It preserves the established AniList authentication and API contract while providing a focused,
+configurable experience for phones, landscape layouts, and wider Android screens.
 
-Another unofficial Android AniList client
+## Highlights
 
-[<img alt="Google Play" height="80" src="https://play.google.com/intl/en_US/badges/images/generic/en_badge_web_generic.png"/>](https://play.google.com/store/apps/details?id=com.axiel7.anihyou)
-[<img alt="Get it on F-Droid" height="80" src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png">](https://f-droid.org/packages/com.axiel7.anihyou)
+- Configurable main navigation with two to five destinations and one shared projection for the bottom bar and navigation rail.
+- A version-4 default layout of Home, Anime, Manga, Explore, and Calendar, with lossless migration of custom version-3 layouts and shortcuts.
+- A date-based Calendar for today through the next fourteen days, including accessible week controls, exact filtered day counts, and list/grid presentation.
+- Responsive Discover actions that keep the existing chip design while using compact or wide multi-column layouts.
+- Character and team browsing with role and voice-language filters, independent loading states, and deterministic voice-actor fallback.
+- Optional strong app locking with biometric or device-credential authentication, configurable timeouts, and lock-safe deep-link and notification routing.
+- Separate FOSS and GMS variants. The Android package is `app.kiyori` (`app.kiyori.debug` for debug builds).
 
-iOS version [here](https://github.com/axiel7/AniHyou-iOS)
+## Build and validation
 
-Get latest beta version from [nightly.link](https://nightly.link/axiel7/AniHyou-android/workflows/build-upload-android/develop)
+Kiyori uses the checked-in Gradle wrapper and JDK 17. The complete phone validation matrix is:
 
-Follow the development on the official Discord server:
-
-[![Discord Banner 3](https://discordapp.com/api/guilds/741059285122940928/widget.png?style=banner2)](https://discord.gg/CTv3WdfxHh)
-
-# Screenshots
-![Screenshots](https://github.com/axiel7/AniHyou-android/blob/master/screenshots.webp)
-
-## Coming features
-- [See project](https://github.com/users/axiel7/projects/2/views/1)
-
-# Donate 💸
-Support the development of AniHyou by making a donation via:
-
-[Ko-Fi](https://ko-fi.com/axiel7)
-
-BTC
-```
-3KKjJuorh9se2jUo1Hr6MFgXhnBWbj5fTP
+```bash
+bash scripts/install-android-sdk.sh
+bash docs/ai-context/scripts/full_validation_matrix.sh
 ```
 
-ETH
-```
-0xBd20dD0e036B246F879EeFde52601f0fBbeC69c0
-```
+The matrix assembles FOSS and GMS debug variants, runs app and module unit tests, runs both lint variants,
+and assembles minified FOSS and GMS release candidates with R8. Signed universal release assets are
+created only by the repository's protected **Signed GitHub Release** workflow from canonical `main`.
 
-LTC
-```
-MRw5XPLsM9SVf48tv4nwQoY12nMXaiVzmD
-```
+## Release status
+
+Version metadata is `1.6.0.1` (`versionCode` 114). The complete pre-version matrix passed in Android CI
+run 140 on commit `1811092adfe6fe28efe536eda26b092e4797d4b0`. The versioned candidate still requires its own green
+CI run, device/upgrade acceptance, and verified release signing before tag `v1.6.0.1` may be published.
+No tag or GitHub release should be assumed from this repository state alone.
+
+## Privacy and security
+
+Credential-bearing preferences are excluded from Android cloud backup and device-to-device transfer.
+The app lock does not suppress WorkManager notification checks; notification, widget, and external-link
+destinations are buffered behind the lock gate and consumed exactly once after successful authentication.
+Never commit signing material, tokens, private keys, or local SDK configuration.

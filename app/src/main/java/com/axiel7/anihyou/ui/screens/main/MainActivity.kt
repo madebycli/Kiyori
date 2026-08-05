@@ -28,7 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -37,16 +36,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.axiel7.anihyou.core.base.extensions.firstBlocking
 import com.axiel7.anihyou.core.model.DeepLink
 import com.axiel7.anihyou.core.model.HomeTab
 import com.axiel7.anihyou.core.model.Theme
+import com.axiel7.anihyou.core.model.navigation.MainNavigationConfig
 import com.axiel7.anihyou.core.resources.dark_scrim
 import com.axiel7.anihyou.core.resources.light_scrim
 import com.axiel7.anihyou.core.ui.common.BottomDestination
-import com.axiel7.anihyou.core.ui.common.BottomDestination.Companion.isBottomDestination
-import com.axiel7.anihyou.core.ui.common.BottomDestination.Companion.toBottomDestinationRoute
 import com.axiel7.anihyou.core.ui.common.LocalBlurAdult
 import com.axiel7.anihyou.core.ui.common.LocalHideScores
 import com.axiel7.anihyou.core.ui.common.LocalScoreFormat
@@ -56,21 +57,28 @@ import com.axiel7.anihyou.core.ui.common.navigation.rememberNavigationState
 import com.axiel7.anihyou.core.ui.theme.AniHyouTheme
 import com.axiel7.anihyou.ui.screens.main.composables.MainBottomNavBar
 import com.axiel7.anihyou.ui.screens.main.composables.MainNavigationRail
-import kotlinx.coroutines.runBlocking
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModel()
 
+    private val appLockProcessObserver = object : DefaultLifecycleObserver {
+        override fun onStart(owner: LifecycleOwner) {
+            viewModel.onProcessForegrounded()
+        }
+
+        override fun onStop(owner: LifecycleOwner) {
+            viewModel.onProcessBackgrounded()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        val deepLink = findDeepLink()
-
-        //get necessary preferences while on splashscreen
+        // Get necessary preferences while on the splashscreen.
         viewModel.setToken(viewModel.accessToken.firstBlocking())
         val initialIsLoggedIn = viewModel.isLoggedIn.firstBlocking()
         val initialTheme = viewModel.theme.firstBlocking()
@@ -81,8 +89,12 @@ class MainActivity : AppCompatActivity() {
         val initialBlurAdult = viewModel.blurAdultContent.firstBlocking()
         val initialScoreFormat = viewModel.scoreFormat.firstBlocking()
         val initialHideScores = viewModel.hideScores.firstBlocking()
-        val startTab = runBlocking { viewModel.getStartTab() }
         val homeTab = viewModel.homeTab.firstBlocking() ?: HomeTab.CURRENT
+        val initialNavigationConfig = viewModel.mainNavigationConfig.firstBlocking()
+        val initialAppLockPreferences = viewModel.appLockPreferences.firstBlocking()
+        viewModel.initializeAppLock(initialAppLockPreferences)
+        viewModel.queueDeepLink(findDeepLink(intent))
+        ProcessLifecycleOwner.get().lifecycle.addObserver(appLockProcessObserver)
 
         setContent {
             val windowSizeClass = calculateWindowSizeClass(this)
@@ -101,6 +113,11 @@ class MainActivity : AppCompatActivity() {
             val blurAdultContent by viewModel.blurAdultContent.collectAsStateWithLifecycle(initialBlurAdult)
             val scoreFormat by viewModel.scoreFormat.collectAsStateWithLifecycle(initialScoreFormat)
             val hideScores by viewModel.hideScores.collectAsStateWithLifecycle(initialHideScores)
+            val navigationConfig by viewModel.mainNavigationConfig.collectAsStateWithLifecycle(
+                initialNavigationConfig
+            )
+            val appLockState by viewModel.appLockState.collectAsStateWithLifecycle()
+            val pendingDeepLink by viewModel.pendingDeepLink.collectAsStateWithLifecycle()
 
             DisposableEffect(isDark) {
                 enableEdgeToEdge(
@@ -125,67 +142,77 @@ class MainActivity : AppCompatActivity() {
             ) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
+                    color = MaterialTheme.colorScheme.background,
                 ) {
-                    CompositionLocalProvider(
-                        LocalBlurAdult provides blurAdultContent,
-                        LocalScoreFormat provides scoreFormat,
-                        LocalHideScores provides hideScores,
+                    AppLockGate(
+                        activity = this,
+                        state = appLockState,
+                        onAuthenticationSucceeded = viewModel::onAppLockAuthenticationSucceeded,
                     ) {
-                        MainView(
-                            windowSizeClass = windowSizeClass,
-                            isLoggedIn = isLoggedIn,
-                            tabToOpen = startTab,
-                            event = viewModel,
-                            homeTab = homeTab,
-                            deepLink = deepLink,
-                            setNavigationBarContrastEnforced = {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                                    window.isNavigationBarContrastEnforced = it
-                                }
-                            }
-                        )
+                        CompositionLocalProvider(
+                            LocalBlurAdult provides blurAdultContent,
+                            LocalScoreFormat provides scoreFormat,
+                            LocalHideScores provides hideScores,
+                        ) {
+                            MainView(
+                                windowSizeClass = windowSizeClass,
+                                isLoggedIn = isLoggedIn,
+                                navigationConfig = navigationConfig,
+                                event = viewModel,
+                                homeTab = homeTab,
+                                deepLink = pendingDeepLink,
+                                onDeepLinkHandled = viewModel::consumeDeepLink,
+                                setNavigationBarContrastEnforced = {
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                                        window.isNavigationBarContrastEnforced = it
+                                    }
+                                },
+                            )
+                        }
                     }
                 }
             }
         }
     }
 
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        viewModel.onIntentDataReceived(this, intent.data)
+    override fun onDestroy() {
+        ProcessLifecycleOwner.get().lifecycle.removeObserver(appLockProcessObserver)
+        super.onDestroy()
     }
 
-    private fun findDeepLink(): DeepLink? {
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        viewModel.queueDeepLink(findDeepLink(intent))
+    }
+
+    private fun findDeepLink(sourceIntent: Intent): DeepLink? {
         return when {
-            // Widget intent
-            intent.action == "media_details" -> {
+            // Widget and notification media intent.
+            sourceIntent.action == "media_details" -> {
                 DeepLink(
-                    type = DeepLink.Type.ANIME,// does not mather ANIME or MANGA
-                    id = intent.getIntExtra("media_id", 0).toString()
+                    type = DeepLink.Type.ANIME,
+                    id = sourceIntent.getIntExtra("media_id", 0).toString(),
                 )
             }
-            // Search shortcut
-            intent.action == "search" -> {
+            // Search shortcut.
+            sourceIntent.action == "search" -> {
                 DeepLink(
                     type = DeepLink.Type.SEARCH,
-                    id = "search"
+                    id = "search",
                 )
             }
-            // Login intent or anilist link
-            intent.data != null -> {
-                viewModel.onIntentDataReceived(this, intent.data)
-                // Manually handle deep links because the uri pattern in the compose navigation
-                // matches this -> https://anilist.co/manga/41514/
-                // but not this -> https://anilist.co/manga/41514/Otoyomegatari/
-                //TODO: find a better solution :)
-                val anilistSchemeIndex = intent.dataString?.indexOf("anilist.co")
+            // Login intent or AniList link.
+            sourceIntent.data != null -> {
+                viewModel.onIntentDataReceived(sourceIntent.data)
+                val anilistSchemeIndex = sourceIntent.dataString?.indexOf("anilist.co")
                 if (anilistSchemeIndex != null && anilistSchemeIndex != -1) {
-                    val linkSplit = intent.dataString!!.substring(anilistSchemeIndex).split('/')
-                    DeepLink(
-                        type = DeepLink.Type.valueOf(linkSplit[1].uppercase()),
-                        id = linkSplit[2]
-                    )
+                    val linkSplit = sourceIntent.dataString!!.substring(anilistSchemeIndex).split('/')
+                    val type = linkSplit.getOrNull(1)
+                        ?.uppercase()
+                        ?.let { runCatching { DeepLink.Type.valueOf(it) }.getOrNull() }
+                    val id = linkSplit.getOrNull(2)
+                    if (type != null && !id.isNullOrBlank()) DeepLink(type = type, id = id) else null
                 } else null
             }
 
@@ -199,25 +226,42 @@ class MainActivity : AppCompatActivity() {
 fun MainView(
     windowSizeClass: WindowSizeClass,
     isLoggedIn: Boolean,
-    tabToOpen: Int,
+    navigationConfig: MainNavigationConfig,
     event: MainEvent?,
     homeTab: HomeTab,
     deepLink: DeepLink?,
+    onDeepLinkHandled: (DeepLink) -> Unit,
     setNavigationBarContrastEnforced: (Boolean) -> Unit,
 ) {
-    val startKey = remember(tabToOpen) {
-        tabToOpen.toBottomDestinationRoute() ?: BottomDestination.Home.route
+    val resolvedDestinations = remember(navigationConfig) {
+        MainNavigationResolver.destinations(navigationConfig)
     }
-    val navigationState = rememberNavigationState(startKey, BottomDestination.routes)
-    val navigator = remember { Navigator(navigationState) }
-    val isBottomDestination by remember {
-        derivedStateOf { navigationState.getCurrentRoute()?.isBottomDestination() == true }
+    val resolvedRoutes = remember(resolvedDestinations) {
+        MainNavigationResolver.routes(navigationConfig)
     }
+    val allTopLevelRoutes = remember {
+        MainNavigationResolver.allRoutes()
+    }
+    val navigationState = rememberNavigationState(
+        startRoute = BottomDestination.Home.route,
+        topLevelRoutes = allTopLevelRoutes,
+    )
+    val navigator = remember(navigationState) { Navigator(navigationState) }
+    val currentTopLevelRoute = navigationState.topLevelRoute
+    val currentRoute = navigationState.getCurrentRoute()
+    val isBottomDestination = currentTopLevelRoute in resolvedRoutes &&
+        currentRoute == currentTopLevelRoute
     val navActionManager = NavActionManager.rememberNavActionManager(navigator)
     val isCompactScreen = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
 
     LaunchedEffect(isBottomDestination) {
         setNavigationBarContrastEnforced(!isBottomDestination)
+    }
+
+    LaunchedEffect(resolvedRoutes, currentTopLevelRoute) {
+        if (currentTopLevelRoute !in resolvedRoutes) {
+            navigator.navigate(BottomDestination.Home.route)
+        }
     }
 
     Scaffold(
@@ -226,14 +270,16 @@ fun MainView(
                 MainBottomNavBar(
                     navigator = navigator,
                     navActionManager = navActionManager,
+                    destinations = resolvedDestinations,
+                    selectedRoute = currentTopLevelRoute,
                     isVisible = isBottomDestination,
-                    onItemSelected = { event?.saveLastTab(it) }
+                    onItemSelected = { event?.saveLastTab(it) },
                 )
             }
         },
         contentWindowInsets = if (isCompactScreen) WindowInsets.systemBars
             .only(WindowInsetsSides.Horizontal)
-        else WindowInsets(0, 0, 0, 0)
+        else WindowInsets(0, 0, 0, 0),
     ) { padding ->
         if (isCompactScreen) {
             MainNavigation(
@@ -242,23 +288,29 @@ fun MainView(
                 isCompactScreen = true,
                 isLoggedIn = isLoggedIn,
                 deepLink = deepLink,
+                onDeepLinkHandled = onDeepLinkHandled,
                 homeTab = homeTab,
                 padding = padding,
             )
         } else {
             Row(
-                modifier = Modifier.padding(padding)
+                modifier = Modifier.padding(padding),
             ) {
-                MainNavigationRail(
-                    navigator = navigator,
-                    onItemSelected = { event?.saveLastTab(it) },
-                )
+                if (isBottomDestination) {
+                    MainNavigationRail(
+                        navigator = navigator,
+                        destinations = resolvedDestinations,
+                        selectedRoute = currentTopLevelRoute,
+                        onItemSelected = { event?.saveLastTab(it) },
+                    )
+                }
                 MainNavigation(
                     navigator = navigator,
                     navActionManager = navActionManager,
                     isCompactScreen = false,
                     isLoggedIn = isLoggedIn,
                     deepLink = deepLink,
+                    onDeepLinkHandled = onDeepLinkHandled,
                     homeTab = homeTab,
                 )
             }
@@ -274,13 +326,14 @@ private fun MainPreview() {
     AniHyouTheme {
         MainView(
             windowSizeClass = WindowSizeClass.calculateFromSize(
-                DpSize(width = 1280.dp, height = 1920.dp)
+                DpSize(width = 1280.dp, height = 1920.dp),
             ),
             isLoggedIn = false,
-            tabToOpen = 0,
+            navigationConfig = com.axiel7.anihyou.core.model.navigation.defaultMainNavigationConfig(),
             event = null,
             homeTab = HomeTab.CURRENT,
             deepLink = null,
+            onDeepLinkHandled = {},
             setNavigationBarContrastEnforced = {},
         )
     }

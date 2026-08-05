@@ -1,18 +1,19 @@
 package com.axiel7.anihyou.feature.explore.discover
 
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -73,6 +74,12 @@ enum class DiscoverInfo {
     NEWLY_ANIME,
     NEWLY_MANGA,
 }
+
+private data class DiscoverAction(
+    val label: String,
+    val icon: Int,
+    val onClick: () -> Unit,
+)
 
 @Composable
 fun DiscoverView(
@@ -177,50 +184,33 @@ private fun DiscoverContent(
                         fontWeight = FontWeight.Medium
                     )
 
-                    Row(
-                        modifier = Modifier
-                            .horizontalScroll(rememberScrollState())
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                    ) {
-                        AssistChip(
-                            onClick = {
-                                navActionManager.toAnimeSeason(uiState.currentSeason.year, uiState.currentSeason.season)
-                            },
-                            label = { Text(text = stringResource(R.string.season)) },
-                            leadingIcon = {
-                                Icon(
-                                    painter = painterResource(uiState.currentSeason.season.iconSmall()),
-                                    contentDescription = null,
-                                    modifier = Modifier.size(AssistChipDefaults.IconSize),
-                                )
-                            }
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        AssistChip(
-                            onClick = { navActionManager.toCalendar() },
-                            label = { Text(text = stringResource(R.string.calendar)) },
-                            leadingIcon = {
-                                Icon(
-                                    painter = painterResource(R.drawable.calendar_month_20),
-                                    contentDescription = null
-                                )
-                            }
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        ChartType.animeCharts.forEach { chartType ->
-                            AssistChip(
-                                onClick = { navActionManager.toMediaChart(chartType) },
-                                label = { Text(text = chartType.localized()) },
-                                leadingIcon = {
-                                    Icon(
-                                        painter = painterResource(chartType.icon()),
-                                        contentDescription = null
+                    val animeActions = buildList {
+                        add(
+                            DiscoverAction(
+                                label = stringResource(R.string.season),
+                                icon = uiState.currentSeason.season.iconSmall(),
+                                onClick = {
+                                    navActionManager.toAnimeSeason(
+                                        uiState.currentSeason.year,
+                                        uiState.currentSeason.season,
                                     )
-                                }
+                                },
                             )
-                            Spacer(modifier = Modifier.width(12.dp))
+                        )
+                        ChartType.animeCharts.forEach { chartType ->
+                            add(
+                                DiscoverAction(
+                                    label = chartType.localized(),
+                                    icon = chartType.icon(),
+                                    onClick = { navActionManager.toMediaChart(chartType) },
+                                )
+                            )
                         }
                     }
+                    DiscoverActionGrid(
+                        actions = animeActions,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    )
 
                     Text(
                         text = stringResource(R.string.manga),
@@ -229,25 +219,16 @@ private fun DiscoverContent(
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Medium
                     )
-                    Row(
-                        modifier = Modifier
-                            .horizontalScroll(rememberScrollState())
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                    ) {
-                        ChartType.mangaCharts.forEach { chartType ->
-                            AssistChip(
+                    DiscoverActionGrid(
+                        actions = ChartType.mangaCharts.map { chartType ->
+                            DiscoverAction(
+                                label = chartType.localized(),
+                                icon = chartType.icon(),
                                 onClick = { navActionManager.toMediaChart(chartType) },
-                                label = { Text(text = chartType.localized()) },
-                                leadingIcon = {
-                                    Icon(
-                                        painter = painterResource(chartType.icon()),
-                                        contentDescription = null
-                                    )
-                                }
                             )
-                            Spacer(modifier = Modifier.width(12.dp))
-                        }
-                    }
+                        },
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    )
                 }
 
                 items(uiState.infos) { item ->
@@ -406,6 +387,48 @@ private fun DiscoverContent(
                                 navigateToMediaDetails = navActionManager::toMediaDetails,
                             )
                         }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DiscoverActionGrid(
+    actions: List<DiscoverAction>,
+    modifier: Modifier = Modifier,
+) {
+    BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
+        val columns = when {
+            maxWidth >= 840.dp -> 4
+            maxWidth >= 600.dp -> 3
+            else -> 2
+        }
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            actions.chunked(columns).forEach { rowActions ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    rowActions.forEach { action ->
+                        val itemModifier = if (rowActions.size == 1) {
+                            Modifier.fillMaxWidth()
+                        } else {
+                            Modifier.weight(1f)
+                        }
+                        AssistChip(
+                            onClick = action.onClick,
+                            modifier = itemModifier.heightIn(min = 48.dp),
+                            label = { Text(text = action.label) },
+                            leadingIcon = {
+                                Icon(
+                                    painter = painterResource(action.icon),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(AssistChipDefaults.IconSize),
+                                )
+                            },
+                        )
                     }
                 }
             }

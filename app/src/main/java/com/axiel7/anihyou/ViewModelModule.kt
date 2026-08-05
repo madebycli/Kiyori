@@ -24,11 +24,13 @@ import com.axiel7.anihyou.feature.profile.social.UserSocialViewModel
 import com.axiel7.anihyou.feature.profile.stats.UserStatsViewModel
 import com.axiel7.anihyou.feature.reviewdetails.ReviewDetailsViewModel
 import com.axiel7.anihyou.feature.settings.SettingsViewModel
+import com.axiel7.anihyou.feature.settings.MainNavigationSettingsViewModel
 import com.axiel7.anihyou.feature.settings.customlists.CustomListsViewModel
 import com.axiel7.anihyou.feature.settings.liststyle.ListStyleSettingsViewModel
 import com.axiel7.anihyou.feature.staffdetails.StaffDetailsViewModel
 import com.axiel7.anihyou.feature.studiodetails.StudioDetailsViewModel
 import com.axiel7.anihyou.feature.thread.ThreadDetailsViewModel
+import com.axiel7.anihyou.feature.thread.comment.ThreadCommentViewModel
 import com.axiel7.anihyou.feature.thread.publish.PublishCommentViewModel
 import com.axiel7.anihyou.feature.usermedialist.UserMediaListViewModel
 import com.axiel7.anihyou.ui.screens.main.MainViewModel
@@ -60,11 +62,13 @@ val viewModelModule = module {
     viewModel<UserStatsViewModel>()
     viewModel<ReviewDetailsViewModel>()
     viewModel<SettingsViewModel>()
+    viewModel<MainNavigationSettingsViewModel>()
     viewModel<CustomListsViewModel>()
     viewModel<ListStyleSettingsViewModel>()
     viewModel<StaffDetailsViewModel>()
     viewModel<StudioDetailsViewModel>()
     viewModel<ThreadDetailsViewModel>()
+    viewModel<ThreadCommentViewModel>()
     viewModel<PublishCommentViewModel>()
     viewModel<UserMediaListViewModel>()
     viewModel<ReorderFavoritesViewModel>()

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="calendar_previous_week">Previous week</string>
+    <string name="calendar_next_week">Next week</string>
+    <string name="calendar_show_list">Show list</string>
+    <string name="calendar_show_grid">Show grid</string>
+    <string name="calendar_filter">Filter calendar</string>
+    <string name="calendar_filter_all">All anime</string>
+    <string name="calendar_filter_on_list">On my list</string>
+    <string name="calendar_filter_not_on_list">Not on my list</string>
+    <string name="calendar_airing_count">%1$d airing</string>
+</resources>

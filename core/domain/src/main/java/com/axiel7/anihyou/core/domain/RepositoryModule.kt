@@ -1,6 +1,7 @@
 package com.axiel7.anihyou.core.domain
 
 import com.axiel7.anihyou.core.domain.repository.ActivityRepository
+import com.axiel7.anihyou.core.domain.repository.AppLockPreferencesRepository
 import com.axiel7.anihyou.core.domain.repository.CharacterRepository
 import com.axiel7.anihyou.core.domain.repository.DefaultPreferencesRepository
 import com.axiel7.anihyou.core.domain.repository.FavoriteRepository
@@ -21,6 +22,7 @@ import org.koin.plugin.module.dsl.single
 
 val repositoryModule = module {
     single<ActivityRepository>()
+    single<AppLockPreferencesRepository>()
     single<CharacterRepository>()
     single<DefaultPreferencesRepository>()
     single<FavoriteRepository>()

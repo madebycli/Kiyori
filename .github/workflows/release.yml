@@ -3,33 +3,18 @@ name: Signed GitHub Release
 on:
   workflow_dispatch:
     inputs:
-      source_ref:
-        description: Branch, tag, or commit to build (workflow itself must run from main)
-        required: true
-        default: main
-        type: string
       tag:
-        description: Optional tag, for example v1.6.0 (defaults to version.properties)
+        description: Exact version tag; must equal v<version.properties name>
         required: false
         type: string
       title:
         description: Optional release title
         required: false
         type: string
-      universal_only:
-        description: Build one universal APK per flavor instead of ABI splits
-        required: true
-        default: true
-        type: boolean
-      prerelease:
-        description: Mark the GitHub release as a prerelease
+      publish:
+        description: Publish immediately instead of creating the verified draft
         required: true
         default: false
-        type: boolean
-      draft:
-        description: Create a draft release instead of publishing immediately
-        required: true
-        default: true
         type: boolean
 
 permissions:
@@ -41,39 +26,25 @@ concurrency:
 
 jobs:
   release:
-    if: github.repository == 'madebycli/Kiyori' && github.ref_name == 'main'
+    if: github.repository == 'madebycli/Kiyori' && github.ref == 'refs/heads/main'
     environment: release
     runs-on: ubuntu-latest
     timeout-minutes: 90
 
     steps:
-      - name: Checkout trusted workflow source
+      - name: Checkout canonical main
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           ref: main
           fetch-depth: 0
 
-      - name: Resolve source ref
-        env:
-          SOURCE_REF_INPUT: ${{ inputs.source_ref }}
+      - name: Verify canonical source
         shell: bash
         run: |
           set -euo pipefail
-          test -n "$SOURCE_REF_INPUT"
-          git fetch --no-tags origin "$SOURCE_REF_INPUT"
-          source_sha="$(git rev-parse FETCH_HEAD)"
-          test -n "$source_sha"
-          {
-            echo "SOURCE_REF=$SOURCE_REF_INPUT"
-            echo "SOURCE_SHA=$source_sha"
-          } >> "$GITHUB_ENV"
-
-      - name: Checkout selected source
-        shell: bash
-        run: |
-          set -euo pipefail
-          git checkout --detach "$SOURCE_SHA"
-          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+          git fetch --no-tags origin main
+          test "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)"
+          echo "SOURCE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
 
       - name: Set up JDK 17
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
@@ -92,44 +63,39 @@ jobs:
         env:
           INPUT_TAG: ${{ inputs.tag }}
           INPUT_TITLE: ${{ inputs.title }}
+          GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -euo pipefail
           version="$(awk -F= '/^[[:space:]]*name[[:space:]]*=/{gsub(/[[:space:]]/, "", $2); print $2; exit}' version.properties)"
+          version_code="$(awk -F= '/^[[:space:]]*code[[:space:]]*=/{gsub(/[[:space:]]/, "", $2); print $2; exit}' version.properties)"
           test -n "$version"
+          [[ "$version_code" =~ ^[0-9]+$ ]]
 
-          tag="$INPUT_TAG"
-          if [ -z "$tag" ]; then
-            tag="v${version}"
-          fi
-          if ! [[ "$tag" =~ ^v?[0-9]+\.[0-9]+\.[0-9]+([._+-][0-9A-Za-z.-]+)?$ ]]; then
-            echo "Invalid release tag: $tag" >&2
+          expected_tag="v${version}"
+          tag="${INPUT_TAG:-$expected_tag}"
+          if [ "$tag" != "$expected_tag" ]; then
+            echo "Tag/version mismatch: tag=$tag version=$version" >&2
             exit 2
           fi
           if git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null 2>&1; then
             echo "Tag already exists: $tag" >&2
             exit 3
           fi
-
-          title="$INPUT_TITLE"
-          if [ -z "$title" ]; then
-            title="Kiyori $tag"
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "Release already exists: $tag" >&2
+            exit 4
           fi
 
-          prerelease="${{ inputs.prerelease }}"
-          if [ "$SOURCE_REF" != "main" ]; then
-            prerelease=true
-            echo "Non-main source releases are always marked as prereleases."
-          fi
-
+          title="${INPUT_TITLE:-Kiyori $tag}"
           {
             echo "RELEASE_VERSION=$version"
+            echo "RELEASE_VERSION_CODE=$version_code"
             echo "RELEASE_TAG=$tag"
             echo "RELEASE_TITLE=$title"
-            echo "RELEASE_PRERELEASE=$prerelease"
           } >> "$GITHUB_ENV"
 
-      - name: Validate signing secrets
+      - name: Validate protected signing secrets
         env:
           KEYSTORE_FILE: ${{ secrets.KEYSTORE_FILE }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
@@ -138,12 +104,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -n "$KEYSTORE_FILE" || { echo "Missing release environment secret KEYSTORE_FILE" >&2; exit 10; }
-          test -n "$KEYSTORE_PASSWORD" || { echo "Missing release environment secret KEYSTORE_PASSWORD" >&2; exit 11; }
-          test -n "$KEY_ALIAS" || { echo "Missing release environment secret KEY_ALIAS" >&2; exit 12; }
-          test -n "$KEY_PASSWORD" || { echo "Missing release environment secret KEY_PASSWORD" >&2; exit 13; }
+          test -n "$KEYSTORE_FILE" || { echo "Missing release secret KEYSTORE_FILE" >&2; exit 10; }
+          test -n "$KEYSTORE_PASSWORD" || { echo "Missing release secret KEYSTORE_PASSWORD" >&2; exit 11; }
+          test -n "$KEY_ALIAS" || { echo "Missing release secret KEY_ALIAS" >&2; exit 12; }
+          test -n "$KEY_PASSWORD" || { echo "Missing release secret KEY_PASSWORD" >&2; exit 13; }
 
-      - name: Decode and verify release keystore
+      - name: Decode and inspect release keystore
         env:
           KEYSTORE_FILE_B64: ${{ secrets.KEYSTORE_FILE }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
@@ -161,16 +127,11 @@ jobs:
             -alias "$KEY_ALIAS" >/dev/null
           echo "RELEASE_KEYSTORE=$keystore" >> "$GITHUB_ENV"
 
-      - name: Configure universal APKs
-        if: ${{ inputs.universal_only }}
+      - name: Run full validation matrix
         shell: bash
-        run: sed -i -e '/isEnable/s/true/false/' app/build.gradle.kts
+        run: bash docs/ai-context/scripts/full_validation_matrix.sh
 
-      - name: Build signed release APKs
-        env:
-          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+      - name: Build unsigned universal release inputs
         shell: bash
         run: |
           set -euo pipefail
@@ -178,50 +139,128 @@ jobs:
           ./gradlew \
             :app:assembleFossRelease \
             :app:assembleGmsRelease \
-            "-Pandroid.injected.signing.store.file=$RELEASE_KEYSTORE" \
-            "-Pandroid.injected.signing.store.password=$KEYSTORE_PASSWORD" \
-            "-Pandroid.injected.signing.key.alias=$KEY_ALIAS" \
-            "-Pandroid.injected.signing.key.password=$KEY_PASSWORD" \
             --no-daemon \
             --stacktrace
 
-      - name: Verify signatures and prepare assets
+          mapfile -t foss_inputs < <(find app/build/outputs/apk/foss/release -maxdepth 1 -type f -name '*universal*.apk' | sort)
+          mapfile -t gms_inputs < <(find app/build/outputs/apk/gms/release -maxdepth 1 -type f -name '*universal*.apk' | sort)
+          test "${#foss_inputs[@]}" -eq 1
+          test "${#gms_inputs[@]}" -eq 1
+          echo "FOSS_INPUT=${foss_inputs[0]}" >> "$GITHUB_ENV"
+          echo "GMS_INPUT=${gms_inputs[0]}" >> "$GITHUB_ENV"
+
+      - name: Zipalign and sign deterministic assets
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p dist
-          find app/build/outputs/apk -type f -path '*/release/*.apk' -exec cp '{}' dist/ \;
-          test -n "$(find dist -maxdepth 1 -type f -name '*.apk' -print -quit)"
+          zipalign="$ANDROID_SDK_ROOT/build-tools/$ANDROID_BUILD_TOOLS_VERSION/zipalign"
           apksigner="$ANDROID_SDK_ROOT/build-tools/$ANDROID_BUILD_TOOLS_VERSION/apksigner"
+          test -x "$zipalign"
           test -x "$apksigner"
-          for apk in dist/*.apk; do
-            "$apksigner" verify \
-              --verbose \
-              --print-certs \
-              "$apk"
-          done
-          sha256sum dist/*.apk > dist/SHA256SUMS.txt
-          ls -lh dist
+          mkdir -p dist
 
-      - name: Create GitHub release
+          sign_asset() {
+            local input="$1"
+            local output="$2"
+            local aligned="$RUNNER_TEMP/$(basename "$output" .apk)-aligned.apk"
+            "$zipalign" -f -p 4 "$input" "$aligned"
+            "$apksigner" sign \
+              --ks "$RELEASE_KEYSTORE" \
+              --ks-key-alias "$KEY_ALIAS" \
+              --ks-pass env:KEYSTORE_PASSWORD \
+              --key-pass env:KEY_PASSWORD \
+              --out "$output" \
+              "$aligned"
+          }
+
+          sign_asset "$FOSS_INPUT" "dist/Kiyori-${RELEASE_VERSION}-foss-universal.apk"
+          sign_asset "$GMS_INPUT" "dist/Kiyori-${RELEASE_VERSION}-gms-universal.apk"
+
+      - name: Verify signatures identities and Android metadata
+        env:
+          EXPECTED_CERT_SHA256: ${{ secrets.SIGNING_CERT_SHA256 }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          apksigner="$ANDROID_SDK_ROOT/build-tools/$ANDROID_BUILD_TOOLS_VERSION/apksigner"
+          apkanalyzer="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/apkanalyzer"
+          test -x "$apksigner"
+          test -x "$apkanalyzer"
+
+          expected_cert="$(printf '%s' "$EXPECTED_CERT_SHA256" | tr '[:upper:]' '[:lower:]' | tr -d ':[:space:]')"
+          first_cert=""
+          for apk in \
+            "dist/Kiyori-${RELEASE_VERSION}-foss-universal.apk" \
+            "dist/Kiyori-${RELEASE_VERSION}-gms-universal.apk"
+          do
+            verify_output="$($apksigner verify --verbose --print-certs "$apk")"
+            printf '%s\n' "$verify_output"
+            cert="$(printf '%s\n' "$verify_output" | awk -F': ' '/Signer #1 certificate SHA-256 digest/{print tolower($2); exit}' | tr -d ':[:space:]')"
+            test -n "$cert"
+            if [ -z "$first_cert" ]; then
+              first_cert="$cert"
+            else
+              test "$cert" = "$first_cert"
+            fi
+            if [ -n "$expected_cert" ]; then
+              test "$cert" = "$expected_cert"
+            fi
+
+            test "$($apkanalyzer manifest application-id "$apk")" = "app.kiyori"
+            test "$($apkanalyzer manifest version-name "$apk")" = "$RELEASE_VERSION"
+            test "$($apkanalyzer manifest version-code "$apk")" = "$RELEASE_VERSION_CODE"
+          done
+          echo "SIGNING_CERT_SHA256=$first_cert" >> "$GITHUB_ENV"
+
+      - name: Freeze exact release asset set
+        shell: bash
+        run: |
+          set -euo pipefail
+          (
+            cd dist
+            sha256sum \
+              "Kiyori-${RELEASE_VERSION}-foss-universal.apk" \
+              "Kiyori-${RELEASE_VERSION}-gms-universal.apk" \
+              > SHA256SUMS.txt
+          )
+          actual="$(find dist -maxdepth 1 -type f -printf '%f\n' | sort)"
+          expected="$(printf '%s\n' \
+            "Kiyori-${RELEASE_VERSION}-foss-universal.apk" \
+            "Kiyori-${RELEASE_VERSION}-gms-universal.apk" \
+            "SHA256SUMS.txt" | sort)"
+          test "$actual" = "$expected"
+          cat dist/SHA256SUMS.txt
+
+      - name: Upload verified release candidate
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: Kiyori-${{ env.RELEASE_VERSION }}-signed-release-candidate
+          path: dist/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Create canonical GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
+          PUBLISH: ${{ inputs.publish }}
         shell: bash
         run: |
           set -euo pipefail
+          test -f CHANGELOG.md
           args=(
             "$RELEASE_TAG"
-            dist/*.apk
-            dist/SHA256SUMS.txt
+            "dist/Kiyori-${RELEASE_VERSION}-foss-universal.apk"
+            "dist/Kiyori-${RELEASE_VERSION}-gms-universal.apk"
+            "dist/SHA256SUMS.txt"
             --target "$SOURCE_SHA"
             --title "$RELEASE_TITLE"
-            --generate-notes
-            --notes "Built from source \`$SOURCE_REF\` at commit \`$SOURCE_SHA\`."
+            --notes-file CHANGELOG.md
           )
-          if [ "$RELEASE_PRERELEASE" = "true" ]; then
-            args+=(--prerelease)
-          fi
-          if [ "${{ inputs.draft }}" = "true" ]; then
+          if [ "$PUBLISH" != "true" ]; then
             args+=(--draft)
           fi
           gh release create "${args[@]}"

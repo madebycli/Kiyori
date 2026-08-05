@@ -5,10 +5,12 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.axiel7.anihyou.core.network.AiringAnimesQuery
 import com.axiel7.anihyou.core.base.state.PagedUiState
+import java.time.LocalDate
 
 @Stable
 data class CalendarUiState(
     val weekday: Int = 0,
+    val date: LocalDate? = null,
     val weeklyAnime: SnapshotStateList<AiringAnimesQuery.AiringSchedule> = mutableStateListOf(),
     val onMyList: Boolean? = null,
     val selectedItem: AiringAnimesQuery.AiringSchedule? = null,

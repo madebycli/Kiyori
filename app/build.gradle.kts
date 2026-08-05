@@ -8,6 +8,7 @@ plugins {
 }
 
 val appPackageName: String by rootProject.extra
+val appApplicationId: String by rootProject.extra
 
 val versionProps = Properties().also {
     it.load(project.rootProject.file("version.properties").reader())
@@ -18,7 +19,7 @@ android {
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = appPackageName
+        applicationId = appApplicationId
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = versionProps.getProperty("code").toInt()
@@ -90,7 +91,6 @@ android {
         }
         create("gms") {
             dimension = "version"
-            versionNameSuffix = "-gms"
         }
     }
 
@@ -125,7 +125,7 @@ android {
 }
 
 base {
-    archivesName = "anihyou-${versionProps.getProperty("name")}"
+    archivesName = "Kiyori-${versionProps.getProperty("name")}"
 }
 
 kotlin {
@@ -168,6 +168,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.activity.compose)
+    implementation("androidx.lifecycle:lifecycle-process:2.11.0")
 
     implementation(libs.androidx.core.splashscreen)
 
@@ -180,8 +181,6 @@ dependencies {
 
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)
-
-    "gmsImplementation"(libs.androidx.wear.remote.interactions)
 
     implementation(libs.accompanist.permissions)
 

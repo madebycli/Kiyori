@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="main_navigation">Hauptnavigation</string>
+    <string name="main_navigation_summary">Bis zu fünf Haupttabs auswählen, hinzufügen und anordnen.</string>
+    <string name="app_lock">App-Sperre</string>
+    <string name="app_lock_summary">Beim Öffnen von Kiyori Biometrie oder die Gerätesperre verlangen.</string>
+    <string name="app_lock_timeout">Sperren nach</string>
+    <string name="app_lock_timeout_immediately">Sofort</string>
+    <string name="app_lock_timeout_one_minute">1 Minute</string>
+    <string name="app_lock_timeout_five_minutes">5 Minuten</string>
+    <string name="app_lock_timeout_fifteen_minutes">15 Minuten</string>
+    <string name="app_lock_timeout_thirty_minutes">30 Minuten</string>
+    <string name="app_lock_enable_authentication">Authentifizieren, um die App-Sperre zu aktivieren</string>
+    <string name="app_lock_disable_authentication">Authentifizieren, um die App-Sperre zu deaktivieren</string>
+    <string name="app_lock_unlock_title">Kiyori entsperren</string>
+    <string name="app_lock_unlock_subtitle">Nutze Biometrie oder deine Gerätebildschirmsperre.</string>
+    <string name="app_lock_unlock">Entsperren</string>
+    <string name="app_lock_locked_message">Kiyori ist gesperrt</string>
+    <string name="app_lock_none_enrolled">Richte zuerst Biometrie oder eine sichere Bildschirmsperre in Android ein.</string>
+    <string name="app_lock_no_hardware">Dieses Gerät unterstützt keine sichere Systemauthentifizierung.</string>
+    <string name="app_lock_temporarily_unavailable">Die Systemauthentifizierung ist vorübergehend nicht verfügbar.</string>
+    <string name="app_lock_unsupported">Auf diesem Gerät kann die App-Sperre nicht verwendet werden.</string>
+    <string name="app_lock_authentication_failed">Die Authentifizierung wurde nicht abgeschlossen.</string>
+</resources>

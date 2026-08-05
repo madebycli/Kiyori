@@ -55,6 +55,7 @@ fun CurrentFullListView(
     isLoggedIn: Boolean,
     listType: CurrentListType,
     navActionManager: NavActionManager,
+    isMainDestination: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val viewModel: CurrentViewModel = koinViewModel()
@@ -66,6 +67,7 @@ fun CurrentFullListView(
         uiState = uiState,
         event = viewModel,
         navActionManager = navActionManager,
+        isMainDestination = isMainDestination,
         modifier = modifier
     )
 }
@@ -78,6 +80,7 @@ private fun CurrentFullListContent(
     uiState: CurrentUiState,
     event: CurrentEvent?,
     navActionManager: NavActionManager,
+    isMainDestination: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val haptic = LocalHapticFeedback.current
@@ -117,7 +120,9 @@ private fun CurrentFullListContent(
         title = listType.localized(),
         modifier = modifier,
         navigationIcon = {
-            BackIconButton(onClick = navActionManager::goBack)
+            if (!isMainDestination) {
+                BackIconButton(onClick = navActionManager::goBack)
+            }
         },
         scrollBehavior = topAppBarScrollBehavior,
         snackbarHost = snackbarManager::SnackbarHost,

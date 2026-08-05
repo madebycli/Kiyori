@@ -20,12 +20,12 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:enableOnBackInvokedCallback="true"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_kiyori_launcher"
         android:label="@string/app_name"
         android:localeConfig="@xml/locales_config"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/ic_kiyori_launcher"
         android:supportsRtl="true"
-        android:theme="@style/Theme.MySplash"
+        android:theme="@style/Theme.KiyoriSplash"
         tools:targetApi="33">
         <activity
             android:name=".ui.screens.main.MainActivity"
@@ -45,18 +45,6 @@
 
                 <data
                     android:host="auth-response"
-                    android:scheme="anihyou" />
-
-            </intent-filter>
-
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data
-                    android:host="wear-auth"
                     android:scheme="anihyou" />
 
             </intent-filter>
