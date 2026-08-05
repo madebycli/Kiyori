@@ -126,7 +126,7 @@ android {
 }
 
 base {
-    archivesName = "anihyou-${versionProps.getProperty("name")}"
+    archivesName = "Kiyori-${versionProps.getProperty("name")}"
 }
 
 kotlin {
@@ -169,6 +169,7 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.activity.compose)
+    implementation("androidx.lifecycle:lifecycle-process:2.11.0")
 
     implementation(libs.androidx.core.splashscreen)
 
@@ -181,8 +182,6 @@ dependencies {
 
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)
-
-    "gmsImplementation"(libs.androidx.wear.remote.interactions)
 
     implementation(libs.accompanist.permissions)
 
