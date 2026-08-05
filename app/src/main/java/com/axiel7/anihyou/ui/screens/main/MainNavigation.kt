@@ -60,6 +60,7 @@ import com.axiel7.anihyou.feature.settings.liststyle.ListStyleSettingsView
 import com.axiel7.anihyou.feature.staffdetails.StaffDetailsView
 import com.axiel7.anihyou.feature.studiodetails.StudioDetailsView
 import com.axiel7.anihyou.feature.thread.ThreadDetailsView
+import com.axiel7.anihyou.feature.thread.comment.ThreadCommentDetailsView
 import com.axiel7.anihyou.feature.thread.publish.PublishCommentView
 import com.axiel7.anihyou.feature.usermedialist.UserMediaListHostView
 
@@ -161,9 +162,7 @@ fun MainNavigation(
     }
 
     val entryProvider = entryProvider {
-        entry<Routes.Home>(
-            metadata = topNavigationTransitionSpec
-        ) {
+        entry<Routes.Home>(metadata = topNavigationTransitionSpec) {
             HomeView(
                 isLoggedIn = isLoggedIn,
                 defaultHomeTab = homeTab,
@@ -173,14 +172,10 @@ fun MainNavigation(
             )
         }
 
-        entry<Routes.AnimeTab>(
-            metadata = topNavigationTransitionSpec
-        ) {
+        entry<Routes.AnimeTab>(metadata = topNavigationTransitionSpec) {
             if (isLoggedIn) {
                 UserMediaListHostView(
-                    arguments = Routes.UserMediaList(
-                        mediaType = MediaType.ANIME.rawValue,
-                    ),
+                    arguments = Routes.UserMediaList(mediaType = MediaType.ANIME.rawValue),
                     isCompactScreen = isCompactScreen,
                     modifier = Modifier.padding(bottom = bottomPadding),
                     navActionManager = navActionManager,
@@ -190,14 +185,10 @@ fun MainNavigation(
             }
         }
 
-        entry<Routes.MangaTab>(
-            metadata = topNavigationTransitionSpec
-        ) {
+        entry<Routes.MangaTab>(metadata = topNavigationTransitionSpec) {
             if (isLoggedIn) {
                 UserMediaListHostView(
-                    arguments = Routes.UserMediaList(
-                        mediaType = MediaType.MANGA.rawValue,
-                    ),
+                    arguments = Routes.UserMediaList(mediaType = MediaType.MANGA.rawValue),
                     isCompactScreen = isCompactScreen,
                     modifier = Modifier.padding(bottom = bottomPadding),
                     navActionManager = navActionManager,
@@ -207,9 +198,7 @@ fun MainNavigation(
             }
         }
 
-        entry<Routes.Profile>(
-            metadata = topNavigationTransitionSpec
-        ) {
+        entry<Routes.Profile>(metadata = topNavigationTransitionSpec) {
             if (isLoggedIn) {
                 ProfileView(
                     arguments = Routes.UserDetails(null, null),
@@ -225,9 +214,7 @@ fun MainNavigation(
             }
         }
 
-        entry<Routes.Explore>(
-            metadata = topNavigationTransitionSpec
-        ) {
+        entry<Routes.Explore>(metadata = topNavigationTransitionSpec) {
             DiscoverView(
                 isLoggedIn = isLoggedIn,
                 contentPadding = if (isCompactScreen) PaddingValues(bottom = bottomPadding) else PaddingValues(),
@@ -236,11 +223,7 @@ fun MainNavigation(
         }
 
         entry<Routes.UserDetails> {
-            ProfileView(
-                arguments = it,
-                uriHandler = markdownUriHandler,
-                navActionManager = navActionManager,
-            )
+            ProfileView(arguments = it, uriHandler = markdownUriHandler, navActionManager = navActionManager)
         }
 
         entry<Routes.UserMediaList> {
@@ -262,21 +245,12 @@ fun MainNavigation(
         }
 
         entry<Routes.Notifications> {
-            if (isLoggedIn) {
-                NotificationsView(
-                    arguments = it,
-                    navActionManager = navActionManager,
-                )
-            } else {
-                LoginView()
-            }
+            if (isLoggedIn) NotificationsView(arguments = it, navActionManager = navActionManager)
+            else LoginView()
         }
 
         entry<Routes.MediaDetails> {
-            MediaDetailsView(
-                arguments = it.copy(isLoggedIn = isLoggedIn),
-                navActionManager = navActionManager,
-            )
+            MediaDetailsView(arguments = it.copy(isLoggedIn = isLoggedIn), navActionManager = navActionManager)
         }
 
         entry<Routes.MediaChartList> {
@@ -298,10 +272,7 @@ fun MainNavigation(
         }
 
         entry<Routes.Calendar> {
-            CalendarView(
-                isLoggedIn = isLoggedIn,
-                navActionManager = navActionManager,
-            )
+            CalendarView(isLoggedIn = isLoggedIn, navActionManager = navActionManager)
         }
 
         entry<Routes.CalendarMain> {
@@ -332,10 +303,7 @@ fun MainNavigation(
         }
 
         entry<Routes.ReviewDetails> {
-            ReviewDetailsView(
-                arguments = it,
-                navActionManager = navActionManager,
-            )
+            ReviewDetailsView(arguments = it, navActionManager = navActionManager)
         }
 
         entry<Routes.ThreadDetails> {
@@ -346,40 +314,35 @@ fun MainNavigation(
             )
         }
 
-        entry<Routes.StudioDetails> {
-            StudioDetailsView(
+        entry<Routes.ThreadCommentDetails> {
+            ThreadCommentDetailsView(
                 arguments = it,
+                uriHandler = markdownUriHandler,
                 navActionManager = navActionManager,
             )
         }
 
+        entry<Routes.StudioDetails> {
+            StudioDetailsView(arguments = it, navActionManager = navActionManager)
+        }
+
         entry<Routes.Settings> {
-            SettingsView(
-                navActionManager = navActionManager,
-            )
+            SettingsView(navActionManager = navActionManager)
         }
         entry<Routes.MainNavigationSettings> {
             MainNavigationSettingsView(navActionManager = navActionManager)
         }
         entry<Routes.ListStyleSettings> {
-            ListStyleSettingsView(
-                navActionManager = navActionManager,
-            )
+            ListStyleSettingsView(navActionManager = navActionManager)
         }
         entry<Routes.CustomLists> {
-            CustomListsView(
-                navActionManager = navActionManager,
-            )
+            CustomListsView(navActionManager = navActionManager)
         }
         entry<Routes.Translations> {
-            TranslationsView(
-                navActionManager = navActionManager,
-            )
+            TranslationsView(navActionManager = navActionManager)
         }
         entry<Routes.Contributors> {
-            ContributorsView(
-                navActionManager = navActionManager,
-            )
+            ContributorsView(navActionManager = navActionManager)
         }
 
         entry<Routes.FullScreenImage> {
@@ -399,25 +362,13 @@ fun MainNavigation(
         }
 
         entry<Routes.PublishActivity> {
-            if (isLoggedIn) {
-                PublishActivityView(
-                    arguments = it,
-                    navActionManager = navActionManager,
-                )
-            } else {
-                LoginView()
-            }
+            if (isLoggedIn) PublishActivityView(arguments = it, navActionManager = navActionManager)
+            else LoginView()
         }
 
         entry<Routes.PublishComment> {
-            if (isLoggedIn) {
-                PublishCommentView(
-                    arguments = it,
-                    navActionManager = navActionManager,
-                )
-            } else {
-                LoginView()
-            }
+            if (isLoggedIn) PublishCommentView(arguments = it, navActionManager = navActionManager)
+            else LoginView()
         }
 
         entry<Routes.MediaActivity> {
@@ -439,10 +390,7 @@ fun MainNavigation(
         }
 
         entry<Routes.ReorderFavorites> {
-            ReorderFavoritesView(
-                arguments = it,
-                navActionManager = navActionManager
-            )
+            ReorderFavoritesView(arguments = it, navActionManager = navActionManager)
         }
     }
 
@@ -454,20 +402,15 @@ fun MainNavigation(
             end = padding.calculateEndPadding(LocalLayoutDirection.current),
         ),
         transitionSpec = {
-            // Slide in from right when navigating forward
             (slideInHorizontally(initialOffsetX = { it })) togetherWith
-                (slideOutHorizontally(targetOffsetX = { -it }) +
-                    fadeOut(animationSpec = tween()))
+                (slideOutHorizontally(targetOffsetX = { -it }) + fadeOut(animationSpec = tween()))
         },
         popTransitionSpec = {
-            // Slide in from left when navigating back
             (slideInHorizontally(initialOffsetX = { -it }) + fadeIn()) togetherWith
                 slideOutHorizontally(targetOffsetX = { it })
         },
         predictivePopTransitionSpec = {
-            // Slide in from left when navigating back
-            (slideInHorizontally(initialOffsetX = { -it }) +
-                fadeIn(animationSpec = tween())) togetherWith
+            (slideInHorizontally(initialOffsetX = { -it }) + fadeIn(animationSpec = tween())) togetherWith
                 slideOutHorizontally(targetOffsetX = { it })
         },
         onBack = navigator::goBack,
