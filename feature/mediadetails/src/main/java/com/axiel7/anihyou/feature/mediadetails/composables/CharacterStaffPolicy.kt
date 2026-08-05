@@ -17,7 +17,11 @@ internal fun matchesCharacterRole(
 
 internal fun normalizedVoiceActorLanguages(values: List<String?>): List<String> = values
     .mapNotNull { it?.trim()?.takeIf(String::isNotEmpty) }
-    .distinctBy(String::lowercase)
+    .groupBy(String::lowercase)
+    .values
+    .map { variants ->
+        variants.firstOrNull { it.firstOrNull()?.isUpperCase() == true } ?: variants.first()
+    }
     .sortedWith(
         compareBy<String> { !it.equals("Japanese", ignoreCase = true) }
             .thenBy(String::lowercase)
