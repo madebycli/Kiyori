@@ -1,6 +1,5 @@
 package com.axiel7.anihyou.ui.screens.main
 
-import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,11 +8,15 @@ import com.axiel7.anihyou.core.base.ANIHYOU_SCHEME
 import com.axiel7.anihyou.core.domain.repository.AppLockPreferencesRepository
 import com.axiel7.anihyou.core.domain.repository.DefaultPreferencesRepository
 import com.axiel7.anihyou.core.domain.repository.LoginRepository
+import com.axiel7.anihyou.core.model.DeepLink
 import com.axiel7.anihyou.core.model.DefaultTab
 import com.axiel7.anihyou.core.model.security.AppLockPreferences
 import com.axiel7.anihyou.core.network.NetworkVariables
 import com.axiel7.anihyou.core.network.type.ScoreFormat
 import com.materialkolor.PaletteStyle
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
@@ -27,6 +30,9 @@ class MainViewModel(
     private val appLockPreferencesRepository: AppLockPreferencesRepository,
     private val appLockRuntime: AppLockRuntime,
 ) : ViewModel(), MainEvent {
+
+    private val mutablePendingDeepLink = MutableStateFlow<DeepLink?>(null)
+    val pendingDeepLink: StateFlow<DeepLink?> = mutablePendingDeepLink.asStateFlow()
 
     val accessToken = defaultPreferencesRepository.accessToken
 
@@ -91,11 +97,21 @@ class MainViewModel(
         appLockRuntime.onAuthenticationSucceeded()
     }
 
+    fun queueDeepLink(deepLink: DeepLink?) {
+        if (deepLink != null) mutablePendingDeepLink.value = deepLink
+    }
+
+    fun consumeDeepLink(deepLink: DeepLink) {
+        if (mutablePendingDeepLink.value == deepLink) {
+            mutablePendingDeepLink.value = null
+        }
+    }
+
     fun setToken(token: String?) {
         networkVariables.accessToken = token
     }
 
-    fun onIntentDataReceived(context: Context, data: Uri?) = viewModelScope.launch {
+    fun onIntentDataReceived(data: Uri?) = viewModelScope.launch {
         if (data?.scheme == ANIHYOU_SCHEME && data.toString().contains(ANIHYOU_AUTH_RESPONSE)) {
             loginRepository.parseRedirectUri(data)
         }
