@@ -3,9 +3,11 @@
     <string name="media_people_characters">Charaktere</string>
     <string name="media_people_team">Team</string>
     <string name="media_people_all">Alle</string>
-    <string name="media_people_primary">Primär</string>
-    <string name="media_people_secondary">Sekundäres</string>
+    <string name="media_people_primary">Hauptrolle</string>
+    <string name="media_people_secondary">Nebenrolle</string>
     <string name="media_people_language">Synchronsprache</string>
     <string name="media_people_no_voice_actor">Keine Synchronstimme</string>
+    <string name="media_people_no_characters">Für diesen Filter wurden keine Charaktere gefunden.</string>
+    <string name="media_people_no_team">Es sind keine Teammitglieder verfügbar.</string>
     <string name="media_people_open_voice_actors">Alle Synchronsprecher für %1$s anzeigen</string>
 </resources>
