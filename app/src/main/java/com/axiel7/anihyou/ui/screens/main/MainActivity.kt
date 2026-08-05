@@ -36,6 +36,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.axiel7.anihyou.core.base.extensions.firstBlocking
 import com.axiel7.anihyou.core.model.DeepLink
@@ -60,6 +63,16 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModel()
 
+    private val appLockProcessObserver = object : DefaultLifecycleObserver {
+        override fun onStart(owner: LifecycleOwner) {
+            viewModel.onProcessForegrounded()
+        }
+
+        override fun onStop(owner: LifecycleOwner) {
+            viewModel.onProcessBackgrounded()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         installSplashScreen()
@@ -82,6 +95,7 @@ class MainActivity : AppCompatActivity() {
         val initialNavigationConfig = viewModel.mainNavigationConfig.firstBlocking()
         val initialAppLockPreferences = viewModel.appLockPreferences.firstBlocking()
         viewModel.initializeAppLock(initialAppLockPreferences)
+        ProcessLifecycleOwner.get().lifecycle.addObserver(appLockProcessObserver)
 
         setContent {
             val windowSizeClass = calculateWindowSizeClass(this)
@@ -160,16 +174,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        viewModel.onProcessForegrounded()
-    }
-
-    override fun onStop() {
-        if (!isChangingConfigurations) {
-            viewModel.onProcessBackgrounded()
-        }
-        super.onStop()
+    override fun onDestroy() {
+        ProcessLifecycleOwner.get().lifecycle.removeObserver(appLockProcessObserver)
+        super.onDestroy()
     }
 
     override fun onNewIntent(intent: Intent) {
