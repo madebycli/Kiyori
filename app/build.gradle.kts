@@ -91,7 +91,6 @@ android {
         }
         create("gms") {
             dimension = "version"
-            versionNameSuffix = "-gms"
         }
     }
 
