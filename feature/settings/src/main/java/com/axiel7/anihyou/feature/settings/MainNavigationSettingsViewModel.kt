@@ -4,7 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.axiel7.anihyou.core.domain.repository.DefaultPreferencesRepository
 import com.axiel7.anihyou.core.model.navigation.MainNavigationConfig
+import com.axiel7.anihyou.core.model.navigation.MainNavigationItem
 import com.axiel7.anihyou.core.model.navigation.MainNavigationShortcut
+import com.axiel7.anihyou.core.model.navigation.move
+import com.axiel7.anihyou.core.model.navigation.setVisibility
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
@@ -14,16 +17,21 @@ class MainNavigationSettingsViewModel(
 ) : ViewModel() {
     val config = defaultPreferencesRepository.mainNavigationConfig
 
-    fun setVisibility(stableId: String, visible: Boolean) = update { it.withVisibility(stableId, visible) }
-
-    fun move(stableId: String, offset: Int) = update { config ->
-        val index = config.items.indexOfFirst { it.stableId == stableId }
-        if (index < 0) config else config.move(stableId, index + offset)
+    fun setVisibility(item: MainNavigationItem, visible: Boolean) = update {
+        it.setVisibility(item, visible)
     }
 
-    fun remove(stableId: String) = update { it.removeShortcut(stableId) }
+    fun move(fromIndex: Int, toIndex: Int) = update {
+        it.move(fromIndex, toIndex)
+    }
 
-    fun add(shortcut: MainNavigationShortcut) = update { it.addShortcut(shortcut) }
+    fun remove(shortcut: MainNavigationShortcut) = update {
+        it.removeShortcut(shortcut.stableId)
+    }
+
+    fun add(shortcut: MainNavigationShortcut) = update {
+        it.addShortcut(shortcut)
+    }
 
     fun reset() = update { it.reset() }
 

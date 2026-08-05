@@ -47,7 +47,8 @@ import org.koin.core.parameter.parametersOf
 fun MediaChartListView(
     isLoggedIn: Boolean,
     arguments: Routes.MediaChartList,
-    navActionManager: NavActionManager
+    navActionManager: NavActionManager,
+    modifier: Modifier = Modifier,
 ) {
     val viewModel: MediaChartViewModel = koinViewModel(parameters = { parametersOf(arguments) })
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -58,6 +59,7 @@ fun MediaChartListView(
         event = viewModel,
         navActionManager = navActionManager,
         isMainDestination = arguments.isMainDestination,
+        modifier = modifier,
     )
 }
 
@@ -69,6 +71,7 @@ private fun MediaChartListContent(
     event: MediaChartEvent?,
     navActionManager: NavActionManager,
     isMainDestination: Boolean = false,
+    modifier: Modifier = Modifier,
 ) {
     val blurAdult = LocalBlurAdult.current
     val topAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
@@ -97,6 +100,7 @@ private fun MediaChartListContent(
 
     DefaultScaffoldWithMediumTopAppBar(
         title = uiState.chartType?.localized().orEmpty(),
+        modifier = modifier,
         navigationIcon = {
             if (!isMainDestination) {
                 BackIconButton(onClick = navActionManager::goBack)

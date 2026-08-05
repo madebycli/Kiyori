@@ -14,6 +14,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.style.TextAlign
+import androidx.navigation3.runtime.NavKey
 import com.axiel7.anihyou.core.ui.common.BottomDestination
 import com.axiel7.anihyou.core.ui.common.BottomDestination.Companion.testTag
 import com.axiel7.anihyou.core.ui.common.navigation.NavActionManager
@@ -25,6 +26,7 @@ fun MainBottomNavBar(
     navigator: Navigator,
     navActionManager: NavActionManager,
     destinations: List<BottomDestination>,
+    selectedRoute: NavKey,
     isVisible: Boolean,
     onItemSelected: (Int) -> Unit,
 ) {
@@ -35,7 +37,7 @@ fun MainBottomNavBar(
     ) {
         NavigationBar {
             destinations.forEachIndexed { index, dest ->
-                val isSelected = dest.route == navigator.state.topLevelRoute
+                val isSelected = dest.route == selectedRoute
                 NavigationBarItem(
                     icon = {
                         dest.Icon(selected = isSelected)

@@ -208,7 +208,7 @@ class NavActionManager(
             )
         )
     }
-        
+
     fun toContributors() {
         navigator.navigate(Routes.Contributors)
     }
@@ -217,7 +217,7 @@ class NavActionManager(
         @Composable
         fun rememberNavActionManager(
             navigator: INavigator = PreviewNavigator()
-        ) = remember {
+        ) = remember(navigator) {
             NavActionManager(navigator)
         }
     }

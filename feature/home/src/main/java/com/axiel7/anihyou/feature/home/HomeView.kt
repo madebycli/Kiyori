@@ -93,18 +93,20 @@ fun HomeView(
                     },
                     onClick = { navActionManager.toNotifications(unreadNotificationCount) }
                 )
-                IconButton(onClick = { navActionManager.toUserDetails(null, null) }) {
-                    Icon(
-                        painter = painterResource(R.drawable.person_24),
-                        contentDescription = stringResource(R.string.profile),
-                    )
-                }
             }
             IconButton(onClick = navActionManager::toSettings) {
                 Icon(
                     painter = painterResource(R.drawable.settings_24),
                     contentDescription = stringResource(R.string.settings),
                 )
+            }
+            if (isLoggedIn) {
+                IconButton(onClick = { navActionManager.toUserDetails(null, null) }) {
+                    Icon(
+                        painter = painterResource(R.drawable.person_24),
+                        contentDescription = stringResource(R.string.profile),
+                    )
+                }
             }
         },
         scrollBehavior = topAppBarScrollBehavior,
