@@ -30,6 +30,7 @@ import com.axiel7.anihyou.feature.settings.liststyle.ListStyleSettingsViewModel
 import com.axiel7.anihyou.feature.staffdetails.StaffDetailsViewModel
 import com.axiel7.anihyou.feature.studiodetails.StudioDetailsViewModel
 import com.axiel7.anihyou.feature.thread.ThreadDetailsViewModel
+import com.axiel7.anihyou.feature.thread.comment.ThreadCommentViewModel
 import com.axiel7.anihyou.feature.thread.publish.PublishCommentViewModel
 import com.axiel7.anihyou.feature.usermedialist.UserMediaListViewModel
 import com.axiel7.anihyou.ui.screens.main.MainViewModel
@@ -67,6 +68,7 @@ val viewModelModule = module {
     viewModel<StaffDetailsViewModel>()
     viewModel<StudioDetailsViewModel>()
     viewModel<ThreadDetailsViewModel>()
+    viewModel<ThreadCommentViewModel>()
     viewModel<PublishCommentViewModel>()
     viewModel<UserMediaListViewModel>()
     viewModel<ReorderFavoritesViewModel>()
