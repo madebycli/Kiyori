@@ -2,9 +2,6 @@
 android-compileSdk = "37"
 android-minSdk = "23"
 android-targetSdk = "37"
-wear-compileSdk = "37"
-wear-minSdk = "26"
-wear-targetSdk = "36"
 accompanist = "0.37.3"
 agp = "9.3.0"
 apollo = "5.0.1"
@@ -41,14 +38,6 @@ profileinstaller = "1.4.1"
 uiautomator = "2.4.0"
 workRuntime = "2.11.2"
 baselineprofile = "1.5.0-beta01"
-wear = "1.4.0"
-wearRemoteInteractions = "1.2.0"
-wearPhoneInteractions = "1.1.1"
-wearComposeMaterial = "1.6.2"
-wearComposeFoundation = "1.6.2"
-wearToolingPreview = "1.0.0"
-gmsWearable = "20.0.1"
-horologist = "0.7.15"
 haze = "2.0.0-alpha03"
 reorderable = "3.1.0"
 zoomable = "2.13.0"
@@ -92,7 +81,7 @@ androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", versi
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
-androidx-glance-preview = {group = "androidx.glance", name = "glance-preview", version.ref = "glancePreview" }
+androidx-glance-preview = { group = "androidx.glance", name = "glance-preview", version.ref = "glancePreview" }
 androidx-glance-appwidget-preview = { group = "androidx.glance", name = "glance-appwidget-preview", version.ref = "glancePreview" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 androidx-material3-window-sizeclass = { group = "androidx.compose.material3", name = "material3-window-size-class", version.ref = "material3" }
@@ -108,16 +97,6 @@ placeholder-material3 = { group = "io.github.fornewid", name = "placeholder-mate
 ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
-androidx-wear = { group = "androidx.wear", name = "wear", version.ref = "wear" }
-androidx-wear-remote-interactions = { group = "androidx.wear", name = "wear-remote-interactions", version.ref = "wearRemoteInteractions" }
-androidx-wear-phone-interactions = { group = "androidx.wear", name = "wear-phone-interactions", version.ref = "wearPhoneInteractions" }
-androidx-wear-compose-material = { group = "androidx.wear.compose", name = "compose-material3", version.ref = "wearComposeMaterial" }
-androidx-wear-compose-foundation = { group = "androidx.wear.compose", name = "compose-foundation", version.ref = "wearComposeFoundation" }
-androidx-wear-compose-navigation = { group = "androidx.wear.compose", name = "compose-navigation", version.ref = "wearComposeMaterial" }
-androidx-wear-compose-ui-tooling = { group = "androidx.wear.compose", name = "compose-ui-tooling", version.ref = "wearComposeMaterial" }
-androidx-wear-tooling-preview = { group = "androidx.wear", name = "wear-tooling-preview", version.ref = "wearToolingPreview" }
-gms-wearable = { group = "com.google.android.gms", name = "play-services-wearable", version.ref = "gmsWearable" }
-horologist-compose-layout = { group = "com.google.android.horologist", name = "horologist-compose-layout", version.ref = "horologist" }
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
 kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 compose-gradlePlugin = { group = "org.jetbrains.kotlin.plugin.compose", name = "org.jetbrains.kotlin.plugin.compose.gradle.plugin", version.ref = "kotlin" }
