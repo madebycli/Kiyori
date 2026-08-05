@@ -14,9 +14,7 @@ import com.axiel7.anihyou.core.model.security.AppLockPreferences
 import com.axiel7.anihyou.core.network.NetworkVariables
 import com.axiel7.anihyou.core.network.type.ScoreFormat
 import com.materialkolor.PaletteStyle
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
@@ -31,8 +29,8 @@ class MainViewModel(
     private val appLockRuntime: AppLockRuntime,
 ) : ViewModel(), MainEvent {
 
-    private val mutablePendingDeepLink = MutableStateFlow<DeepLink?>(null)
-    val pendingDeepLink: StateFlow<DeepLink?> = mutablePendingDeepLink.asStateFlow()
+    private val pendingDeepLinks = PendingDeepLinkQueue()
+    val pendingDeepLink: StateFlow<DeepLink?> = pendingDeepLinks.pending
 
     val accessToken = defaultPreferencesRepository.accessToken
 
@@ -98,13 +96,11 @@ class MainViewModel(
     }
 
     fun queueDeepLink(deepLink: DeepLink?) {
-        if (deepLink != null) mutablePendingDeepLink.value = deepLink
+        pendingDeepLinks.offer(deepLink)
     }
 
     fun consumeDeepLink(deepLink: DeepLink) {
-        if (mutablePendingDeepLink.value == deepLink) {
-            mutablePendingDeepLink.value = null
-        }
+        pendingDeepLinks.consume(deepLink)
     }
 
     fun setToken(token: String?) {
