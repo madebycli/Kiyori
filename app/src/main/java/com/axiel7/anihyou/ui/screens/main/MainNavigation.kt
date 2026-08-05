@@ -88,6 +88,7 @@ fun MainNavigation(
     isLoggedIn: Boolean,
     homeTab: HomeTab,
     deepLink: DeepLink?,
+    onDeepLinkHandled: (DeepLink) -> Unit,
     padding: PaddingValues = PaddingValues(),
 ) {
     val context = LocalContext.current
@@ -155,6 +156,7 @@ fun MainNavigation(
                     deepLink.id.toIntOrNull()?.let { navActionManager.toActivityDetails(it) }
                 }
             }
+            onDeepLinkHandled(deepLink)
         }
     }
 
@@ -454,19 +456,19 @@ fun MainNavigation(
         transitionSpec = {
             // Slide in from right when navigating forward
             (slideInHorizontally(initialOffsetX = { it })) togetherWith
-                    (slideOutHorizontally(targetOffsetX = { -it })
-                            + fadeOut(animationSpec = tween()))
+                (slideOutHorizontally(targetOffsetX = { -it }) +
+                    fadeOut(animationSpec = tween()))
         },
         popTransitionSpec = {
             // Slide in from left when navigating back
             (slideInHorizontally(initialOffsetX = { -it }) + fadeIn()) togetherWith
-                    slideOutHorizontally(targetOffsetX = { it })
+                slideOutHorizontally(targetOffsetX = { it })
         },
         predictivePopTransitionSpec = {
             // Slide in from left when navigating back
-            (slideInHorizontally(initialOffsetX = { -it })
-                    + fadeIn(animationSpec = tween())) togetherWith
-                    (slideOutHorizontally(targetOffsetX = { it }))
+            (slideInHorizontally(initialOffsetX = { -it }) +
+                fadeIn(animationSpec = tween())) togetherWith
+                slideOutHorizontally(targetOffsetX = { it })
         },
         onBack = navigator::goBack,
     )
