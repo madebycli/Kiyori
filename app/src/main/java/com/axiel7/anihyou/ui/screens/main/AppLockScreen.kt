@@ -36,7 +36,12 @@ fun AppLockGate(
     onAuthenticationSucceeded: () -> Unit,
     content: @Composable () -> Unit,
 ) {
-    if (!state.initialized || !state.enabled || !state.locked) {
+    if (!state.initialized) {
+        // Never render protected content while lock preferences are unresolved.
+        Box(modifier = Modifier.fillMaxSize())
+        return
+    }
+    if (!state.enabled || !state.locked) {
         content()
         return
     }
