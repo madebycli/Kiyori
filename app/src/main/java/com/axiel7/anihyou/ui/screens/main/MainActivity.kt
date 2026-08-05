@@ -28,7 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -231,12 +230,9 @@ fun MainView(
     }
     val navigationState = rememberNavigationState(BottomDestination.Home.route, resolvedRoutes)
     val navigator = remember { Navigator(navigationState) }
-    val isBottomDestination by remember(resolvedRoutes) {
-        derivedStateOf {
-            navigationState.topLevelRoute in resolvedRoutes &&
-                navigationState.getCurrentRoute() == navigationState.topLevelRoute
-        }
-    }
+    val currentRoute = navigationState.backStacks[navigationState.topLevelRoute]?.lastOrNull()
+    val isBottomDestination = navigationState.topLevelRoute in resolvedRoutes &&
+        currentRoute == navigationState.topLevelRoute
     val navActionManager = NavActionManager.rememberNavActionManager(navigator)
     val isCompactScreen = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
 
@@ -252,12 +248,12 @@ fun MainView(
 
     Scaffold(
         bottomBar = {
-            if (isCompactScreen) {
+            if (isCompactScreen && isBottomDestination) {
                 MainBottomNavBar(
                     navigator = navigator,
                     navActionManager = navActionManager,
                     destinations = resolvedDestinations,
-                    isVisible = isBottomDestination,
+                    isVisible = true,
                     onItemSelected = { event?.saveLastTab(it) },
                 )
             }
@@ -280,11 +276,13 @@ fun MainView(
             Row(
                 modifier = Modifier.padding(padding),
             ) {
-                MainNavigationRail(
-                    navigator = navigator,
-                    destinations = resolvedDestinations,
-                    onItemSelected = { event?.saveLastTab(it) },
-                )
+                if (isBottomDestination) {
+                    MainNavigationRail(
+                        navigator = navigator,
+                        destinations = resolvedDestinations,
+                        onItemSelected = { event?.saveLastTab(it) },
+                    )
+                }
                 MainNavigation(
                     navigator = navigator,
                     navActionManager = navActionManager,
