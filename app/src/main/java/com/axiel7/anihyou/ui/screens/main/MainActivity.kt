@@ -260,6 +260,7 @@ fun MainView(
                     navigator = navigator,
                     navActionManager = navActionManager,
                     destinations = resolvedDestinations,
+                    selectedRoute = currentTopLevelRoute,
                     isVisible = true,
                     onItemSelected = { event?.saveLastTab(it) },
                 )
@@ -287,6 +288,7 @@ fun MainView(
                     MainNavigationRail(
                         navigator = navigator,
                         destinations = resolvedDestinations,
+                        selectedRoute = currentTopLevelRoute,
                         onItemSelected = { event?.saveLastTab(it) },
                     )
                 }
