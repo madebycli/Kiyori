@@ -2,14 +2,10 @@ package com.axiel7.anihyou.ui.screens.main
 
 import android.content.Context
 import android.net.Uri
-import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.axiel7.anihyou.core.base.ANIHYOU_AUTH_RESPONSE
 import com.axiel7.anihyou.core.base.ANIHYOU_SCHEME
-import com.axiel7.anihyou.core.base.ANIHYOU_WEAR_AUTH
-import com.axiel7.anihyou.core.base.ANIHYOU_WEAR_CALLBACK_URL
-import com.axiel7.anihyou.core.common.utils.ContextUtils.showToast
 import com.axiel7.anihyou.core.domain.repository.AppLockPreferencesRepository
 import com.axiel7.anihyou.core.domain.repository.DefaultPreferencesRepository
 import com.axiel7.anihyou.core.domain.repository.LoginRepository
@@ -17,8 +13,6 @@ import com.axiel7.anihyou.core.model.DefaultTab
 import com.axiel7.anihyou.core.model.security.AppLockPreferences
 import com.axiel7.anihyou.core.network.NetworkVariables
 import com.axiel7.anihyou.core.network.type.ScoreFormat
-import com.axiel7.anihyou.core.resources.R
-import com.axiel7.anihyou.startRemoteActivity
 import com.materialkolor.PaletteStyle
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
@@ -102,23 +96,8 @@ class MainViewModel(
     }
 
     fun onIntentDataReceived(context: Context, data: Uri?) = viewModelScope.launch {
-        if (data?.scheme == ANIHYOU_SCHEME) {
-            when {
-                data.toString().contains(ANIHYOU_AUTH_RESPONSE) -> loginRepository.parseRedirectUri(data)
-                data.toString().contains(ANIHYOU_WEAR_AUTH) -> sendAuthTokenToWearable(context)
-            }
-        }
-    }
-
-    private fun sendAuthTokenToWearable(context: Context) {
-        viewModelScope.launch {
-            val token = accessToken.first()
-            if (token == null) {
-                context.showToast(R.string.not_logged_text)
-            } else {
-                val data = "${ANIHYOU_WEAR_CALLBACK_URL}?access_token=$token".toUri()
-                context.startRemoteActivity(data)
-            }
+        if (data?.scheme == ANIHYOU_SCHEME && data.toString().contains(ANIHYOU_AUTH_RESPONSE)) {
+            loginRepository.parseRedirectUri(data)
         }
     }
 
