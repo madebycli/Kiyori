@@ -262,6 +262,18 @@ fun MainNavigation(
             )
         }
 
+        entry<Routes.MediaChartListMain>(metadata = topNavigationTransitionSpec) {
+            MediaChartListView(
+                arguments = Routes.MediaChartList(
+                    type = it.type,
+                    isMainDestination = true,
+                ),
+                isLoggedIn = isLoggedIn,
+                navActionManager = navActionManager,
+                modifier = mainDestinationModifier(true),
+            )
+        }
+
         entry<Routes.SeasonAnime> {
             SeasonAnimeView(
                 isLoggedIn = isLoggedIn,
@@ -271,11 +283,24 @@ fun MainNavigation(
             )
         }
 
+        entry<Routes.SeasonAnimeMain>(metadata = topNavigationTransitionSpec) {
+            SeasonAnimeView(
+                isLoggedIn = isLoggedIn,
+                arguments = Routes.SeasonAnime(
+                    season = it.season,
+                    year = it.year,
+                    isMainDestination = true,
+                ),
+                navActionManager = navActionManager,
+                modifier = mainDestinationModifier(true),
+            )
+        }
+
         entry<Routes.Calendar> {
             CalendarView(isLoggedIn = isLoggedIn, navActionManager = navActionManager)
         }
 
-        entry<Routes.CalendarMain> {
+        entry<Routes.CalendarMain>(metadata = topNavigationTransitionSpec) {
             CalendarView(
                 isLoggedIn = isLoggedIn,
                 navActionManager = navActionManager,
@@ -386,6 +411,16 @@ fun MainNavigation(
                 navActionManager = navActionManager,
                 isMainDestination = it.isMainDestination,
                 modifier = mainDestinationModifier(it.isMainDestination),
+            )
+        }
+
+        entry<Routes.CurrentFullListMain>(metadata = topNavigationTransitionSpec) {
+            CurrentFullListView(
+                isLoggedIn = isLoggedIn,
+                listType = it.listType,
+                navActionManager = navActionManager,
+                isMainDestination = true,
+                modifier = mainDestinationModifier(true),
             )
         }
 
