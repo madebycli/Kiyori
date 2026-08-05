@@ -28,7 +28,12 @@ class MainNavigationResolverTest {
         MainNavigationShortcutRegistry.definitions
             .flatMap { it.shortcuts }
             .forEach { shortcut ->
-                val config = defaultMainNavigationConfig().addShortcut(shortcut)
+                // v4 intentionally starts with five visible tabs. Free one slot so adding a
+                // shortcut exercises its visible top-level projection rather than its persisted
+                // hidden state at the five-tab limit.
+                val config = defaultMainNavigationConfig()
+                    .withVisibility(MainNavigationDestination.CALENDAR.stableId, false)
+                    .addShortcut(shortcut)
                 val destination = MainNavigationResolver.destinations(config)
                     .filterIsInstance<BottomDestination.Shortcut>()
                     .firstOrNull { it.stableId == shortcut.stableId }
