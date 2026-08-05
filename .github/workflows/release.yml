@@ -169,12 +169,14 @@ jobs:
             local aligned="$RUNNER_TEMP/$(basename "$output" .apk)-aligned.apk"
             "$zipalign" -f -p 4 "$input" "$aligned"
             "$apksigner" sign \
+              --v4-signing-enabled false \
               --ks "$RELEASE_KEYSTORE" \
               --ks-key-alias "$KEY_ALIAS" \
               --ks-pass env:KEYSTORE_PASSWORD \
               --key-pass env:KEY_PASSWORD \
               --out "$output" \
               "$aligned"
+            rm -f "$output.idsig"
           }
 
           sign_asset "$FOSS_INPUT" "dist/Kiyori-${RELEASE_VERSION}-foss-universal.apk"
