@@ -52,8 +52,8 @@ import com.axiel7.anihyou.feature.profile.ProfileView
 import com.axiel7.anihyou.feature.profile.favorites.reorder.ReorderFavoritesView
 import com.axiel7.anihyou.feature.reviewdetails.ReviewDetailsView
 import com.axiel7.anihyou.feature.settings.ContributorsView
-import com.axiel7.anihyou.feature.settings.SettingsView
 import com.axiel7.anihyou.feature.settings.MainNavigationSettingsView
+import com.axiel7.anihyou.feature.settings.SettingsView
 import com.axiel7.anihyou.feature.settings.TranslationsView
 import com.axiel7.anihyou.feature.settings.customlists.CustomListsView
 import com.axiel7.anihyou.feature.settings.liststyle.ListStyleSettingsView
@@ -95,6 +95,13 @@ fun MainNavigation(
         targetValue = padding.calculateBottomPadding(),
         label = "bottom_bar_padding"
     )
+    val mainDestinationModifier: (Boolean) -> Modifier = { isMainDestination ->
+        if (isCompactScreen && isMainDestination) {
+            Modifier.padding(bottom = bottomPadding)
+        } else {
+            Modifier
+        }
+    }
 
     var spoilerText by remember { mutableStateOf<String?>(null) }
     val markdownUriHandler = remember {
@@ -111,7 +118,6 @@ fun MainNavigation(
             onDismiss = { spoilerText = null }
         )
     }
-
 
     LaunchedEffect(deepLink) {
         if (deepLink != null) {
@@ -276,6 +282,7 @@ fun MainNavigation(
                 arguments = it,
                 isLoggedIn = isLoggedIn,
                 navActionManager = navActionManager,
+                modifier = mainDestinationModifier(it.isMainDestination),
             )
         }
 
@@ -284,6 +291,7 @@ fun MainNavigation(
                 isLoggedIn = isLoggedIn,
                 arguments = it,
                 navActionManager = navActionManager,
+                modifier = mainDestinationModifier(it.isMainDestination),
             )
         }
 
@@ -424,6 +432,7 @@ fun MainNavigation(
                 listType = it.listType,
                 navActionManager = navActionManager,
                 isMainDestination = it.isMainDestination,
+                modifier = mainDestinationModifier(it.isMainDestination),
             )
         }
 
