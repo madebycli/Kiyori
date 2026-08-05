@@ -7,5 +7,7 @@
     <string name="media_people_secondary">Secondary</string>
     <string name="media_people_language">Voice language</string>
     <string name="media_people_no_voice_actor">No voice actor</string>
+    <string name="media_people_no_characters">No characters match this filter.</string>
+    <string name="media_people_no_team">No team members are available.</string>
     <string name="media_people_open_voice_actors">Show all voice actors for %1$s</string>
 </resources>
