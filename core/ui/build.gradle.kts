@@ -69,6 +69,7 @@ dependencies {
 
     coreLibraryDesugaring(libs.desugar.jdk.libs)
 
+    testImplementation(kotlin("test"))
     testImplementation(libs.mockk)
     testImplementation(libs.junit)
 
