@@ -1,0 +1,152 @@
+name: Temporary Performance APK
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: performance-apk-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    if: github.repository == 'madebycli/Kiyori'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          java-version: 17
+          distribution: temurin
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb
+        with:
+          cache-read-only: ${{ github.event_name == 'pull_request' }}
+
+      - name: Install Android SDK components
+        shell: bash
+        run: bash scripts/install-android-sdk.sh
+
+      - name: Resolve version
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="$(awk -F= '/^[[:space:]]*name[[:space:]]*=/{gsub(/[[:space:]]/, "", $2); print $2; exit}' version.properties)"
+          version_code="$(awk -F= '/^[[:space:]]*code[[:space:]]*=/{gsub(/[[:space:]]/, "", $2); print $2; exit}' version.properties)"
+          test -n "$version"
+          [[ "$version_code" =~ ^[0-9]+$ ]]
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+          echo "VERSION_CODE=$version_code" >> "$GITHUB_ENV"
+
+      - name: Build FOSS debug and optimized release
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x ./gradlew
+          ./gradlew \
+            :app:assembleFossDebug \
+            :app:assembleFossRelease \
+            --no-daemon \
+            --stacktrace
+
+      - name: Create temporary signing identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          password="$(openssl rand -hex 32)"
+          echo "::add-mask::$password"
+          keystore="$RUNNER_TEMP/kiyori-performance-temp.jks"
+          keytool -genkeypair \
+            -noprompt \
+            -storetype JKS \
+            -keystore "$keystore" \
+            -storepass "$password" \
+            -alias kiyori-performance-temp \
+            -keypass "$password" \
+            -keyalg RSA \
+            -keysize 4096 \
+            -sigalg SHA256withRSA \
+            -validity 30 \
+            -dname "CN=Kiyori Temporary Performance Build, OU=CI, O=Kiyori"
+          {
+            echo "TEMP_KEYSTORE=$keystore"
+            echo "TEMP_KEY_PASSWORD=$password"
+          } >> "$GITHUB_ENV"
+
+      - name: Sign and verify installable APKs
+        shell: bash
+        run: |
+          set -euo pipefail
+          zipalign="$ANDROID_SDK_ROOT/build-tools/$ANDROID_BUILD_TOOLS_VERSION/zipalign"
+          apksigner="$ANDROID_SDK_ROOT/build-tools/$ANDROID_BUILD_TOOLS_VERSION/apksigner"
+          apkanalyzer="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/apkanalyzer"
+          test -x "$zipalign"
+          test -x "$apksigner"
+          test -x "$apkanalyzer"
+
+          mapfile -t debug_inputs < <(find app/build/outputs/apk/foss/debug -maxdepth 1 -type f -name '*universal-debug.apk' | sort)
+          mapfile -t release_inputs < <(find app/build/outputs/apk/foss/release -maxdepth 1 -type f -name '*universal-release-unsigned.apk' | sort)
+          test "${#debug_inputs[@]}" -eq 1
+          test "${#release_inputs[@]}" -eq 1
+
+          mkdir -p dist
+          debug_out="dist/Kiyori-${VERSION}-foss-debug.apk"
+          performance_out="dist/Kiyori-${VERSION}-foss-performance-temp-signed.apk"
+          aligned="$RUNNER_TEMP/kiyori-performance-aligned.apk"
+
+          cp "${debug_inputs[0]}" "$debug_out"
+          "$zipalign" -f -p 4 "${release_inputs[0]}" "$aligned"
+          "$apksigner" sign \
+            --ks "$TEMP_KEYSTORE" \
+            --ks-key-alias kiyori-performance-temp \
+            --ks-pass env:TEMP_KEY_PASSWORD \
+            --key-pass env:TEMP_KEY_PASSWORD \
+            --out "$performance_out" \
+            "$aligned"
+
+          "$apksigner" verify --verbose --print-certs "$debug_out"
+          verify_output="$($apksigner verify --verbose --print-certs "$performance_out")"
+          printf '%s\n' "$verify_output"
+          cert="$(printf '%s\n' "$verify_output" | awk -F': ' '/Signer #1 certificate SHA-256 digest/{print tolower($2); exit}' | tr -d ':[:space:]')"
+          [[ "$cert" =~ ^[0-9a-f]{64}$ ]]
+
+          test "$($apkanalyzer manifest application-id "$debug_out")" = "app.kiyori.debug"
+          test "$($apkanalyzer manifest version-name "$debug_out")" = "${VERSION}-DEBUG"
+          test "$($apkanalyzer manifest version-code "$debug_out")" = "$VERSION_CODE"
+          test "$($apkanalyzer manifest application-id "$performance_out")" = "app.kiyori"
+          test "$($apkanalyzer manifest version-name "$performance_out")" = "$VERSION"
+          test "$($apkanalyzer manifest version-code "$performance_out")" = "$VERSION_CODE"
+
+          printf '%s\n' "$cert" > dist/TEMP-SIGNING-CERT-SHA256.txt
+          (
+            cd dist
+            sha256sum \
+              "Kiyori-${VERSION}-foss-debug.apk" \
+              "Kiyori-${VERSION}-foss-performance-temp-signed.apk" \
+              > SHA256SUMS.txt
+          )
+
+      - name: Upload temporary installable APKs
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: Kiyori-${{ env.VERSION }}-temporary-performance-apks
+          path: dist/
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Remove temporary signing material
+        if: ${{ always() }}
+        shell: bash
+        run: rm -f "$RUNNER_TEMP/kiyori-performance-temp.jks"
