@@ -266,13 +266,13 @@ fun MainView(
 
     Scaffold(
         bottomBar = {
-            if (isCompactScreen && isBottomDestination) {
+            if (isCompactScreen) {
                 MainBottomNavBar(
                     navigator = navigator,
                     navActionManager = navActionManager,
                     destinations = resolvedDestinations,
                     selectedRoute = currentTopLevelRoute,
-                    isVisible = true,
+                    isVisible = isBottomDestination,
                     onItemSelected = { event?.saveLastTab(it) },
                 )
             }
