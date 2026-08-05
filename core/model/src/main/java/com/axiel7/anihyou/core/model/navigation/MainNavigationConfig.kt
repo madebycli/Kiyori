@@ -4,7 +4,7 @@ import com.axiel7.anihyou.core.model.CurrentListType
 import com.axiel7.anihyou.core.model.media.ChartType
 
 /**
- * The persisted, phone-only main navigation contract.  It deliberately stores
+ * The persisted, phone-only main navigation contract. It deliberately stores
  * stable technical identifiers, never Compose routes or date-dependent values.
  */
 enum class MainNavigationDestination(
@@ -14,9 +14,9 @@ enum class MainNavigationDestination(
     HOME("home", true),
     ANIME("anime", true),
     MANGA("manga", true),
-    PROFILE("profile", false),
     EXPLORE("explore", true),
-    CALENDAR("calendar", false),
+    CALENDAR("calendar", true),
+    PROFILE("profile", false),
     ;
 
     companion object {
@@ -53,7 +53,7 @@ data class MainNavigationItem(
     }
 }
 
-const val MAIN_NAVIGATION_CONFIG_VERSION = 3
+const val MAIN_NAVIGATION_CONFIG_VERSION = 4
 const val MIN_VISIBLE_MAIN_DESTINATIONS = 2
 const val MAX_VISIBLE_MAIN_DESTINATIONS = 5
 
@@ -79,10 +79,14 @@ data class MainNavigationConfig(
         }
 
         val firstSeason = kept.indexOfFirst { it.shortcut is MainNavigationShortcut.Season }
-        kept.removeAll { it.shortcut is MainNavigationShortcut.Season && kept.indexOf(it) != firstSeason }
+        kept.removeAll { item ->
+            item.shortcut is MainNavigationShortcut.Season && kept.indexOf(item) != firstSeason
+        }
 
         while (kept.count(MainNavigationItem::visible) > MAX_VISIBLE_MAIN_DESTINATIONS) {
-            val item = kept.lastOrNull { it.visible && it.destination != MainNavigationDestination.HOME } ?: break
+            val item = kept.lastOrNull {
+                it.visible && it.destination != MainNavigationDestination.HOME
+            } ?: break
             kept[kept.indexOf(item)] = item.copy(visible = false)
         }
         MainNavigationDestination.entries
@@ -119,7 +123,9 @@ data class MainNavigationConfig(
 
     fun move(stableId: String, toIndex: Int): MainNavigationConfig {
         val fromIndex = items.indexOfFirst { it.stableId == stableId }
-        if (fromIndex < 0 || items[fromIndex].destination == MainNavigationDestination.HOME) return normalized()
+        if (fromIndex < 0 || items[fromIndex].destination == MainNavigationDestination.HOME) {
+            return normalized()
+        }
         val reordered = items.toMutableList()
         val item = reordered.removeAt(fromIndex)
         reordered.add(toIndex.coerceIn(1, reordered.size), item)
@@ -145,17 +151,24 @@ private fun staticItem(destination: MainNavigationDestination, visible: Boolean)
 
 /** A compact, forward-compatible codec with explicit migration of the old static-only values. */
 object MainNavigationConfigCodec {
+    private const val LEGACY_V3_DEFAULT =
+        "home:1,anime:1,manga:1,profile:0,explore:1,calendar:0"
+
     fun encode(config: MainNavigationConfig): String = buildString {
-        append("v3;")
+        append("v4;")
         append(config.normalized().items.joinToString(",") { "${it.stableId}:${if (it.visible) 1 else 0}" })
     }
 
     fun decode(raw: String?): MainNavigationConfig = when {
         raw.isNullOrBlank() -> defaultMainNavigationConfig()
-        raw.startsWith("v3;") -> decodeEntries(raw.removePrefix("v3;"))
+        raw.startsWith("v4;") -> decodeEntries(raw.removePrefix("v4;"))
+        raw.startsWith("v3;") -> decodeVersion3(raw.removePrefix("v3;"))
         raw.startsWith("v2;") -> decodeEntries(raw.removePrefix("v2;"))
         else -> decodeLegacy(raw)
     }.normalized()
+
+    private fun decodeVersion3(raw: String): MainNavigationConfig =
+        if (raw == LEGACY_V3_DEFAULT) defaultMainNavigationConfig() else decodeEntries(raw)
 
     private fun decodeLegacy(raw: String): MainNavigationConfig {
         val visible = raw.split(',', ';', '|')
@@ -183,13 +196,17 @@ object MainNavigationConfigCodec {
                 else -> null
             }
             stableId.startsWith("shortcut_current_list_") ->
-                CurrentListType.entries.firstOrNull { it.name.equals(stableId.removePrefix("shortcut_current_list_"), true) }
-                    ?.let(MainNavigationShortcut::CurrentList)
+                CurrentListType.entries.firstOrNull {
+                    it.name.equals(stableId.removePrefix("shortcut_current_list_"), true)
+                }?.let(MainNavigationShortcut::CurrentList)
             stableId.startsWith("shortcut_chart_") ->
-                ChartType.entries.firstOrNull { it.name.equals(stableId.removePrefix("shortcut_chart_"), true) }
-                    ?.let(MainNavigationShortcut::Chart)
+                ChartType.entries.firstOrNull {
+                    it.name.equals(stableId.removePrefix("shortcut_chart_"), true)
+                }?.let(MainNavigationShortcut::Chart)
             else -> null
         }
-        return shortcut?.let { MainNavigationItem(stableId = it.stableId, visible = visible, shortcut = it) }
+        return shortcut?.let {
+            MainNavigationItem(stableId = it.stableId, visible = visible, shortcut = it)
+        }
     }
 }
