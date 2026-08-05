@@ -21,7 +21,7 @@ data class SettingsUiState(
     val useBlackColors: Boolean = false,
     val appColorMode: AppColorMode? = null,
     val appColor: Color? = null,
-    val colorPaletteStyle: String = PaletteStyle.Expressive.name,
+    val colorPaletteStyle: String = PaletteStyle.Neutral.name,
     val blurAdultContent: Boolean = true,
     val useGeneralListStyle: Boolean? = null,
     val generalListStyle: ListStyle? = null,
