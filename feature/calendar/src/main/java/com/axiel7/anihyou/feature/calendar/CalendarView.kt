@@ -30,7 +30,6 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -52,6 +51,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
@@ -147,6 +147,9 @@ private fun CalendarViewContent(
     val showEditSheet = remember { mutableStateOf(false) }
     val selectedDate = range.dateForPage(selectedPage)
     val visibleWeek = range.visibleWeek(selectedDate)
+    val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
+        rememberTopAppBarState()
+    )
 
     LaunchedEffect(visibleWeek, onMyList, displayAdult) {
         onVisibleWeekChanged(visibleWeek, onMyList, displayAdult)
@@ -172,11 +175,12 @@ private fun CalendarViewContent(
             )
         },
         snackbarHost = snackbarManager::SnackbarHost,
-        scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState()),
+        scrollBehavior = topAppBarScrollBehavior,
     ) { padding ->
         Column(
             modifier = modifier
                 .fillMaxSize()
+                .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
                 .padding(
                     start = padding.calculateStartPadding(LocalLayoutDirection.current),
                     top = padding.calculateTopPadding(),
@@ -317,7 +321,6 @@ private fun CalendarDateStrip(
                 )
             }
         }
-        HorizontalDivider()
     }
 }
 
