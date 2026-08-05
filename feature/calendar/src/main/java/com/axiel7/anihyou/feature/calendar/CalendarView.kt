@@ -150,13 +150,20 @@ private fun CalendarViewContent(
     val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
         rememberTopAppBarState()
     )
+    val navigateToPage: (Int) -> Unit = { page ->
+        val targetPage = page.coerceIn(0, range.pageCount - 1)
+        selectedPage = targetPage
+        scope.launch {
+            pagerState.animateScrollToPage(targetPage)
+        }
+    }
 
     LaunchedEffect(visibleWeek, onMyList, displayAdult) {
         onVisibleWeekChanged(visibleWeek, onMyList, displayAdult)
     }
 
-    LaunchedEffect(pagerState.settledPage) {
-        selectedPage = pagerState.settledPage.coerceIn(0, range.pageCount - 1)
+    LaunchedEffect(pagerState.targetPage) {
+        selectedPage = pagerState.targetPage.coerceIn(0, range.pageCount - 1)
     }
 
     DefaultScaffoldWithSmallTopAppBar(
@@ -194,21 +201,13 @@ private fun CalendarViewContent(
                 firstDate = range.firstDate,
                 lastDate = range.lastDate,
                 onDateSelected = { date ->
-                    scope.launch {
-                        pagerState.animateScrollToPage(range.pageForDate(date))
-                    }
+                    navigateToPage(range.pageForDate(date))
                 },
                 onPreviousWeek = {
-                    scope.launch {
-                        pagerState.animateScrollToPage((selectedPage - 7).coerceAtLeast(0))
-                    }
+                    navigateToPage(selectedPage - 7)
                 },
                 onNextWeek = {
-                    scope.launch {
-                        pagerState.animateScrollToPage(
-                            (selectedPage + 7).coerceAtMost(range.pageCount - 1)
-                        )
-                    }
+                    navigateToPage(selectedPage + 7)
                 },
             )
 
