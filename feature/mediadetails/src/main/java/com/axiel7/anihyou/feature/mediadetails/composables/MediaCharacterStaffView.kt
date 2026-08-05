@@ -57,12 +57,6 @@ private enum class PeopleSection {
     TEAM,
 }
 
-private enum class CharacterRoleFilter {
-    ALL,
-    PRIMARY,
-    SECONDARY,
-}
-
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun MediaCharacterStaffView(
@@ -74,25 +68,23 @@ fun MediaCharacterStaffView(
 ) {
     val characters = uiState.characters.orEmpty()
     val staff = uiState.staff.orEmpty()
-    val isLoading = uiState.characters == null || uiState.staff == null
+    val charactersLoading = uiState.characters == null
+    val staffLoading = uiState.staff == null
 
     var selectedSection by rememberSaveable { mutableIntStateOf(0) }
     var selectedRole by rememberSaveable { mutableIntStateOf(0) }
     var selectedLanguage by rememberSaveable { mutableStateOf<String?>(null) }
 
     val languages = remember(characters) {
-        characters
-            .flatMap(MediaCharacter::availableVoiceActors)
-            .mapNotNull { it.languageV2 }
-            .distinct()
-            .sortedWith(
-                compareBy<String> { !it.equals("Japanese", ignoreCase = true) }
-                    .thenBy { it.lowercase() }
-            )
+        normalizedVoiceActorLanguages(
+            characters
+                .flatMap(MediaCharacter::availableVoiceActors)
+                .map(CommonVoiceActor::languageV2)
+        )
     }
 
     LaunchedEffect(uiState.characters, uiState.staff) {
-        if (uiState.characters == null && uiState.staff == null) fetchData()
+        if (charactersLoading || staffLoading) fetchData()
     }
 
     LaunchedEffect(languages) {
@@ -121,7 +113,7 @@ fun MediaCharacterStaffView(
         when (PeopleSection.entries[selectedSection]) {
             PeopleSection.CHARACTERS -> CharactersSection(
                 characters = characters,
-                isLoading = isLoading,
+                isLoading = charactersLoading,
                 roleFilter = CharacterRoleFilter.entries[selectedRole],
                 onRoleFilterChanged = { selectedRole = it.ordinal },
                 languages = languages,
@@ -133,7 +125,7 @@ fun MediaCharacterStaffView(
 
             PeopleSection.TEAM -> TeamSection(
                 uiState = uiState,
-                isLoading = isLoading,
+                isLoading = staffLoading,
                 navigateToStaffDetails = navigateToStaffDetails,
             )
         }
@@ -154,13 +146,7 @@ private fun CharactersSection(
 ) {
     var languageMenuExpanded by remember { mutableStateOf(false) }
     val filteredCharacters = remember(characters, roleFilter) {
-        characters.filter { character ->
-            when (roleFilter) {
-                CharacterRoleFilter.ALL -> true
-                CharacterRoleFilter.PRIMARY -> character.role?.name == "MAIN"
-                CharacterRoleFilter.SECONDARY -> character.role?.name != "MAIN"
-            }
-        }
+        characters.filter { matchesCharacterRole(it.role?.name, roleFilter) }
     }
 
     Row(
@@ -223,6 +209,7 @@ private fun CharactersSection(
 
     when {
         isLoading -> repeat(5) { PersonItemHorizontalPlaceholder() }
+        filteredCharacters.isEmpty() -> PeopleEmptyState(R.string.media_people_no_characters)
         else -> filteredCharacters.forEach { character ->
             CharacterVoiceActorRow(
                 character = character,
@@ -243,9 +230,11 @@ private fun CharacterVoiceActorRow(
 ) {
     val node = character.node
     val voiceActors = character.availableVoiceActors()
-    val voiceActor = voiceActors.firstOrNull {
-        it.languageV2.equals(selectedLanguage, ignoreCase = true)
-    } ?: voiceActors.firstOrNull()
+    val voiceActor = selectVoiceActor(
+        voiceActors = voiceActors,
+        selectedLanguage = selectedLanguage,
+        languageOf = CommonVoiceActor::languageV2,
+    )
     val characterName = node?.name?.userPreferred.orEmpty()
 
     Row(
@@ -283,6 +272,8 @@ private fun CharacterVoiceActorRow(
                         text = role,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
             }
@@ -318,6 +309,8 @@ private fun CharacterVoiceActorRow(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         textAlign = TextAlign.End,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
             }
@@ -337,9 +330,11 @@ private fun TeamSection(
     isLoading: Boolean,
     navigateToStaffDetails: (Int) -> Unit,
 ) {
+    val staffItems = uiState.staff.orEmpty()
     when {
         isLoading -> repeat(5) { PersonItemHorizontalPlaceholder() }
-        else -> uiState.staff.orEmpty().forEach { staff ->
+        staffItems.isEmpty() -> PeopleEmptyState(R.string.media_people_no_team)
+        else -> staffItems.forEach { staff ->
             val node = staff.node
             Row(
                 modifier = Modifier
@@ -361,17 +356,34 @@ private fun TeamSection(
                         text = node?.name?.userPreferred.orEmpty(),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.SemiBold,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
                     )
                     Text(
                         text = staff.roleLocalized().orEmpty(),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
             }
             HorizontalDivider(modifier = Modifier.padding(start = 84.dp, end = 12.dp))
         }
     }
+}
+
+@Composable
+private fun PeopleEmptyState(messageRes: Int) {
+    Text(
+        text = stringResource(messageRes),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 32.dp),
+        style = MaterialTheme.typography.bodyLarge,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        textAlign = TextAlign.Center,
+    )
 }
 
 private fun MediaCharacter.availableVoiceActors(): List<CommonVoiceActor> =
