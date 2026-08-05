@@ -1,28 +1,41 @@
-# Recovery Checkpoint
+# Recovery Checkpoint — Plan 2 Phase 3/4
 
-- Updated: 2026-08-04T21:55:51+02:00
-- Branch: `feature/kiyori-integrated-rebuild`
-- Last synchronized product remote HEAD: `02986688e755672415f6e7629c59592e2c36c294`
-- Upstream develop: `01a8a4abe98c778d1015a33072a11efdb4ef8593`
-- Merge-base: `01a8a4abe98c778d1015a33072a11efdb4ef8593`
-- Current gate: Gate 5 / release-only Maven hydration pending
-- Completed: Preflight, sensitive-file scan, auth/API contract scans, Draft PR #2, Kiyori identity and phone assets, variant-safe notification routing, typed navigation model/codec, normalized preferences persistence, shared resolver, navigation editor, typed current-list/chart/season projection, nested-profile Home action, date-based Calendar main host, bounded pager/DST tests, and DataStore backup exclusion.
-- Build state: Gradle 9.5.0 runs under a workspace-local Java 17 JDK and Android SDK through the Work proxy.
-  FOSS/GMS debug builds, focused JVM tests, FOSS/GMS lint, and Wear debug/lint pass after source-level repairs.
-- Passed checks: `git diff --check`; targeted protected auth/API source comparison; manifest/resource inspection;
-  512×512 preview dimension check; `:core:model:testDebugUnitTest`; `:core:ui:compileDebugKotlin`;
-  `:feature:calendar:testDebugUnitTest`; `:feature:explore:compileDebugKotlin`;
-  `:feature:home:compileDebugKotlin`; `:feature:settings:compileDebugKotlin`; FOSS/GMS debug assembly;
-  `:app:lintFossDebug`; `:app:lintGmsDebug`; `:wearos:clean :wearos:assembleDebug :wearos:lintDebug`.
-- Failing command: `:app:assembleFossRelease :app:assembleGmsRelease` stops before R8 because
-  `sh.calvin.reorderable:reorderable-android:3.1.0` is not cached. Work cancelled the required Maven request;
-  do not substitute its debug-only sibling artifact.
-- Uncommitted files: no product-source files in the remote tree.
-  FOSS universal debug SHA-256: `01fcf6036914f8cab54a3e1bc40d792a58b0e7f2231ca1723cf41abc503b59ae`.
-- Next exact action: after Maven access is available, hydrate the exact release coordinate and rerun
-  `:app:assembleFossRelease :app:assembleGmsRelease --no-daemon --max-workers=1 -Dkotlin.compiler.execution.strategy=in-process`;
-  inspect artifacts, then obtain owner device acceptance.
-- Last successful product remote publication: `02986688e755672415f6e7629c59592e2c36c294`.
-- Latest CI source publication: `b573abdda21191cee9d41e98b72a05cebc254e68` adds Wear and both release variants to CI.
-- Read-only merge simulation against `main` reports one README conflict. Its resolution requires an
-  explicitly authorized merge/rebase workflow, which remains prohibited by the campaign rules.
+- Updated: 2026-08-05T14:47:00+02:00
+- Active branch: `feature/plan2-recovery-phase3-4`
+- Draft PR: #6 to `main`
+- Protected baseline main: `5216fb0eb8cb60404543306e2401e4d27833a2bc`
+- Rescue head retained: `4e54026b3f83029d97c77354c8a2e8fe588914cb`
+- Current upstream develop retained: `7d49076ded4d93b35c94262147695c3889396d76`
+- Last green pre-version source: `1811092adfe6fe28efe536eda26b092e4797d4b0`
+- Version: `1.6.0.1` / code 114
+- Current gate: final versioned CI, then external device/signing acceptance
+
+## Remote safety refs
+
+- `backup/2026-08-05-main-5216fb0`
+- `backup/2026-08-05-integrated-rebuild-36de346`
+- `backup/2026-08-05-apk-feature-rescue-4e54026`
+
+No force-push was used. No Kiyori product commit was written to `develop`. The rescue and upstream
+histories are retained through real merge commits.
+
+## Product checkpoint
+
+- Phase 2R character/team and App Lock audits are implemented and covered by focused tests.
+- Phase 3 Discover responsiveness and navigation v4 migration are implemented.
+- Phase 4 is phone-only; Wear sources and contracts are absent.
+- Release workflow is main-only and verifies deterministic signed universal assets.
+- English changelog and version-code-114 metadata are present.
+
+## Build checkpoint
+
+CI run `31005865364` (Android CI #140) passed the complete pre-version matrix on
+`1811092adfe6fe28efe536eda26b092e4797d4b0` and uploaded artifact `android-ci-140`
+(ID `8930765110`, digest `sha256:339edd1603320dbdcf534a01ac49acc06042b0282a374eaa88fc4e84ff7dbbb7`).
+
+## Next exact action
+
+Wait for the complete matrix on the versioned/documented head. If green, perform real-device and upgrade
+acceptance. Only then merge the green PR to main and run the protected Signed GitHub Release workflow.
+If a device or signing secret is unavailable, retain the verified candidate and report that single
+external blocker; do not create or claim a public release.
