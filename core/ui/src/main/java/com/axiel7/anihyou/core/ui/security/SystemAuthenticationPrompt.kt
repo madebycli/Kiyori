@@ -6,7 +6,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 
 private const val ALLOWED_AUTHENTICATORS =
-    BiometricManager.Authenticators.BIOMETRIC_WEAK or
+    BiometricManager.Authenticators.BIOMETRIC_STRONG or
         BiometricManager.Authenticators.DEVICE_CREDENTIAL
 
 enum class SystemAuthenticationAvailability {
