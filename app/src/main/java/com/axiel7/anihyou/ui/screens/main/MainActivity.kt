@@ -228,11 +228,18 @@ fun MainView(
     val resolvedRoutes = remember(resolvedDestinations) {
         MainNavigationResolver.routes(navigationConfig)
     }
-    val navigationState = rememberNavigationState(BottomDestination.Home.route, resolvedRoutes)
-    val navigator = remember { Navigator(navigationState) }
-    val currentRoute = navigationState.backStacks[navigationState.topLevelRoute]?.lastOrNull()
-    val isBottomDestination = navigationState.topLevelRoute in resolvedRoutes &&
-        currentRoute == navigationState.topLevelRoute
+    val allTopLevelRoutes = remember {
+        MainNavigationResolver.allRoutes()
+    }
+    val navigationState = rememberNavigationState(
+        startRoute = BottomDestination.Home.route,
+        topLevelRoutes = allTopLevelRoutes,
+    )
+    val navigator = remember(navigationState) { Navigator(navigationState) }
+    val currentTopLevelRoute = navigationState.topLevelRoute
+    val currentRoute = navigationState.getCurrentRoute()
+    val isBottomDestination = currentTopLevelRoute in resolvedRoutes &&
+        currentRoute == currentTopLevelRoute
     val navActionManager = NavActionManager.rememberNavActionManager(navigator)
     val isCompactScreen = windowSizeClass.widthSizeClass == WindowWidthSizeClass.Compact
 
@@ -240,8 +247,8 @@ fun MainView(
         setNavigationBarContrastEnforced(!isBottomDestination)
     }
 
-    LaunchedEffect(resolvedRoutes, navigationState.topLevelRoute) {
-        if (navigationState.topLevelRoute !in resolvedRoutes) {
+    LaunchedEffect(resolvedRoutes, currentTopLevelRoute) {
+        if (currentTopLevelRoute !in resolvedRoutes) {
             navigator.navigate(BottomDestination.Home.route)
         }
     }
