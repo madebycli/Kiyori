@@ -8,7 +8,9 @@ chmod +x ./gradlew
   :app:testGmsDebugUnitTest \
   :core:model:testDebugUnitTest \
   :core:domain:testDebugUnitTest \
+  :core:ui:testDebugUnitTest \
   :feature:calendar:testDebugUnitTest \
+  :feature:mediadetails:testDebugUnitTest \
   :app:lintFossDebug \
   :app:lintGmsDebug \
   --no-daemon \
