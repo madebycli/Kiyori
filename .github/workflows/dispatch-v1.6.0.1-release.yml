@@ -1,0 +1,38 @@
+name: Dispatch v1.6.0.1 release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/release-triggers/v1.6.0.1
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: dispatch-v1.6.0.1-release
+  cancel-in-progress: false
+
+jobs:
+  dispatch:
+    if: github.repository == 'madebycli/Kiyori' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Dispatch canonical signed release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          canonical_sha="$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq '.sha')"
+          test "$canonical_sha" = "$GITHUB_SHA"
+          gh workflow run release.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref main \
+            -f tag=v1.6.0.1 \
+            -f title='Kiyori v1.6.0.1' \
+            -f publish=true

@@ -27,6 +27,8 @@
 - Buffered widget, external-link, and notification destinations are consumed exactly once after successful unlock.
 - Character and team loading states no longer block each other.
 - Voice-language labels are deduplicated case-insensitively while preserving canonical display capitalization.
+- Media-list refreshes no longer append duplicate entries when the upstream response has no page number.
+- Home Current lists immediately reflect edited progress, status, and score values without a manual refresh.
 
 ### Removed
 
