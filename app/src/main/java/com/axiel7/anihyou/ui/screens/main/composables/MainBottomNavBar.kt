@@ -28,6 +28,8 @@ fun MainBottomNavBar(
     isVisible: Boolean,
     onItemSelected: (Int) -> Unit,
 ) {
+    val currentRoute = navigator.state.getCurrentRoute()
+
     AnimatedVisibility(
         visible = isVisible,
         enter = slideInVertically(initialOffsetY = { it }),
@@ -35,7 +37,7 @@ fun MainBottomNavBar(
     ) {
         NavigationBar {
             destinations.forEachIndexed { index, dest ->
-                val isSelected = dest.route == navigator.state.topLevelRoute
+                val isSelected = dest.route == currentRoute
                 NavigationBarItem(
                     icon = {
                         dest.Icon(selected = isSelected)
