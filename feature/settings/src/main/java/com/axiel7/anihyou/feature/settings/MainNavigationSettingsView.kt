@@ -4,7 +4,6 @@ import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -40,6 +39,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
@@ -214,7 +214,7 @@ private fun MainNavigationSettingsContent(
                                     IconButton(
                                         onClick = {},
                                         enabled = !mandatory,
-                                        modifier = if (mandatory) {
+                                        modifier = (if (mandatory) {
                                             Modifier
                                         } else {
                                             Modifier.draggableHandle(
@@ -229,7 +229,7 @@ private fun MainNavigationSettingsContent(
                                                     )
                                                 },
                                             )
-                                        },
+                                        }).size(40.dp),
                                     ) {
                                         Icon(
                                             painter = painterResource(CoreR.drawable.drag_handle_24),
@@ -237,7 +237,9 @@ private fun MainNavigationSettingsContent(
                                                 R.string.main_navigation_reorder,
                                                 item.label(),
                                             ),
-                                            modifier = Modifier.alpha(if (mandatory) 0.35f else 1f),
+                                            modifier = Modifier
+                                                .size(22.dp)
+                                                .alpha(if (mandatory) 0.35f else 1f),
                                         )
                                     }
                                 },
@@ -266,25 +268,25 @@ private fun MainNavigationEditorItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(min = 80.dp)
-                .padding(start = 16.dp, end = 4.dp),
+                .heightIn(min = 72.dp)
+                .padding(start = 16.dp, end = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
                 painter = painterResource(item.iconResource()),
                 contentDescription = null,
-                modifier = Modifier.size(28.dp),
+                modifier = Modifier.size(26.dp),
                 tint = MaterialTheme.colorScheme.onSurface,
             )
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(horizontal = 12.dp),
+                    .padding(start = 12.dp, end = 8.dp),
                 verticalArrangement = Arrangement.Center,
             ) {
                 Text(
                     text = label,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.bodyLarge,
                 )
                 if (mandatory) {
                     Text(
@@ -298,18 +300,23 @@ private fun MainNavigationEditorItem(
                 checked = item.visible,
                 onCheckedChange = if (canToggle) onVisibility else null,
                 enabled = canToggle,
+                modifier = Modifier.scale(0.9f),
             )
             if (onRemove != null) {
-                IconButton(onClick = onRemove) {
+                IconButton(
+                    onClick = onRemove,
+                    modifier = Modifier.size(40.dp),
+                ) {
                     Icon(
                         painter = painterResource(CoreR.drawable.close_24),
                         contentDescription = stringResource(R.string.main_navigation_remove, label),
+                        modifier = Modifier.size(22.dp),
                     )
                 }
             }
             dragHandle()
         }
-        HorizontalDivider(modifier = Modifier.padding(start = 56.dp))
+        HorizontalDivider(modifier = Modifier.padding(start = 52.dp))
     }
 }
 
