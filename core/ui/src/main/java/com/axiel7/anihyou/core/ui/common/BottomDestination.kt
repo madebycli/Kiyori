@@ -56,6 +56,23 @@ sealed class BottomDestination(
         iconSelected = R.drawable.explore_filled_24
     )
 
+    data object Calendar : BottomDestination(
+        index = 5,
+        route = Routes.CalendarMain,
+        title = R.string.calendar,
+        icon = R.drawable.calendar_month_24,
+        iconSelected = R.drawable.calendar_month_24,
+    )
+
+    /** A typed, persisted shortcut projected into the same bottom/rail UI as static tabs. */
+    class Shortcut(
+        val stableId: String,
+        index: Int,
+        route: NavKey,
+        @StringRes title: Int,
+        @DrawableRes icon: Int,
+    ) : BottomDestination(index, route, title, icon, icon)
+
     @Composable
     fun Icon(selected: Boolean) {
         androidx.compose.material3.Icon(
@@ -65,11 +82,19 @@ sealed class BottomDestination(
     }
 
     companion object {
-        val routes = setOf(Home.route, AnimeList.route, MangaList.route, Profile.route, Explore.route)
+        /*
+         * Use accessors instead of eagerly initialized companion fields.
+         * Eager initialization can run while BottomDestination's nested data objects
+         * are still being initialized, which made Home null and crashed at startup.
+         */
+        val values: List<BottomDestination>
+            get() = listOf(Home, AnimeList, MangaList, Profile, Explore, Calendar)
 
-        val values = listOf(Home, AnimeList, MangaList, Profile, Explore)
+        val routes: Set<NavKey>
+            get() = values.mapTo(linkedSetOf()) { it.route }
 
-        val railValues = listOf(Home, AnimeList, MangaList, Profile)
+        val railValues: List<BottomDestination>
+            get() = listOf(Home, AnimeList, MangaList, Profile)
 
         fun Int.toBottomDestinationRoute(): NavKey? = values.find { it.index == this }?.route
 
@@ -82,6 +107,8 @@ sealed class BottomDestination(
                 is MangaList -> "MangaListTab"
                 is Profile -> "ProfileTab"
                 is Explore -> "ExploreTab"
+                is Calendar -> "CalendarTab"
+                is Shortcut -> stableId
             }
     }
 }

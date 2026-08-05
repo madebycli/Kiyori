@@ -2,7 +2,6 @@ package com.axiel7.anihyou.feature.calendar
 
 import androidx.lifecycle.viewModelScope
 import com.axiel7.anihyou.core.base.PagedResult
-import com.axiel7.anihyou.core.common.utils.DateUtils.thisWeekdayTimestamp
 import com.axiel7.anihyou.core.domain.repository.DefaultPreferencesRepository
 import com.axiel7.anihyou.core.domain.repository.MediaRepository
 import com.axiel7.anihyou.core.network.AiringAnimesQuery
@@ -16,8 +15,8 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
-import java.time.DayOfWeek
-import java.time.LocalDateTime
+import java.time.LocalDate
+import java.time.ZoneId
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CalendarViewModel(
@@ -29,14 +28,28 @@ class CalendarViewModel(
 
     private val displayAdult = defaultPreferencesRepository.displayAdult
 
-    private val now: LocalDateTime = LocalDateTime.now()
-
     fun setOnMyList(value: Boolean?) = mutableUiState.update {
         it.copy(onMyList = value, page = 1, hasNextPage = true, isLoading = true)
     }
 
     fun setWeekday(value: Int) = mutableUiState.update {
-        it.copy(weekday = value)
+        it.copy(
+            weekday = value,
+            date = LocalDate.now().plusDays((value - LocalDate.now().dayOfWeek.value).toLong()),
+            page = 1,
+            hasNextPage = true,
+            isLoading = true,
+        )
+    }
+
+    fun setDate(value: LocalDate) = mutableUiState.update {
+        if (it.date == value) it else it.copy(
+            weekday = value.dayOfWeek.value,
+            date = value,
+            page = 1,
+            hasNextPage = true,
+            isLoading = true,
+        )
     }
 
     override fun onUpdateListEntry(newListEntry: BasicMediaListEntry?) {
@@ -74,17 +87,14 @@ class CalendarViewModel(
                 old.page == new.page
                         && old.weekday == new.weekday
                         && old.onMyList == new.onMyList
+                        && old.date == new.date
             }
             .combine(displayAdult, ::Pair)
             .flatMapLatest { (uiState, displayAdult) ->
-                val start = now.thisWeekdayTimestamp(
-                    dayOfWeek = DayOfWeek.of(uiState.weekday),
-                    isEndOfDay = false
-                )
-                val end = now.thisWeekdayTimestamp(
-                    dayOfWeek = DayOfWeek.of(uiState.weekday),
-                    isEndOfDay = true
-                )
+                val date = uiState.date ?: LocalDate.now()
+                val zone = ZoneId.systemDefault()
+                val start = date.atStartOfDay(zone).toEpochSecond() - 1
+                val end = date.plusDays(1).atStartOfDay(zone).toEpochSecond()
                 mediaRepository.getAiringAnimesPage(
                     airingAtGreater = start,
                     airingAtLesser = end,

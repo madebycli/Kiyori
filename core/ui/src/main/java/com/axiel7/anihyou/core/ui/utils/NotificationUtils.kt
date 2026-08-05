@@ -17,6 +17,16 @@ import com.axiel7.anihyou.core.resources.R
 
 object NotificationUtils {
 
+    /**
+     * Lets the installed phone variant supply its monochrome notification mark without making
+     * the shared UI module depend on the app or Wear resource namespace.
+     */
+    fun Context.notificationSmallIcon(): Int = resources.getIdentifier(
+        "ic_kiyori_notification",
+        "drawable",
+        packageName
+    ).takeIf { it != 0 } ?: R.drawable.anihyou_24
+
     @RequiresApi(Build.VERSION_CODES.O)
     fun Context.createNotificationChannel(
         id: String,
@@ -45,7 +55,7 @@ object NotificationUtils {
         val builder = NotificationCompat.Builder(applicationContext, channelId)
             .setContentTitle(title)
             .setContentText(text)
-            .setSmallIcon(R.drawable.anihyou_24)
+            .setSmallIcon(applicationContext.notificationSmallIcon())
             .setAutoCancel(true)
             .setContentIntent(pendingIntent)
             .setGroup(group)

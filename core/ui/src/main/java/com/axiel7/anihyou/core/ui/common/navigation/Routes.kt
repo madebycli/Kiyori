@@ -66,18 +66,27 @@ object Routes {
 
     @Serializable
     @Immutable
-    data class MediaChartList(val type: String): NavKey
+    data class MediaChartList(
+        val type: String,
+        val isMainDestination: Boolean = false,
+    ): NavKey
 
     @Serializable
     @Immutable
     data class SeasonAnime(
         val season: String,
         val year: Int,
+        val isMainDestination: Boolean = false,
     ): NavKey
 
     @Serializable
     @Immutable
     object Calendar: NavKey
+
+    /** Top-level Calendar host; the legacy Calendar route keeps its back affordance. */
+    @Serializable
+    @Immutable
+    object CalendarMain: NavKey
 
     @Serializable
     @Immutable
@@ -102,6 +111,10 @@ object Routes {
     @Serializable
     @Immutable
     object Settings: NavKey
+
+    @Serializable
+    @Immutable
+    object MainNavigationSettings: NavKey
 
     @Serializable
     @Immutable
@@ -153,6 +166,7 @@ object Routes {
     @Immutable
     data class CurrentFullList(
         val listType: CurrentListType,
+        val isMainDestination: Boolean = false,
     ): NavKey
 
     @Serializable

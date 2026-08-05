@@ -40,6 +40,7 @@ dependencies {
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
+    implementation("androidx.biometric:biometric:1.1.0")
 
     implementation(libs.kotlinx.serialization.json)
 

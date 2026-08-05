@@ -1,44 +1,37 @@
-# <img alt="app-icon" height="50" src="https://github.com/axiel7/AniHyou-android/blob/master/core/resources/src/main/res/mipmap-hdpi/ic_launcher_round.webp"/>AniHyou
+# Kiyori
 
-[![Downloads](https://img.shields.io/github/downloads/axiel7/AniHyou-android/total.svg)](https://github.com/axiel7/MoeList/releases/latest)
-[![Crowdin](https://badges.crowdin.net/anihyou/localized.svg)](https://crowdin.com/project/anihyou)
-[![Donate](https://img.shields.io/badge/buy%20me%20a%20coffee-donate-yellow.svg)](https://ko-fi.com/axiel7)
+Kiyori is an Android client for discovering, planning and tracking anime and manga with AniList.
+It keeps AniList authentication and API compatibility while offering a focused, configurable phone experience.
 
-Another unofficial Android AniList client
+## Highlights
 
-[<img alt="Google Play" height="80" src="https://play.google.com/intl/en_US/badges/images/generic/en_badge_web_generic.png"/>](https://play.google.com/store/apps/details?id=com.axiel7.anihyou)
-[<img alt="Get it on F-Droid" height="80" src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png">](https://f-droid.org/packages/com.axiel7.anihyou)
+- A configurable main navigation with two to five destinations, including Calendar and typed media shortcuts.
+- A date-based Calendar for today through the next fourteen days, with accessible week controls,
+  exact filtered day counts, list or grid presentation, and a compact list-status filter.
+- Quick entry points for current lists, charts and seasonal discovery, plus direct access to
+  notifications, settings and the signed-in account from Home.
+- Separate FOSS and GMS variants. The Android package is `app.kiyori` (`app.kiyori.debug` for debug builds).
 
-iOS version [here](https://github.com/axiel7/AniHyou-iOS)
+## Build and validation
 
-Get latest beta version from [nightly.link](https://nightly.link/axiel7/AniHyou-android/workflows/build-upload-android/develop)
+Kiyori uses the checked-in Gradle wrapper and JDK 17. The full local/CI validation matrix is:
 
-Follow the development on the official Discord server:
-
-[![Discord Banner 3](https://discordapp.com/api/guilds/741059285122940928/widget.png?style=banner2)](https://discord.gg/CTv3WdfxHh)
-
-# Screenshots
-![Screenshots](https://github.com/axiel7/AniHyou-android/blob/master/screenshots.webp)
-
-## Coming features
-- [See project](https://github.com/users/axiel7/projects/2/views/1)
-
-# Donate 💸
-Support the development of AniHyou by making a donation via:
-
-[Ko-Fi](https://ko-fi.com/axiel7)
-
-BTC
-```
-3KKjJuorh9se2jUo1Hr6MFgXhnBWbj5fTP
+```bash
+bash scripts/install-android-sdk.sh
+bash docs/ai-context/scripts/full_validation_matrix.sh
 ```
 
-ETH
-```
-0xBd20dD0e036B246F879EeFde52601f0fBbeC69c0
-```
+The matrix builds FOSS and GMS debug variants, runs unit tests, runs lint, and assembles a minified
+FOSS release candidate. Signed release builds are handled by the repository's **Signed GitHub Release**
+workflow after the required release environment secrets and runtime acceptance are in place.
 
-LTC
-```
-MRw5XPLsM9SVf48tv4nwQoY12nMXaiVzmD
-```
+## Release status
+
+The current integrated rebuild is a release candidate, not a published release. Version metadata is
+intentionally finalized only after the complete validation matrix and device acceptance pass.
+
+## Privacy and security
+
+Kiyori preserves the established AniList OAuth and API contract. Credential-bearing preferences are
+excluded from Android cloud backup and device-to-device transfer. Never commit signing material,
+tokens, private keys, or local SDK configuration.

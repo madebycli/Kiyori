@@ -13,6 +13,12 @@ Rebuild the previously accepted product experience on the newer upstream base in
 - preserve AniList OAuth/API behavior and internal namespace;
 - adapt current upstream CI/NixOS rather than copying stale full files.
 
+### Progress
+
+- Completed: release/debug identity plus phone-scoped launcher, adaptive, monochrome, legacy, splash,
+  SVG source, and 512×512 preview assets.
+- Remaining: repository-facing English branding and a Gradle validation when the pinned wrapper distribution is available.
+
 ## Slice 2 — Typed configurable main navigation
 
 - two to five visible targets;
@@ -23,6 +29,20 @@ Rebuild the previously accepted product experience on the newer upstream base in
 - reorder, visibility, reset, add and remove;
 - fixed 48dp centered remove/X action slot;
 - robust legacy/v2/final-schema normalization.
+
+### Progress
+
+- Completed: versioned typed item/shortcut model and codec; legacy/v2 migration;
+  deterministic repair for unknown IDs, duplicates, Home visibility, capacity, minimum visibility,
+  and duplicate Season shortcuts.
+- Completed: the existing preferences DataStore now exposes and writes only normalized v3
+  schema values, with an explicit legacy-rewrite migration.
+- Completed: app initialization performs the explicit normalized rewrite; one resolver drives both
+  Bottom Bar and Navigation Rail, Home is the startup/fallback, and Calendar is a typed main target.
+- Completed: settings editor and typed dynamic shortcut hosts. Reused current-list, chart and season
+  screens distinguish a main-tab host from their retained nested route framing.
+- Completed: focused normalized-registry unit coverage; `:core:model:testDebugUnitTest` and the affected
+  `:core:ui:compileDebugKotlin` task now pass on the Work runtime.
 
 ## Slice 3 — Date-based Calendar
 
@@ -36,6 +56,14 @@ Rebuild the previously accepted product experience on the newer upstream base in
 - swipe left/right between days;
 - week header changes automatically across Sunday/Monday;
 - arrows and day taps remain accessible alternatives.
+
+### Progress
+
+- Completed: Calendar's persisted list/grid presentation. The list is the default; both modes use
+  the same selected local date, bounded pager and tri-state list filter. The Monday–Sunday header
+  now has exact filtered day counts, a thin selected-day accent line, accessible alternatives and
+  disabled out-of-window controls.
+- Completed: `:feature:calendar:testDebugUnitTest` compiles and passes on the Work runtime.
 
 ## Slice 4 — Home, Discover and Season shortcuts
 
@@ -71,6 +99,11 @@ Discover shortcuts:
 
 Reuse current upstream full-list, chart and Season views/ViewModels. Main hosts remove the back arrow; original nested entry points remain unchanged.
 
+### Progress
+
+- Completed: typed shortcuts project to distinct main-host route identities. Existing Home/Discover
+  entry points remain nested and retain their Back affordance.
+
 ## Slice 5 — Stabilization
 
 - migration and malformed-config tests;
@@ -82,6 +115,19 @@ Reuse current upstream full-list, chart and Season views/ViewModels. Main hosts 
 - Kiyori-specific Wear text kept in Wear overrides;
 - Wear compile SDK compatible with current dependencies while target changes remain explicit;
 - FOSS, GMS, Wear, tests, lint and minified release candidate in CI.
+
+### Progress
+
+- Completed in source: focused navigation/date-range tests, 48dp Calendar controls, TalkBack count
+  descriptions, variant-safe notification routing, credential backup exclusion, phone-scoped branding,
+  and English release-candidate documentation.
+- Completed on Work: FOSS/GMS debug assembly, focused JVM tests, FOSS/GMS lint, and Wear debug/lint.
+  The exact release-only reorderable Maven coordinate is absent from the Work cache, and the network
+  guard cancelled its hydration request before minified release/R8 validation could begin.
+- Pending external verification: both minified release assemblies after Maven hydration, unsigned candidate
+  artifact inspection, and owner device acceptance.
+- Integration note: a single independent `main` README append causes a three-way merge conflict.
+  Its resolution is deferred because this campaign expressly forbids merge and rebase operations.
 
 ## Test strategy
 

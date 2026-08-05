@@ -10,6 +10,7 @@ import com.axiel7.anihyou.core.model.ListStyle
 import com.axiel7.anihyou.core.model.Theme
 import com.axiel7.anihyou.core.model.TranslatorApp
 import com.axiel7.anihyou.core.model.notification.NotificationInterval
+import com.axiel7.anihyou.core.model.security.AppLockTimeout
 import com.axiel7.anihyou.core.network.type.ScoreFormat
 import com.axiel7.anihyou.core.network.type.UserStaffNameLanguage
 import com.axiel7.anihyou.core.network.type.UserTitleLanguage
@@ -63,6 +64,10 @@ interface SettingsEvent : UiEvent {
     fun setDefaultTab(value: DefaultTab)
 
     fun setAiringNotification(value: Boolean)
+
+    fun setAppLockEnabledAfterAuthentication(value: Boolean)
+
+    fun setAppLockTimeout(value: AppLockTimeout)
 
     fun logOut(recreate: () -> Unit)
 }

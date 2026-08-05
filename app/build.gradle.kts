@@ -8,6 +8,7 @@ plugins {
 }
 
 val appPackageName: String by rootProject.extra
+val appApplicationId: String by rootProject.extra
 
 val versionProps = Properties().also {
     it.load(project.rootProject.file("version.properties").reader())
@@ -18,7 +19,7 @@ android {
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = appPackageName
+        applicationId = appApplicationId
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = versionProps.getProperty("code").toInt()

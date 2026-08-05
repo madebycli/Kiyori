@@ -13,4 +13,8 @@ chmod +x ./gradlew
   :app:lintGmsDebug \
   --no-daemon \
   --stacktrace
-./gradlew :app:assembleFossRelease --no-daemon --stacktrace
+./gradlew \
+  :app:assembleFossRelease \
+  :app:assembleGmsRelease \
+  --no-daemon \
+  --stacktrace

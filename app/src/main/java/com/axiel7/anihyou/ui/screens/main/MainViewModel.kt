@@ -10,9 +10,11 @@ import com.axiel7.anihyou.core.base.ANIHYOU_SCHEME
 import com.axiel7.anihyou.core.base.ANIHYOU_WEAR_AUTH
 import com.axiel7.anihyou.core.base.ANIHYOU_WEAR_CALLBACK_URL
 import com.axiel7.anihyou.core.common.utils.ContextUtils.showToast
+import com.axiel7.anihyou.core.domain.repository.AppLockPreferencesRepository
 import com.axiel7.anihyou.core.domain.repository.DefaultPreferencesRepository
 import com.axiel7.anihyou.core.domain.repository.LoginRepository
 import com.axiel7.anihyou.core.model.DefaultTab
+import com.axiel7.anihyou.core.model.security.AppLockPreferences
 import com.axiel7.anihyou.core.network.NetworkVariables
 import com.axiel7.anihyou.core.network.type.ScoreFormat
 import com.axiel7.anihyou.core.resources.R
@@ -28,6 +30,8 @@ class MainViewModel(
     private val networkVariables: NetworkVariables,
     private val loginRepository: LoginRepository,
     private val defaultPreferencesRepository: DefaultPreferencesRepository,
+    private val appLockPreferencesRepository: AppLockPreferencesRepository,
+    private val appLockRuntime: AppLockRuntime,
 ) : ViewModel(), MainEvent {
 
     val accessToken = defaultPreferencesRepository.accessToken
@@ -35,6 +39,8 @@ class MainViewModel(
     val isLoggedIn = defaultPreferencesRepository.isLoggedIn
 
     val homeTab = defaultPreferencesRepository.defaultHomeTab
+
+    val mainNavigationConfig = defaultPreferencesRepository.mainNavigationConfig
 
     val theme = defaultPreferencesRepository.theme
 
@@ -56,6 +62,10 @@ class MainViewModel(
 
     val hideScores = defaultPreferencesRepository.hideScores
 
+    val appLockPreferences = appLockPreferencesRepository.preferences
+
+    val appLockState = appLockRuntime.state
+
     override fun saveLastTab(index: Int) {
         viewModelScope.launch {
             defaultPreferencesRepository.setLastTab(index)
@@ -69,6 +79,22 @@ class MainViewModel(
         } else {
             defaultTab.ordinal - 1
         }
+    }
+
+    fun initializeAppLock(preferences: AppLockPreferences) {
+        appLockRuntime.initialize(preferences)
+    }
+
+    fun onProcessBackgrounded() {
+        appLockRuntime.onProcessBackgrounded()
+    }
+
+    fun onProcessForegrounded() {
+        appLockRuntime.onProcessForegrounded()
+    }
+
+    fun onAppLockAuthenticationSucceeded() {
+        appLockRuntime.onAuthenticationSucceeded()
     }
 
     fun setToken(token: String?) {
@@ -97,8 +123,14 @@ class MainViewModel(
     }
 
     init {
+        viewModelScope.launch {
+            defaultPreferencesRepository.normalizeMainNavigationConfig()
+        }
         accessToken
             .onEach { setToken(it) }
+            .launchIn(viewModelScope)
+        appLockPreferences
+            .onEach(appLockRuntime::updatePreferences)
             .launchIn(viewModelScope)
     }
 }

@@ -17,7 +17,6 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import com.axiel7.anihyou.core.base.APP_PACKAGE_NAME
 import com.axiel7.anihyou.core.base.DataResult
 import com.axiel7.anihyou.core.domain.repository.DefaultPreferencesRepository
 import com.axiel7.anihyou.core.domain.repository.NotificationRepository
@@ -29,6 +28,7 @@ import com.axiel7.anihyou.core.network.type.NotificationType
 import com.axiel7.anihyou.core.resources.R
 import com.axiel7.anihyou.core.ui.utils.ImageUtils.getBitmapFromUrl
 import com.axiel7.anihyou.core.ui.utils.NotificationUtils.createNotificationChannel
+import com.axiel7.anihyou.core.ui.utils.NotificationUtils.notificationSmallIcon
 import com.axiel7.anihyou.core.ui.utils.NotificationUtils.showNotification
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.firstOrNull
@@ -83,7 +83,7 @@ class NotificationWorker(
                         || NotificationTypeGroup.MEDIA.values?.contains(it.type) == true
                     ) {
                         val intent = applicationContext.packageManager
-                            .getLaunchIntentForPackage(APP_PACKAGE_NAME)
+                            .getLaunchIntentForPackage(applicationContext.packageName)
                             ?.apply {
                                 action = "media_details"
                                 putExtra("media_id", it.contentId)
@@ -143,7 +143,7 @@ class NotificationWorker(
             0,
             NotificationCompat.Builder(applicationContext, SYNC_CHANNEL_ID)
                 .setContentTitle(applicationContext.getString(R.string.notifications))
-                .setSmallIcon(R.drawable.anihyou_24)
+                .setSmallIcon(applicationContext.notificationSmallIcon())
                 .setAutoCancel(true)
                 .build(),
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {

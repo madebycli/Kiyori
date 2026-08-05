@@ -74,7 +74,8 @@ import org.koin.core.parameter.parametersOf
 fun SeasonAnimeView(
     isLoggedIn: Boolean,
     arguments: Routes.SeasonAnime,
-    navActionManager: NavActionManager
+    navActionManager: NavActionManager,
+    modifier: Modifier = Modifier,
 ) {
     val viewModel: SeasonAnimeViewModel = koinViewModel(parameters = { parametersOf(arguments) })
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -84,6 +85,8 @@ fun SeasonAnimeView(
         uiState = uiState,
         event = viewModel,
         navActionManager = navActionManager,
+        isMainDestination = arguments.isMainDestination,
+        modifier = modifier,
     )
 }
 
@@ -94,6 +97,8 @@ private fun SeasonAnimeContent(
     uiState: SeasonAnimeUiState,
     event: SeasonAnimeEvent?,
     navActionManager: NavActionManager,
+    isMainDestination: Boolean = false,
+    modifier: Modifier = Modifier,
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
         rememberTopAppBarState()
@@ -132,6 +137,7 @@ private fun SeasonAnimeContent(
 
     DefaultScaffoldWithMediumTopAppBar(
         title = uiState.season?.localized().orEmpty(),
+        modifier = modifier,
         snackbarHost = snackbarManager::SnackbarHost,
         floatingActionButton = {
             FloatingActionButton(
@@ -145,7 +151,9 @@ private fun SeasonAnimeContent(
             }
         },
         navigationIcon = {
-            BackIconButton(onClick = navActionManager::goBack)
+            if (!isMainDestination) {
+                BackIconButton(onClick = navActionManager::goBack)
+            }
         },
         actions = {
             IconButton(
