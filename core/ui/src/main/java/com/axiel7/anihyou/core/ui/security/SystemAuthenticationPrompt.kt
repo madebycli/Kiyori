@@ -24,6 +24,21 @@ enum class SystemAuthenticationError {
     UNKNOWN,
 }
 
+internal fun systemAuthenticationErrorFor(errorCode: Int): SystemAuthenticationError = when (errorCode) {
+    BiometricPrompt.ERROR_CANCELED,
+    BiometricPrompt.ERROR_NEGATIVE_BUTTON,
+    BiometricPrompt.ERROR_USER_CANCELED -> SystemAuthenticationError.CANCELED
+
+    BiometricPrompt.ERROR_LOCKOUT,
+    BiometricPrompt.ERROR_LOCKOUT_PERMANENT -> SystemAuthenticationError.LOCKED_OUT
+
+    BiometricPrompt.ERROR_HW_NOT_PRESENT,
+    BiometricPrompt.ERROR_HW_UNAVAILABLE,
+    BiometricPrompt.ERROR_NO_BIOMETRICS -> SystemAuthenticationError.UNAVAILABLE
+
+    else -> SystemAuthenticationError.UNKNOWN
+}
+
 class SystemAuthenticationPrompt(
     private val activity: FragmentActivity,
 ) {
@@ -66,23 +81,7 @@ class SystemAuthenticationPrompt(
                     errorCode: Int,
                     errString: CharSequence,
                 ) {
-                    val error = when (errorCode) {
-                        BiometricPrompt.ERROR_CANCELED,
-                        BiometricPrompt.ERROR_NEGATIVE_BUTTON,
-                        BiometricPrompt.ERROR_USER_CANCELED -> SystemAuthenticationError.CANCELED
-
-                        BiometricPrompt.ERROR_LOCKOUT,
-                        BiometricPrompt.ERROR_LOCKOUT_PERMANENT ->
-                            SystemAuthenticationError.LOCKED_OUT
-
-                        BiometricPrompt.ERROR_HW_NOT_PRESENT,
-                        BiometricPrompt.ERROR_HW_UNAVAILABLE,
-                        BiometricPrompt.ERROR_NO_BIOMETRICS ->
-                            SystemAuthenticationError.UNAVAILABLE
-
-                        else -> SystemAuthenticationError.UNKNOWN
-                    }
-                    onError(error, errString)
+                    onError(systemAuthenticationErrorFor(errorCode), errString)
                 }
             },
         )
