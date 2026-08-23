@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -22,14 +23,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.axiel7.anihyou.core.common.utils.ContextUtils.openActionView
 import com.axiel7.anihyou.core.model.DeepLink
 import com.axiel7.anihyou.core.model.HomeTab
 import com.axiel7.anihyou.core.network.type.MediaType
+import com.axiel7.anihyou.core.ui.common.LocalMarkdownUriHandler
+import com.axiel7.anihyou.core.ui.common.LocalNavActionManager
 import com.axiel7.anihyou.core.ui.common.navigation.NavActionManager
 import com.axiel7.anihyou.core.ui.common.navigation.Navigator
+import com.axiel7.anihyou.core.ui.common.navigation.Route
 import com.axiel7.anihyou.core.ui.common.navigation.Routes
 import com.axiel7.anihyou.core.ui.composables.FullScreenImageView
 import com.axiel7.anihyou.core.ui.composables.markdown.MarkdownUriHandler
@@ -65,19 +70,13 @@ import com.axiel7.anihyou.feature.thread.publish.PublishCommentView
 import com.axiel7.anihyou.feature.usermedialist.UserMediaListHostView
 
 private val topNavigationTransitionSpec = NavDisplay.transitionSpec {
-    ContentTransform(
-        fadeIn(animationSpec = tween()),
-        fadeOut(animationSpec = tween()),
-    )
+    ContentTransform(fadeIn(animationSpec = tween()), fadeOut(animationSpec = tween()))
 } + NavDisplay.popTransitionSpec {
-    ContentTransform(
-        fadeIn(animationSpec = tween()),
-        fadeOut(animationSpec = tween()),
-    )
+    ContentTransform(fadeIn(animationSpec = tween()), fadeOut(animationSpec = tween()))
 } + NavDisplay.predictivePopTransitionSpec {
     ContentTransform(
         fadeIn(spring(dampingRatio = 1f, stiffness = 1600f)),
-        fadeOut(spring(dampingRatio = 1f, stiffness = 1600f))
+        fadeOut(spring(dampingRatio = 1f, stiffness = 1600f)),
     )
 }
 
@@ -95,14 +94,10 @@ fun MainNavigation(
     val context = LocalContext.current
     val bottomPadding by animateDpAsState(
         targetValue = padding.calculateBottomPadding(),
-        label = "bottom_bar_padding"
+        label = "bottom_bar_padding",
     )
-    val mainDestinationModifier: (Boolean) -> Modifier = { isMainDestination ->
-        if (isCompactScreen && isMainDestination) {
-            Modifier.padding(bottom = bottomPadding)
-        } else {
-            Modifier
-        }
+    val mainDestinationModifier: (Boolean) -> Modifier = { main ->
+        if (isCompactScreen && main) Modifier.padding(bottom = bottomPadding) else Modifier
     }
 
     var spoilerText by remember { mutableStateOf<String?>(null) }
@@ -114,193 +109,125 @@ fun MainNavigation(
     }
 
     spoilerText?.let {
-        SpoilerSheet(
-            text = it,
-            uriHandler = markdownUriHandler,
-            onDismiss = { spoilerText = null }
-        )
+        SpoilerSheet(text = it, uriHandler = markdownUriHandler, onDismiss = { spoilerText = null })
     }
 
     LaunchedEffect(deepLink) {
-        if (deepLink != null) {
-            when (deepLink.type) {
-                DeepLink.Type.ANIME, DeepLink.Type.MANGA -> {
-                    deepLink.id.toIntOrNull()?.let { navActionManager.toMediaDetails(it) }
-                }
-
-                DeepLink.Type.USER -> {
-                    navActionManager.toUserDetails(
-                        userId = deepLink.id.toIntOrNull(),
-                        username = deepLink.id
-                    )
-                }
-
+        deepLink?.let { link ->
+            when (link.type) {
+                DeepLink.Type.ANIME, DeepLink.Type.MANGA -> link.id.toIntOrNull()?.let(navActionManager::toMediaDetails)
+                DeepLink.Type.USER -> navActionManager.toUserDetails(link.id.toIntOrNull(), link.id)
                 DeepLink.Type.SEARCH -> navActionManager.toSearch()
-
-                DeepLink.Type.CHARACTER -> {
-                    deepLink.id.toIntOrNull()?.let { navActionManager.toCharacterDetails(it) }
-                }
-
-                DeepLink.Type.STAFF -> {
-                    deepLink.id.toIntOrNull()?.let { navActionManager.toStaffDetails(it) }
-                }
-
-                DeepLink.Type.STUDIO -> {
-                    deepLink.id.toIntOrNull()?.let { navActionManager.toStudioDetails(it) }
-                }
-
-                DeepLink.Type.THREAD -> {
-                    deepLink.id.toIntOrNull()?.let { navActionManager.toThreadDetails(it) }
-                }
-
-                DeepLink.Type.ACTIVITY -> {
-                    deepLink.id.toIntOrNull()?.let { navActionManager.toActivityDetails(it) }
-                }
+                DeepLink.Type.CHARACTER -> link.id.toIntOrNull()?.let(navActionManager::toCharacterDetails)
+                DeepLink.Type.STAFF -> link.id.toIntOrNull()?.let(navActionManager::toStaffDetails)
+                DeepLink.Type.STUDIO -> link.id.toIntOrNull()?.let(navActionManager::toStudioDetails)
+                DeepLink.Type.THREAD -> link.id.toIntOrNull()?.let(navActionManager::toThreadDetails)
+                DeepLink.Type.ACTIVITY -> link.id.toIntOrNull()?.let(navActionManager::toActivityDetails)
             }
-            onDeepLinkHandled(deepLink)
+            onDeepLinkHandled(link)
         }
     }
 
-    val entryProvider = entryProvider {
-        entry<Routes.Home>(metadata = topNavigationTransitionSpec) {
+    val entryProvider = entryProvider<NavKey> {
+        entry<Route.Home>(metadata = topNavigationTransitionSpec) {
             HomeView(
                 isLoggedIn = isLoggedIn,
                 defaultHomeTab = homeTab,
                 modifier = if (isCompactScreen) Modifier.padding(bottom = bottomPadding) else Modifier,
-                uriHandler = markdownUriHandler,
-                navActionManager = navActionManager,
             )
         }
-
-        entry<Routes.AnimeTab>(metadata = topNavigationTransitionSpec) {
+        entry<Route.AnimeTab>(metadata = topNavigationTransitionSpec) {
             if (isLoggedIn) {
                 UserMediaListHostView(
-                    arguments = Routes.UserMediaList(mediaType = MediaType.ANIME.rawValue),
+                    arguments = Route.UserMediaList(mediaType = MediaType.ANIME.rawValue),
                     isCompactScreen = isCompactScreen,
                     modifier = Modifier.padding(bottom = bottomPadding),
-                    navActionManager = navActionManager,
                 )
-            } else {
-                LoginView()
-            }
+            } else LoginView()
         }
-
-        entry<Routes.MangaTab>(metadata = topNavigationTransitionSpec) {
+        entry<Route.MangaTab>(metadata = topNavigationTransitionSpec) {
             if (isLoggedIn) {
                 UserMediaListHostView(
-                    arguments = Routes.UserMediaList(mediaType = MediaType.MANGA.rawValue),
+                    arguments = Route.UserMediaList(mediaType = MediaType.MANGA.rawValue),
                     isCompactScreen = isCompactScreen,
                     modifier = Modifier.padding(bottom = bottomPadding),
-                    navActionManager = navActionManager,
                 )
-            } else {
-                LoginView()
-            }
+            } else LoginView()
         }
-
-        entry<Routes.Profile>(metadata = topNavigationTransitionSpec) {
+        entry<Route.Profile>(metadata = topNavigationTransitionSpec) {
             if (isLoggedIn) {
                 ProfileView(
-                    arguments = Routes.UserDetails(null, null),
+                    arguments = Route.UserDetails(null, null),
                     modifier = if (isCompactScreen) Modifier.padding(bottom = bottomPadding) else Modifier,
-                    uriHandler = markdownUriHandler,
-                    navActionManager = navActionManager,
                 )
             } else {
-                LoginView(
-                    showSettingsButton = true,
-                    navigateToSettings = navActionManager::toSettings
-                )
+                LoginView(showSettingsButton = true, navigateToSettings = navActionManager::toSettings)
             }
         }
-
-        entry<Routes.Explore>(metadata = topNavigationTransitionSpec) {
+        entry<Route.Explore>(metadata = topNavigationTransitionSpec) {
             DiscoverView(
                 isLoggedIn = isLoggedIn,
                 contentPadding = if (isCompactScreen) PaddingValues(bottom = bottomPadding) else PaddingValues(),
-                navActionManager = navActionManager,
             )
         }
 
-        entry<Routes.UserDetails> {
-            ProfileView(arguments = it, uriHandler = markdownUriHandler, navActionManager = navActionManager)
-        }
-
-        entry<Routes.UserMediaList> {
+        entry<Route.UserDetails> { ProfileView(arguments = it) }
+        entry<Route.UserMediaList> {
             UserMediaListHostView(
                 arguments = it,
                 isCompactScreen = isCompactScreen,
                 modifier = Modifier.padding(bottom = bottomPadding),
+            )
+        }
+        entry<Route.Search> {
+            SearchView(arguments = it, isLoggedIn = isLoggedIn, modifier = Modifier.padding(bottom = bottomPadding))
+        }
+        entry<Route.Notifications> { if (isLoggedIn) NotificationsView(arguments = it) else LoginView() }
+
+        // Media details is still a Kiyori-merged screen and is adapted until its upstream merge below is complete.
+        entry<Route.MediaDetails> {
+            MediaDetailsView(
+                arguments = Routes.MediaDetails(it.id, isLoggedIn),
                 navActionManager = navActionManager,
             )
         }
 
-        entry<Routes.Search> {
-            SearchView(
-                arguments = it,
-                isLoggedIn = isLoggedIn,
-                modifier = Modifier.padding(bottom = bottomPadding),
-                navActionManager = navActionManager,
-            )
-        }
-
-        entry<Routes.Notifications> {
-            if (isLoggedIn) NotificationsView(arguments = it, navActionManager = navActionManager)
-            else LoginView()
-        }
-
-        entry<Routes.MediaDetails> {
-            MediaDetailsView(arguments = it.copy(isLoggedIn = isLoggedIn), navActionManager = navActionManager)
-        }
-
-        entry<Routes.MediaChartList> {
+        entry<Route.MediaChartList> {
             MediaChartListView(
-                arguments = it,
+                arguments = Routes.MediaChartList(it.type, it.isMainDestination),
                 isLoggedIn = isLoggedIn,
                 navActionManager = navActionManager,
                 modifier = mainDestinationModifier(it.isMainDestination),
             )
         }
-
-        entry<Routes.MediaChartListMain>(metadata = topNavigationTransitionSpec) {
+        entry<Route.MediaChartListMain>(metadata = topNavigationTransitionSpec) {
             MediaChartListView(
-                arguments = Routes.MediaChartList(
-                    type = it.type,
-                    isMainDestination = true,
-                ),
+                arguments = Routes.MediaChartList(it.type, true),
                 isLoggedIn = isLoggedIn,
                 navActionManager = navActionManager,
                 modifier = mainDestinationModifier(true),
             )
         }
 
-        entry<Routes.SeasonAnime> {
+        entry<Route.SeasonAnime> {
             SeasonAnimeView(
                 isLoggedIn = isLoggedIn,
-                arguments = it,
+                arguments = Routes.SeasonAnime(it.season, it.year, it.isMainDestination),
                 navActionManager = navActionManager,
                 modifier = mainDestinationModifier(it.isMainDestination),
             )
         }
-
-        entry<Routes.SeasonAnimeMain>(metadata = topNavigationTransitionSpec) {
+        entry<Route.SeasonAnimeMain>(metadata = topNavigationTransitionSpec) {
             SeasonAnimeView(
                 isLoggedIn = isLoggedIn,
-                arguments = Routes.SeasonAnime(
-                    season = it.season,
-                    year = it.year,
-                    isMainDestination = true,
-                ),
+                arguments = Routes.SeasonAnime(it.season, it.year, true),
                 navActionManager = navActionManager,
                 modifier = mainDestinationModifier(true),
             )
         }
 
-        entry<Routes.Calendar> {
-            CalendarView(isLoggedIn = isLoggedIn, navActionManager = navActionManager)
-        }
-
-        entry<Routes.CalendarMain>(metadata = topNavigationTransitionSpec) {
+        entry<Route.Calendar> { CalendarView(isLoggedIn = isLoggedIn, navActionManager = navActionManager) }
+        entry<Route.CalendarMain>(metadata = topNavigationTransitionSpec) {
             CalendarView(
                 isLoggedIn = isLoggedIn,
                 navActionManager = navActionManager,
@@ -309,102 +236,35 @@ fun MainNavigation(
             )
         }
 
-        entry<Routes.CharacterDetails> {
-            CharacterDetailsView(
-                isLoggedIn = isLoggedIn,
-                arguments = it,
-                uriHandler = markdownUriHandler,
-                navActionManager = navActionManager,
-            )
-        }
+        entry<Route.CharacterDetails> { CharacterDetailsView(isLoggedIn = isLoggedIn, arguments = it) }
+        entry<Route.StaffDetails> { StaffDetailsView(isLoggedIn = isLoggedIn, arguments = it) }
+        entry<Route.ReviewDetails> { ReviewDetailsView(arguments = it) }
+        entry<Route.ThreadDetails> { ThreadDetailsView(arguments = it) }
+        entry<Route.ThreadCommentDetails> { ThreadCommentDetailsView(arguments = it) }
+        entry<Route.StudioDetails> { StudioDetailsView(arguments = it) }
 
-        entry<Routes.StaffDetails> {
-            StaffDetailsView(
-                isLoggedIn = isLoggedIn,
-                arguments = it,
-                uriHandler = markdownUriHandler,
-                navActionManager = navActionManager,
-            )
-        }
+        entry<Route.Settings> { SettingsView(navActionManager = navActionManager) }
+        entry<Route.MainNavigationSettings> { MainNavigationSettingsView(navActionManager = navActionManager) }
+        entry<Route.ListStyleSettings> { ListStyleSettingsView(navActionManager = navActionManager) }
+        entry<Route.CustomLists> { CustomListsView(navActionManager = navActionManager) }
+        entry<Route.Translations> { TranslationsView(navActionManager = navActionManager) }
+        entry<Route.Contributors> { ContributorsView(navActionManager = navActionManager) }
 
-        entry<Routes.ReviewDetails> {
-            ReviewDetailsView(arguments = it, navActionManager = navActionManager)
+        entry<Route.FullScreenImage> {
+            FullScreenImageView(arguments = it, isCompactScreen = isCompactScreen, onDismiss = navActionManager::goBack)
         }
-
-        entry<Routes.ThreadDetails> {
-            ThreadDetailsView(
-                arguments = it,
-                uriHandler = markdownUriHandler,
-                navActionManager = navActionManager,
-            )
-        }
-
-        entry<Routes.ThreadCommentDetails> {
-            ThreadCommentDetailsView(
-                arguments = it,
-                uriHandler = markdownUriHandler,
-                navActionManager = navActionManager,
-            )
-        }
-
-        entry<Routes.StudioDetails> {
-            StudioDetailsView(arguments = it, navActionManager = navActionManager)
-        }
-
-        entry<Routes.Settings> {
-            SettingsView(navActionManager = navActionManager)
-        }
-        entry<Routes.MainNavigationSettings> {
-            MainNavigationSettingsView(navActionManager = navActionManager)
-        }
-        entry<Routes.ListStyleSettings> {
-            ListStyleSettingsView(navActionManager = navActionManager)
-        }
-        entry<Routes.CustomLists> {
-            CustomListsView(navActionManager = navActionManager)
-        }
-        entry<Routes.Translations> {
-            TranslationsView(navActionManager = navActionManager)
-        }
-        entry<Routes.Contributors> {
-            ContributorsView(navActionManager = navActionManager)
-        }
-
-        entry<Routes.FullScreenImage> {
-            FullScreenImageView(
-                arguments = it,
-                isCompactScreen = isCompactScreen,
-                onDismiss = navActionManager::goBack
-            )
-        }
-
-        entry<Routes.ActivityDetails> {
-            ActivityDetailsView(
-                arguments = it,
-                uriHandler = markdownUriHandler,
-                navActionManager = navActionManager,
-            )
-        }
-
-        entry<Routes.PublishActivity> {
-            if (isLoggedIn) PublishActivityView(arguments = it, navActionManager = navActionManager)
-            else LoginView()
-        }
-
-        entry<Routes.PublishComment> {
-            if (isLoggedIn) PublishCommentView(arguments = it, navActionManager = navActionManager)
-            else LoginView()
-        }
-
-        entry<Routes.MediaActivity> {
+        entry<Route.ActivityDetails> { ActivityDetailsView(arguments = it) }
+        entry<Route.PublishActivity> { if (isLoggedIn) PublishActivityView(arguments = it) else LoginView() }
+        entry<Route.PublishComment> { if (isLoggedIn) PublishCommentView(arguments = it) else LoginView() }
+        entry<Route.MediaActivity> {
             MediaActivityView(
-                arguments = it,
+                arguments = Routes.MediaActivity(it.mediaId),
                 uriHandler = markdownUriHandler,
-                navActionManager = navActionManager
+                navActionManager = navActionManager,
             )
         }
 
-        entry<Routes.CurrentFullList> {
+        entry<Route.CurrentFullList> {
             CurrentFullListView(
                 isLoggedIn = isLoggedIn,
                 listType = it.listType,
@@ -413,8 +273,7 @@ fun MainNavigation(
                 modifier = mainDestinationModifier(it.isMainDestination),
             )
         }
-
-        entry<Routes.CurrentFullListMain>(metadata = topNavigationTransitionSpec) {
+        entry<Route.CurrentFullListMain>(metadata = topNavigationTransitionSpec) {
             CurrentFullListView(
                 isLoggedIn = isLoggedIn,
                 listType = it.listType,
@@ -423,31 +282,33 @@ fun MainNavigation(
                 modifier = mainDestinationModifier(true),
             )
         }
-
-        entry<Routes.ReorderFavorites> {
-            ReorderFavoritesView(arguments = it, navActionManager = navActionManager)
-        }
+        entry<Route.ReorderFavorites> { ReorderFavoritesView(arguments = it) }
     }
 
-    NavDisplay(
-        entries = navigator.state.toDecoratedEntries(entryProvider),
-        modifier = Modifier.padding(
-            start = padding.calculateStartPadding(LocalLayoutDirection.current),
-            top = padding.calculateTopPadding(),
-            end = padding.calculateEndPadding(LocalLayoutDirection.current),
-        ),
-        transitionSpec = {
-            (slideInHorizontally(initialOffsetX = { it })) togetherWith
-                (slideOutHorizontally(targetOffsetX = { -it }) + fadeOut(animationSpec = tween()))
-        },
-        popTransitionSpec = {
-            (slideInHorizontally(initialOffsetX = { -it }) + fadeIn()) togetherWith
-                slideOutHorizontally(targetOffsetX = { it })
-        },
-        predictivePopTransitionSpec = {
-            (slideInHorizontally(initialOffsetX = { -it }) + fadeIn(animationSpec = tween())) togetherWith
-                slideOutHorizontally(targetOffsetX = { it })
-        },
-        onBack = navigator::goBack,
-    )
+    CompositionLocalProvider(
+        LocalNavActionManager provides navActionManager,
+        LocalMarkdownUriHandler provides markdownUriHandler,
+    ) {
+        NavDisplay(
+            entries = navigator.state.toDecoratedEntries(entryProvider),
+            modifier = Modifier.padding(
+                start = padding.calculateStartPadding(LocalLayoutDirection.current),
+                top = padding.calculateTopPadding(),
+                end = padding.calculateEndPadding(LocalLayoutDirection.current),
+            ),
+            transitionSpec = {
+                slideInHorizontally(initialOffsetX = { it }) togetherWith
+                    (slideOutHorizontally(targetOffsetX = { -it }) + fadeOut(animationSpec = tween()))
+            },
+            popTransitionSpec = {
+                (slideInHorizontally(initialOffsetX = { -it }) + fadeIn()) togetherWith
+                    slideOutHorizontally(targetOffsetX = { it })
+            },
+            predictivePopTransitionSpec = {
+                (slideInHorizontally(initialOffsetX = { -it }) + fadeIn(animationSpec = tween())) togetherWith
+                    slideOutHorizontally(targetOffsetX = { it })
+            },
+            onBack = navigator::goBack,
+        )
+    }
 }
