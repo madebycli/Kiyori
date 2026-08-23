@@ -31,10 +31,22 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.axiel7.anihyou.core.resources.R
+import com.axiel7.anihyou.core.ui.common.LocalNavActionManager
+import com.axiel7.anihyou.core.ui.composables.PlainPreference
+import com.axiel7.anihyou.core.ui.composables.middleShape
 import com.axiel7.anihyou.core.ui.utils.LocaleUtils
 import com.axiel7.anihyou.core.ui.utils.LocaleUtils.getAvailableLocales
+import com.axiel7.anihyou.feature.settings.AppLockSettings
+import com.axiel7.anihyou.feature.settings.SettingsViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
+/**
+ * Upstream's language preference is also the narrow extension seam for Kiyori's two
+ * phone-only general settings. Keeping the additions here lets SettingsView stay aligned
+ * with upstream while still exposing main-navigation customization and App Lock.
+ */
 @Composable
 fun LanguagePreference(
     modifier: Modifier = Modifier,
@@ -42,6 +54,9 @@ fun LanguagePreference(
 ) {
     val context = LocalContext.current
     val windowInfo = LocalWindowInfo.current.containerSize
+    val navActionManager = LocalNavActionManager.current
+    val settingsViewModel: SettingsViewModel = koinViewModel()
+    val settingsUiState by settingsViewModel.uiState.collectAsStateWithLifecycle()
     var openDialog by remember { mutableStateOf(false) }
 
     val availableLocales = remember { context.getAvailableLocales() }
@@ -89,7 +104,18 @@ fun LanguagePreference(
         }
     }
 
-    KiyoriGeneralPreferences()
+    PlainPreference(
+        title = stringResource(R.string.main_navigation),
+        subtitle = stringResource(R.string.main_navigation_summary),
+        icon = R.drawable.sort_24,
+        onClick = navActionManager::toMainNavigationSettings,
+        shape = middleShape,
+    )
+
+    AppLockSettings(
+        uiState = settingsUiState,
+        event = settingsViewModel,
+    )
 
     if (openDialog) {
         AlertDialog(
