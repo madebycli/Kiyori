@@ -174,7 +174,7 @@ fun MediaItemHorizontal(
                 if (subtitle1 != null) {
                     Column(
                         modifier = Modifier
-                            .padding(top = 8.dp),
+                            .padding(vertical = 8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         subtitle1()
