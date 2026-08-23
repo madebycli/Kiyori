@@ -5,9 +5,15 @@
 -->
 <data-extraction-rules>
     <cloud-backup>
-        <exclude domain="file" path="datastore/default.preferences_pb"/>
+        <!-- TODO: Use <include> and <exclude> to control what is backed up.
+        <include .../>
+        <exclude .../>
+        -->
     </cloud-backup>
+    <!--
     <device-transfer>
-        <exclude domain="file" path="datastore/default.preferences_pb"/>
+        <include .../>
+        <exclude .../>
     </device-transfer>
+    -->
 </data-extraction-rules>
