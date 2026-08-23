@@ -62,6 +62,7 @@ dependencies {
     implementation(libs.haze.blur)
 
     implementation(libs.zoomable)
+    implementation(libs.compose.colorpicker)
 
     implementation(libs.markdown.renderer)
     implementation(libs.markdown.renderer.material3)
