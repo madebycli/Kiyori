@@ -4,7 +4,7 @@ import com.axiel7.anihyou.core.model.navigation.MainNavigationDestination
 import com.axiel7.anihyou.core.model.navigation.MainNavigationShortcutRegistry
 import com.axiel7.anihyou.core.model.navigation.defaultMainNavigationConfig
 import com.axiel7.anihyou.core.ui.common.BottomDestination
-import com.axiel7.anihyou.core.ui.common.navigation.Routes
+import com.axiel7.anihyou.core.ui.common.navigation.Route
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -62,9 +62,9 @@ class MainNavigationResolverTest {
 
                 assertTrue(
                     "Shortcut still uses a sliding submenu route: ${shortcut.stableId} -> $route",
-                    route is Routes.CurrentFullListMain ||
-                        route is Routes.MediaChartListMain ||
-                        route is Routes.SeasonAnimeMain,
+                    route is Route.CurrentFullListMain ||
+                        route is Route.MediaChartListMain ||
+                        route is Route.SeasonAnimeMain,
                 )
             }
     }
