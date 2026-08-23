@@ -24,25 +24,23 @@ import com.axiel7.anihyou.core.model.media.localized
 import com.axiel7.anihyou.core.network.type.MediaListStatus
 import com.axiel7.anihyou.core.network.type.MediaType
 import com.axiel7.anihyou.core.resources.R
-import com.axiel7.anihyou.core.ui.common.navigation.NavActionManager
-import com.axiel7.anihyou.core.ui.composables.DefaultScaffoldWithSmallTopAppBar
+import com.axiel7.anihyou.core.ui.common.LocalNavActionManager
+import com.axiel7.anihyou.core.ui.composables.DefaultScaffoldWithLargeTopAppBar
 import com.axiel7.anihyou.core.ui.composables.ListPreference
 import com.axiel7.anihyou.core.ui.composables.PreferencesTitle
 import com.axiel7.anihyou.core.ui.composables.common.BackIconButton
+import com.axiel7.anihyou.core.ui.composables.preferenceShape
 import com.axiel7.anihyou.core.ui.theme.AniHyouTheme
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun ListStyleSettingsView(
-    navActionManager: NavActionManager,
-) {
+fun ListStyleSettingsView() {
     val viewModel: ListStyleSettingsViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     ListStyleSettingsContent(
         uiState = uiState,
         event = viewModel,
-        navActionManager = navActionManager,
     )
 }
 
@@ -51,13 +49,13 @@ fun ListStyleSettingsView(
 private fun ListStyleSettingsContent(
     uiState: ListStyleSettingsUiState,
     event: ListStyleSettingsEvent?,
-    navActionManager: NavActionManager,
 ) {
+    val navActionManager = LocalNavActionManager.current
     val topAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
         rememberTopAppBarState()
     )
 
-    DefaultScaffoldWithSmallTopAppBar(
+    DefaultScaffoldWithLargeTopAppBar(
         title = stringResource(R.string.list_style),
         navigationIcon = { BackIconButton(onClick = navActionManager::goBack) },
         scrollBehavior = topAppBarScrollBehavior
@@ -75,7 +73,7 @@ private fun ListStyleSettingsContent(
             )
 
             PreferencesTitle(text = stringResource(R.string.anime_list))
-            MediaListStatus.knownEntries.forEach { status ->
+            MediaListStatus.knownEntries.forEachIndexed { index, status ->
                 val preference = when (status) {
                     MediaListStatus.CURRENT -> uiState.animeCurrentListStyle
                     MediaListStatus.PLANNING -> uiState.animePlanningListStyle
@@ -93,12 +91,13 @@ private fun ListStyleSettingsContent(
                     icon = status.icon(),
                     onValueChange = { value ->
                         event?.setAnimeListStyle(status, value)
-                    }
+                    },
+                    shape = preferenceShape(index, MediaListStatus.knownEntries.size),
                 )
             }
 
             PreferencesTitle(text = stringResource(R.string.manga_list))
-            MediaListStatus.knownEntries.forEach { status ->
+            MediaListStatus.knownEntries.forEachIndexed { index, status ->
                 val preference = when (status) {
                     MediaListStatus.CURRENT -> uiState.mangaCurrentListStyle
                     MediaListStatus.PLANNING -> uiState.mangaPlanningListStyle
@@ -116,7 +115,8 @@ private fun ListStyleSettingsContent(
                     icon = status.icon(),
                     onValueChange = { value ->
                         event?.setMangaListStyle(status, value)
-                    }
+                    },
+                    shape = preferenceShape(index, MediaListStatus.knownEntries.size),
                 )
             }
         }
@@ -131,7 +131,6 @@ private fun ListStyleSettingsViewPreview() {
             ListStyleSettingsContent(
                 uiState = ListStyleSettingsUiState(),
                 event = null,
-                navActionManager = NavActionManager.rememberNavActionManager()
             )
         }
     }

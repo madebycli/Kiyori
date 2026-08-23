@@ -1,6 +1,7 @@
 package com.axiel7.anihyou.feature.settings
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -13,15 +14,17 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.axiel7.anihyou.core.common.utils.ContextUtils.openActionView
 import com.axiel7.anihyou.core.resources.R
-import com.axiel7.anihyou.core.ui.common.navigation.NavActionManager
-import com.axiel7.anihyou.core.ui.composables.DefaultScaffoldWithSmallTopAppBar
+import com.axiel7.anihyou.core.ui.common.LocalNavActionManager
+import com.axiel7.anihyou.core.ui.composables.DefaultScaffoldWithLargeTopAppBar
 import com.axiel7.anihyou.core.ui.composables.PlainPreference
 import com.axiel7.anihyou.core.ui.composables.common.BackIconButton
+import com.axiel7.anihyou.core.ui.composables.preferenceShape
 import com.axiel7.anihyou.core.ui.theme.AniHyouTheme
 
-private val contributors = mapOf(
+private val contributors = sortedMapOf(
     "axiel7" to "https://github.com/axiel7",
     "uragiristereo" to "https://github.com/uragiristereo",
     "x8laye4r" to "https://github.com/x8laye4r",
@@ -32,14 +35,13 @@ private val contributors = mapOf(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ContributorsView(
-    navActionManager: NavActionManager,
-) {
+fun ContributorsView() {
+    val navActionManager = LocalNavActionManager.current
     val context = LocalContext.current
-    val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
+    val topAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
         state = rememberTopAppBarState()
     )
-    DefaultScaffoldWithSmallTopAppBar(
+    DefaultScaffoldWithLargeTopAppBar(
         title = stringResource(R.string.contributors),
         navigationIcon = {
             BackIconButton(onClick = navActionManager::goBack)
@@ -52,10 +54,13 @@ fun ContributorsView(
                 .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
                 .verticalScroll(rememberScrollState())
         ) {
-            contributors.forEach { (name, link) ->
+            contributors.toList().forEachIndexed { index, (name, link) ->
                 PlainPreference(
                     title = name,
-                    onClick = { context.openActionView(link) }
+                    onClick = { context.openActionView(link) },
+                    iconPadding = PaddingValues(vertical = 16.dp),
+                    showIconSpacer = false,
+                    shape = preferenceShape(index, contributors.size),
                 )
             }
         }
@@ -66,8 +71,6 @@ fun ContributorsView(
 @Composable
 private fun ContributorsViewPreview() {
     AniHyouTheme {
-        ContributorsView(
-            navActionManager = NavActionManager.rememberNavActionManager()
-        )
+        ContributorsView()
     }
 }

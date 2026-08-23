@@ -7,13 +7,19 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
@@ -43,16 +49,21 @@ import com.axiel7.anihyou.core.network.type.UserStaffNameLanguage
 import com.axiel7.anihyou.core.network.type.UserTitleLanguage
 import com.axiel7.anihyou.core.resources.R
 import com.axiel7.anihyou.core.ui.common.LocalIsLanguageEn
-import com.axiel7.anihyou.core.ui.common.navigation.NavActionManager
+import com.axiel7.anihyou.core.ui.common.LocalNavActionManager
 import com.axiel7.anihyou.core.ui.common.rememberSnackbarManager
-import com.axiel7.anihyou.core.ui.composables.DefaultScaffoldWithSmallTopAppBar
+import com.axiel7.anihyou.core.ui.composables.DefaultScaffoldWithLargeTopAppBar
 import com.axiel7.anihyou.core.ui.composables.ListPreference
 import com.axiel7.anihyou.core.ui.composables.PlainPreference
 import com.axiel7.anihyou.core.ui.composables.PreferencesTitle
+import com.axiel7.anihyou.core.ui.composables.ScoreStepsPreferenceSheet
 import com.axiel7.anihyou.core.ui.composables.SwitchPreference
+import com.axiel7.anihyou.core.ui.composables.bottomShape
 import com.axiel7.anihyou.core.ui.composables.common.BackIconButton
 import com.axiel7.anihyou.core.ui.composables.common.ErrorDialogHandler
 import com.axiel7.anihyou.core.ui.composables.common.SmallCircularProgressIndicator
+import com.axiel7.anihyou.core.ui.composables.middleShape
+import com.axiel7.anihyou.core.ui.composables.singleShape
+import com.axiel7.anihyou.core.ui.composables.topShape
 import com.axiel7.anihyou.core.ui.theme.AniHyouTheme
 import com.axiel7.anihyou.feature.settings.composables.CustomColorPreference
 import com.axiel7.anihyou.feature.settings.composables.LanguagePreference
@@ -67,9 +78,7 @@ private const val versionString = "${BuildConfig.VERSION_NAME} (${BuildConfig.VE
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun SettingsView(
-    navActionManager: NavActionManager
-) {
+fun SettingsView() {
     val viewModel: SettingsViewModel = koinViewModel()
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val notificationPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -80,7 +89,6 @@ fun SettingsView(
         uiState = uiState,
         event = viewModel,
         notificationPermission = notificationPermission,
-        navActionManager = navActionManager,
     )
 }
 
@@ -90,8 +98,8 @@ private fun SettingsContent(
     uiState: SettingsUiState,
     event: SettingsEvent?,
     notificationPermission: PermissionState?,
-    navActionManager: NavActionManager,
 ) {
+    val navActionManager = LocalNavActionManager.current
     val isEnglishLocale = LocalIsLanguageEn.current
     val context = LocalContext.current
     val snackbarManager = rememberSnackbarManager()
@@ -102,6 +110,8 @@ private fun SettingsContent(
         rememberTopAppBarState()
     )
 
+    var showConfirmDialog by remember { mutableStateOf(false) }
+
     ErrorDialogHandler(uiState, onDismiss = { event?.onErrorDisplayed() })
 
     LaunchedEffect(isDarkTheme) {
@@ -110,7 +120,7 @@ private fun SettingsContent(
         }
     }
 
-    DefaultScaffoldWithSmallTopAppBar(
+    DefaultScaffoldWithLargeTopAppBar(
         title = stringResource(R.string.settings),
         snackbarHost = snackbarManager::SnackbarHost,
         navigationIcon = {
@@ -131,59 +141,9 @@ private fun SettingsContent(
                 .verticalScroll(rememberScrollState())
                 .padding(padding)
         ) {
-            PreferencesTitle(text = stringResource(R.string.display))
+            PreferencesTitle(text = stringResource(R.string.general))
 
-            PlainPreference(
-                title = stringResource(R.string.main_navigation),
-                subtitle = stringResource(R.string.main_navigation_summary),
-                icon = R.drawable.sort_24,
-                onClick = navActionManager::toMainNavigationSettings,
-            )
-
-            AppLockSettings(
-                uiState = uiState,
-                event = event,
-            )
-
-            ListPreference(
-                title = stringResource(R.string.theme),
-                entriesValues = Theme.entriesLocalized,
-                preferenceValue = uiState.theme,
-                icon = R.drawable.palette_24,
-                onValueChange = { event?.setTheme(it) }
-            )
-
-            if (isDarkTheme) {
-                SwitchPreference(
-                    title = stringResource(R.string.black_theme_variant),
-                    preferenceValue = uiState.useBlackColors,
-                    onValueChange = { event?.setUseBlackColors(it) }
-                )
-            }
-
-            ListPreference(
-                title = stringResource(R.string.color),
-                entriesValues = AppColorMode.entriesLocalized,
-                preferenceValue = uiState.appColorMode,
-                icon = R.drawable.colors_24,
-                onValueChange = { event?.setAppColorMode(it) }
-            )
-            if (uiState.appColorMode == AppColorMode.CUSTOM) {
-                CustomColorPreference(
-                    color = uiState.appColor,
-                    onColorChanged = { event?.setCustomAppColor(it) }
-                )
-            }
-
-            ListPreference(
-                title = stringResource(R.string.color_palette),
-                values = PaletteStyle.entries.map { it.name },
-                preferenceValue = uiState.colorPaletteStyle,
-                icon = R.drawable.format_paint_24,
-                onValueChange = { event?.setColorPalette(it) }
-            )
-
-            LanguagePreference()
+            LanguagePreference(shape = topShape)
 
             if (!isEnglishLocale) {
                 ListPreference(
@@ -193,9 +153,69 @@ private fun SettingsContent(
                     icon = R.drawable.translate_24,
                     onValueChange = { value ->
                         event?.setTranslatorApp(value)
-                    }
+                    },
+                    shape = middleShape
                 )
             }
+
+            ListPreference(
+                title = stringResource(R.string.default_tab),
+                entriesValues = DefaultTab.entriesLocalized,
+                preferenceValue = uiState.defaultTab,
+                icon = R.drawable.home_24,
+                onValueChange = { event?.setDefaultTab(it) },
+                shape = bottomShape
+            )
+
+
+            PreferencesTitle(text = stringResource(R.string.display))
+
+            ListPreference(
+                title = stringResource(R.string.theme),
+                entriesValues = Theme.entriesLocalized,
+                preferenceValue = uiState.theme,
+                icon = R.drawable.palette_24,
+                onValueChange = { event?.setTheme(it) },
+                shape = topShape
+            )
+
+            if (isDarkTheme) {
+                SwitchPreference(
+                    title = stringResource(R.string.black_theme_variant),
+                    preferenceValue = uiState.useBlackColors,
+                    icon = R.drawable.contrast_24,
+                    onValueChange = { event?.setUseBlackColors(it) },
+                    shape = middleShape
+                )
+            }
+
+            ListPreference(
+                title = stringResource(R.string.color),
+                entriesValues = AppColorMode.entriesLocalized,
+                preferenceValue = uiState.appColorMode,
+                icon = R.drawable.colors_24,
+                onValueChange = { event?.setAppColorMode(it) },
+                shape = middleShape
+            )
+            if (uiState.appColorMode == AppColorMode.CUSTOM) {
+                CustomColorPreference(
+                    color = uiState.appColor,
+                    onColorChanged = { event?.setCustomAppColor(it) },
+                    shape = middleShape
+                )
+            }
+
+            ListPreference(
+                title = stringResource(R.string.color_palette),
+                values = PaletteStyle.entries.map { it.name },
+                preferenceValue = uiState.colorPaletteStyle,
+                icon = R.drawable.format_paint_24,
+                onValueChange = { event?.setColorPalette(it) },
+                shape = bottomShape
+            )
+
+
+            PreferencesTitle(text = stringResource(R.string.content))
 
             if (uiState.isLoggedIn) {
                 ListPreference(
@@ -206,8 +226,32 @@ private fun SettingsContent(
                     onValueChange = { value ->
                         event?.setTitleLanguage(value)
                         snackbarManager.showMessage(R.string.changes_will_take_effect_on_app_restart)
-                    }
+                    },
+                    shape = topShape
                 )
+
+                ListPreference(
+                    title = stringResource(R.string.score_format),
+                    entriesValues = ScoreFormat.entriesLocalized,
+                    preferenceValue = uiState.scoreFormat,
+                    icon = R.drawable.star_24,
+                    onValueChange = { event?.setScoreFormat(it) },
+                    shape = middleShape
+                )
+
+                if (uiState.scoreFormat == ScoreFormat.POINT_10_DECIMAL ||
+                    uiState.scoreFormat == ScoreFormat.POINT_10 ||
+                    uiState.scoreFormat == ScoreFormat.POINT_100
+                ) {
+                    ScoreStepsPreferenceSheet(
+                        title = stringResource(R.string.score_steps),
+                        icon = R.drawable.star_24,
+                        changeValue = { event?.setScoreStep(it) },
+                        scoreFormat = uiState.scoreFormat,
+                        initialValue = uiState.scoreStep,
+                        shape = middleShape
+                    )
+                }
 
                 ListPreference(
                     title = stringResource(R.string.staff_character_name_language),
@@ -217,25 +261,38 @@ private fun SettingsContent(
                     onValueChange = { value ->
                         event?.setStaffNameLanguage(value)
                         snackbarManager.showMessage(R.string.changes_will_take_effect_on_app_restart)
-                    }
+                    },
+                    shape = middleShape
                 )
 
-                ListPreference(
-                    title = stringResource(R.string.score_format),
-                    entriesValues = ScoreFormat.entriesLocalized,
-                    preferenceValue = uiState.scoreFormat,
-                    icon = R.drawable.star_24,
-                    onValueChange = { event?.setScoreFormat(it) }
+                SwitchPreference(
+                    title = stringResource(R.string.hide_scores),
+                    preferenceValue = uiState.hideScores,
+                    icon = R.drawable.star_half_24,
+                    onValueChange = { event?.setHideScores(it) },
+                    shape = middleShape
                 )
+            }
 
-                ListPreference(
-                    title = stringResource(R.string.default_tab),
-                    entriesValues = DefaultTab.entriesLocalized,
-                    preferenceValue = uiState.defaultTab,
-                    icon = R.drawable.home_24,
-                    onValueChange = { event?.setDefaultTab(it) }
-                )
 
+            SwitchPreference(
+                title = stringResource(R.string.display_adult_content),
+                preferenceValue = uiState.userSettings?.options?.displayAdultContent,
+                icon = R.drawable.no_adult_content_24,
+                onValueChange = { event?.setDisplayAdultContent(it) },
+                shape = if (uiState.isLoggedIn) middleShape else topShape
+            )
+
+            SwitchPreference(
+                title = stringResource(R.string.blur_adult_content),
+                preferenceValue = uiState.blurAdultContent,
+                icon = R.drawable.blur_on_24,
+                onValueChange = { event?.setBlurAdultContent(it) },
+                shape = bottomShape
+            )
+
+
+            if (uiState.isLoggedIn) {
                 PreferencesTitle(text = stringResource(R.string.list))
 
                 SwitchPreference(
@@ -243,21 +300,26 @@ private fun SettingsContent(
                     preferenceValue = uiState.useGeneralListStyle?.not(),
                     onValueChange = {
                         event?.setUseGeneralListStyle(it.not())
-                    }
+                    },
+                    icon = R.drawable.arrow_split_24,
+                    shape = topShape
                 )
+
                 if (uiState.useGeneralListStyle == true) {
                     ListPreference(
                         title = stringResource(R.string.list_style),
                         entriesValues = ListStyle.entriesLocalized,
                         preferenceValue = uiState.generalListStyle,
                         icon = R.drawable.format_list_bulleted_24,
-                        onValueChange = { event?.setGeneralListStyle(it) }
+                        onValueChange = { event?.setGeneralListStyle(it) },
+                        shape = middleShape
                     )
                 } else {
                     PlainPreference(
                         title = stringResource(R.string.list_style),
                         icon = R.drawable.format_list_bulleted_24,
-                        onClick = navActionManager::toListStyleSettings
+                        onClick = navActionManager::toListStyleSettings,
+                        shape = middleShape
                     )
                 }
 
@@ -267,44 +329,45 @@ private fun SettingsContent(
                         entriesValues = ItemsPerRow.entriesLocalized,
                         preferenceValue = uiState.gridItemsPerRow,
                         icon = R.drawable.grid_view_24,
-                        onValueChange = { event?.setGridItemsPerRow(it) }
+                        onValueChange = { event?.setGridItemsPerRow(it) },
+                        shape = middleShape
                     )
                 }
+
                 PlainPreference(
                     title = stringResource(R.string.custom_lists),
                     icon = R.drawable.playlist_add_24,
-                    onClick = navActionManager::toCustomLists
-                )
-
-                PreferencesTitle(text = stringResource(R.string.content))
-
-                SwitchPreference(
-                    title = stringResource(R.string.display_adult_content),
-                    preferenceValue = uiState.userSettings?.options?.displayAdultContent,
-                    icon = R.drawable.no_adult_content_24,
-                    onValueChange = { event?.setDisplayAdultContent(it) }
-                )
-                SwitchPreference(
-                    title = stringResource(R.string.blur_adult_content),
-                    preferenceValue = uiState.blurAdultContent,
-                    icon = R.drawable.blur_on_24,
-                    onValueChange = { event?.setBlurAdultContent(it) }
+                    onClick = navActionManager::toCustomLists,
+                    shape = middleShape
                 )
 
                 SwitchPreference(
-                    title = stringResource(R.string.hide_scores),
-                    preferenceValue = uiState.hideScores,
-                    icon = R.drawable.star_half_24,
-                    onValueChange = { event?.setHideScores(it) }
+                    title = stringResource(R.string.show_low_priority),
+                    preferenceValue = uiState.showLowPriority,
+                    icon = R.drawable.counter_0_24,
+                    onValueChange = { event?.setShowLowPriority(it) },
+                    shape = middleShape
+                )
+
+                PlainPreference(
+                    title = stringResource(R.string.priority_color_change),
+                    icon = R.drawable.colors_24,
+                    onClick = navActionManager::toPriorityColors,
+                    shape = middleShape
                 )
 
                 SwitchPreference(
                     title = stringResource(R.string.airing_on_my_list),
                     preferenceValue = uiState.airingOnMyList,
+                    icon = R.drawable.rss_feed_24,
                     subtitle = stringResource(R.string.airing_on_my_list_summary),
-                    onValueChange = { event?.setAiringOnMyList(it) }
+                    onValueChange = { event?.setAiringOnMyList(it) },
+                    shape = bottomShape
                 )
+            }
 
+
+            if (uiState.isLoggedIn) {
                 PreferencesTitle(text = stringResource(R.string.notifications))
 
                 SwitchPreference(
@@ -319,22 +382,29 @@ private fun SettingsContent(
                                 context.createDefaultNotificationChannels()
                             }
                         )
-                    }
+                    },
+                    shape = if (uiState.isNotificationsEnabled == true) topShape else singleShape
                 )
+
                 if (uiState.isNotificationsEnabled == true) {
                     ListPreference(
                         title = stringResource(R.string.update_interval),
                         entriesValues = NotificationInterval.entriesLocalized,
                         preferenceValue = uiState.notificationCheckInterval,
-                        onValueChange = { event?.setNotificationCheckInterval(it) }
+                        icon = R.drawable.update_24,
+                        onValueChange = { event?.setNotificationCheckInterval(it) },
+                        shape = middleShape
                     )
+
                     SwitchPreference(
                         title = stringResource(R.string.airing_anime_notifications),
                         preferenceValue = uiState.userSettings?.options?.airingNotifications,
                         icon = R.drawable.podcasts_24,
-                        onValueChange = { event?.setAiringNotification(it) }
+                        onValueChange = { event?.setAiringNotification(it) },
+                        shape = bottomShape
                     )
                 }
+
 
                 PreferencesTitle(text = stringResource(R.string.account))
 
@@ -343,18 +413,17 @@ private fun SettingsContent(
                     icon = R.drawable.manage_accounts_24,
                     onClick = {
                         context.openLink(ANILIST_ACCOUNT_SETTINGS_URL)
-                    }
+                    },
+                    shape = topShape
                 )
                 PlainPreference(
                     title = stringResource(R.string.logout),
                     icon = R.drawable.logout_24,
-                    onClick = {
-                        event?.logOut {
-                            context.getActivity()?.recreate()
-                        }
-                    }
+                    onClick = { showConfirmDialog = true },
+                    shape = bottomShape
                 )
             }
+
 
             PreferencesTitle(text = stringResource(R.string.information))
 
@@ -363,7 +432,8 @@ private fun SettingsContent(
                 icon = R.drawable.github_24,
                 onClick = {
                     context.openActionView(GITHUB_REPO_URL)
-                }
+                },
+                shape = topShape
             )
 
             PlainPreference(
@@ -371,7 +441,8 @@ private fun SettingsContent(
                 icon = R.drawable.discord_24,
                 onClick = {
                     context.openActionView(DISCORD_SERVER_URL)
-                }
+                },
+                shape = middleShape
             )
 
             PlainPreference(
@@ -380,19 +451,22 @@ private fun SettingsContent(
                 icon = R.drawable.anihyou_24,
                 onClick = {
                     context.copyToClipBoard(versionString)
-                }
+                },
+                shape = middleShape
             )
 
             PlainPreference(
                 title = stringResource(R.string.contributors),
                 icon = R.drawable.code_24,
-                onClick = navActionManager::toContributors
+                onClick = navActionManager::toContributors,
+                shape = middleShape
             )
 
             PlainPreference(
                 title = stringResource(R.string.translations),
                 icon = R.drawable.language_24,
-                onClick = navActionManager::toTranslations
+                onClick = navActionManager::toTranslations,
+                shape = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) middleShape else bottomShape
             )
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -401,10 +475,38 @@ private fun SettingsContent(
                     icon = R.drawable.open_in_new_24,
                     onClick = {
                         context.openByDefaultSettings()
-                    }
+                    },
+                    shape = bottomShape
                 )
             }
-        }
+        }//: Column
+    }//: Scaffold
+
+    if (showConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showConfirmDialog = false },
+            title = { Text(stringResource(R.string.logout)) },
+            text = { Text(stringResource(R.string.logout_confirm)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        event?.logOut {
+                            context.getActivity()?.recreate()
+                        }
+                        showConfirmDialog = false
+                    }
+                ) {
+                    Text(stringResource(R.string.logout))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { showConfirmDialog = false }
+                ) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        )
     }
 }
 
@@ -418,7 +520,6 @@ private fun SettingsViewPreview() {
                 uiState = SettingsUiState(isLoggedIn = true),
                 event = null,
                 notificationPermission = null,
-                navActionManager = NavActionManager.rememberNavActionManager()
             )
         }
     }

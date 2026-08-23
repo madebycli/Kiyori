@@ -10,7 +10,6 @@ import com.axiel7.anihyou.core.model.ListStyle
 import com.axiel7.anihyou.core.model.Theme
 import com.axiel7.anihyou.core.model.TranslatorApp
 import com.axiel7.anihyou.core.model.notification.NotificationInterval
-import com.axiel7.anihyou.core.model.security.AppLockTimeout
 import com.axiel7.anihyou.core.network.fragment.UserSettings
 import com.axiel7.anihyou.core.network.type.ScoreFormat
 import com.materialkolor.PaletteStyle
@@ -21,21 +20,21 @@ data class SettingsUiState(
     val useBlackColors: Boolean = false,
     val appColorMode: AppColorMode? = null,
     val appColor: Color? = null,
-    val colorPaletteStyle: String = PaletteStyle.Neutral.name,
+    val colorPaletteStyle: String = PaletteStyle.Expressive.name,
     val blurAdultContent: Boolean = true,
+    val showLowPriority: Boolean = false,
     val useGeneralListStyle: Boolean? = null,
     val generalListStyle: ListStyle? = null,
     val gridItemsPerRow: ItemsPerRow? = null,
     val airingOnMyList: Boolean? = null,
     val scoreFormat: ScoreFormat? = null,
+    val scoreStep: Double = 1.0,
     val defaultTab: DefaultTab = DefaultTab.LAST_USED,
     val isNotificationsEnabled: Boolean? = null,
     val notificationCheckInterval: NotificationInterval = NotificationInterval.DAILY,
     val userSettings: UserSettings? = null,
     val translatorApp: TranslatorApp = TranslatorApp.DEFAULT,
     val hideScores: Boolean = false,
-    val appLockEnabled: Boolean = false,
-    val appLockTimeout: AppLockTimeout = AppLockTimeout.IMMEDIATELY,
     val isLoggedIn: Boolean = false,
     override val error: String? = null,
     override val isLoading: Boolean = false,
