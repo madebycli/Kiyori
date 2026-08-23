@@ -10,4 +10,5 @@
     <string name="media_people_no_characters">No characters match this filter.</string>
     <string name="media_people_no_team">No team members are available.</string>
     <string name="media_people_open_voice_actors">Show all voice actors for %1$s</string>
+    <string name="media_people_all_characters">All characters</string>
 </resources>
