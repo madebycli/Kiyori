@@ -42,15 +42,13 @@ import com.axiel7.anihyou.core.resources.R
 import com.axiel7.anihyou.core.ui.composables.common.CommentIconButton
 import com.axiel7.anihyou.core.ui.composables.common.FavoriteIconButton
 import com.axiel7.anihyou.core.ui.composables.markdown.DefaultMarkdownText
-import com.axiel7.anihyou.core.ui.composables.markdown.MarkdownUriHandler
 import com.axiel7.anihyou.core.ui.composables.media.MEDIA_POSTER_TINY_HEIGHT
 import com.axiel7.anihyou.core.ui.composables.media.MediaPoster
 import com.axiel7.anihyou.core.ui.composables.person.PERSON_IMAGE_SIZE_VERY_SMALL
 import com.axiel7.anihyou.core.ui.composables.person.PersonImage
 import com.axiel7.anihyou.core.ui.composables.person.PersonItemSmall
 import com.axiel7.anihyou.core.ui.theme.AniHyouTheme
-import com.axiel7.anihyou.core.ui.utils.ComposeDateUtils.secondsToLegibleText
-import java.time.temporal.ChronoUnit
+import com.axiel7.anihyou.core.ui.utils.ComposeDateUtils.nonFutureDateToLegibleText
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -69,7 +67,6 @@ fun ActivityTextView(
     onClickUser: () -> Unit,
     onClickMedia: () -> Unit = {},
     onClickLike: () -> Unit,
-    uriHandler: MarkdownUriHandler,
 ) {
     var isLikesExpanded by remember { mutableStateOf(false) }
     Column(
@@ -86,10 +83,7 @@ fun ActivityTextView(
             )
             Text(
                 text = createdAt.toLong().timestampIntervalSinceNow()
-                    .secondsToLegibleText(
-                        maxUnit = ChronoUnit.WEEKS,
-                        isFutureDate = false
-                    ),
+                    .nonFutureDateToLegibleText(),
                 color = MaterialTheme.colorScheme.outline,
                 fontSize = 15.sp
             )
@@ -114,7 +108,6 @@ fun ActivityTextView(
             DefaultMarkdownText(
                 markdown = text,
                 textStyle = MaterialTheme.typography.bodyMedium,
-                uriHandler = uriHandler,
             )
         }
 
@@ -208,7 +201,6 @@ fun ActivityTextViewPreview() {
                 isLiked = false,
                 onClickLike = {},
                 onClickUser = {},
-                uriHandler = MarkdownUriHandler(),
             )
         }
     }

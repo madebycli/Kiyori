@@ -30,22 +30,21 @@ import com.axiel7.anihyou.core.common.utils.DateUtils.timestampIntervalSinceNow
 import com.axiel7.anihyou.core.common.utils.NumberUtils.format
 import com.axiel7.anihyou.core.model.activity.text
 import com.axiel7.anihyou.core.resources.R
-import com.axiel7.anihyou.core.ui.common.navigation.NavActionManager
+import com.axiel7.anihyou.core.ui.common.LocalNavActionManager
 import com.axiel7.anihyou.core.ui.composables.TextIconHorizontal
 import com.axiel7.anihyou.core.ui.composables.list.HorizontalListHeader
 import com.axiel7.anihyou.core.ui.composables.post.POST_ITEM_HEIGHT
 import com.axiel7.anihyou.core.ui.composables.post.PostItem
 import com.axiel7.anihyou.core.ui.composables.post.PostItemPlaceholder
 import com.axiel7.anihyou.core.ui.theme.AniHyouTheme
-import com.axiel7.anihyou.core.ui.utils.ComposeDateUtils.secondsToLegibleText
+import com.axiel7.anihyou.core.ui.utils.ComposeDateUtils.nonFutureDateToLegibleText
 import com.axiel7.anihyou.feature.mediadetails.MediaDetailsUiState
-import java.time.temporal.ChronoUnit
 
 @Composable
 fun ReviewThreadListView(
     uiState: MediaDetailsUiState,
-    navActionManager: NavActionManager,
 ) {
+    val navActionManager = LocalNavActionManager.current
     val reviewsListState = rememberLazyGridState()
     val threadsListState = rememberLazyListState()
     val activityListState = rememberLazyListState()
@@ -179,10 +178,7 @@ fun ReviewThreadListView(
                         subtitle = {
                             Text(
                                 text = item.createdAt.toLong().timestampIntervalSinceNow()
-                                    .secondsToLegibleText(
-                                        maxUnit = ChronoUnit.WEEKS,
-                                        isFutureDate = false
-                                    ),
+                                    .nonFutureDateToLegibleText(),
                                 overflow = TextOverflow.Ellipsis,
                                 maxLines = 1,
                                 style = MaterialTheme.typography.labelMedium,
@@ -208,7 +204,6 @@ private fun ReviewThreadListViewPreview() {
                     isLoadingReviews = true,
                     isLoadingThreads = true
                 ),
-                navActionManager = NavActionManager.rememberNavActionManager()
             )
         }
     }

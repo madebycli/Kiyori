@@ -13,15 +13,23 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Slider
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -32,22 +40,39 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.axiel7.anihyou.core.common.utils.NumberUtils.format
+import com.axiel7.anihyou.core.network.type.ScoreFormat
 import com.axiel7.anihyou.core.resources.R
 import com.axiel7.anihyou.core.ui.composables.common.SmallCircularProgressIndicator
 import com.axiel7.anihyou.core.ui.theme.AniHyouTheme
+import kotlin.math.roundToInt
+
+val topShape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp, bottomStart = 4.dp, bottomEnd = 4.dp)
+val bottomShape = RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp, bottomStart = 24.dp, bottomEnd = 24.dp)
+val middleShape = RoundedCornerShape(4.dp)
+val singleShape = RoundedCornerShape(24.dp)
+
+fun preferenceShape(index: Int, count: Int) = when {
+    count == 1 -> singleShape
+    index == 0 -> topShape
+    index == (count - 1) -> bottomShape
+    else -> middleShape
+}
 
 @Composable
 fun PreferencesTitle(text: String) {
     Text(
         text = text,
         modifier = Modifier
-            .padding(start = 72.dp, top = 16.dp, end = 16.dp, bottom = 8.dp),
+            .padding(start = 24.dp, top = 24.dp, end = 16.dp, bottom = 8.dp),
         color = MaterialTheme.colorScheme.secondary,
         fontSize = 13.sp,
-        fontWeight = FontWeight.SemiBold
+        fontWeight = FontWeight.Medium
     )
 }
 
@@ -60,61 +85,78 @@ fun PlainPreference(
     @DrawableRes icon: Int? = null,
     iconTint: Color = MaterialTheme.colorScheme.primary,
     iconPadding: PaddingValues = PaddingValues(16.dp),
+    showIconSpacer: Boolean = true,
     enabled: Boolean = true,
     isLoading: Boolean = false,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    shape: RoundedCornerShape = RoundedCornerShape(4.dp),
+    containerColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh
 ) {
-    Row(
-        modifier = modifier
+    val verticalPadding = if (subtitle == null) 8.dp else 1.dp
+    Surface(
+        modifier = Modifier
             .fillMaxWidth()
-            .clickable(enabled = enabled, onClick = onClick),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+            .padding(start = 16.dp, end = 16.dp, top = 1.dp, bottom = 1.dp),
+        shape = shape,
+        color = containerColor
     ) {
         Row(
-            horizontalArrangement = Arrangement.Start,
+            modifier = modifier
+                .fillMaxWidth()
+                .clickable(enabled = enabled, onClick = onClick)
+                .padding(vertical = verticalPadding),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (icon != null) {
-                Icon(
-                    painter = painterResource(icon),
-                    contentDescription = title,
-                    modifier = Modifier.padding(iconPadding),
-                    tint = if (enabled) iconTint else iconTint.copy(alpha = 0.38f)
-                )
-            } else {
-                Spacer(
-                    modifier = Modifier
-                        .padding(iconPadding)
-                        .size(24.dp)
-                )
-            }
-
-            Column(
-                modifier = if (subtitle != null)
-                    Modifier.padding(16.dp)
-                else Modifier.padding(horizontal = 16.dp)
+            Row(
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = title,
-                    color = if (enabled) titleTint else titleTint.copy(alpha = 0.38f)
-                )
-
-                if (subtitle != null) {
-                    Text(
-                        text = subtitle,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontSize = 13.sp
+                if (icon != null) {
+                    Icon(
+                        painter = painterResource(icon),
+                        contentDescription = title,
+                        modifier = Modifier.padding(iconPadding),
+                        tint = if (enabled) iconTint else iconTint.copy(alpha = 0.38f)
+                    )
+                } else {
+                    val size = DpSize(
+                        width = if (showIconSpacer) 24.dp else 0.dp,
+                        height = 24.dp
+                    )
+                    Spacer(
+                        modifier = Modifier
+                            .padding(iconPadding)
+                            .size(size)
                     )
                 }
-            }//: Column
+
+                Column(
+                    modifier = if (subtitle != null)
+                        Modifier.padding(16.dp)
+                    else Modifier.padding(horizontal = 16.dp)
+                ) {
+                    Text(
+                        text = title,
+                        color = if (enabled) titleTint else titleTint.copy(alpha = 0.38f)
+                    )
+
+                    if (subtitle != null) {
+                        Text(
+                            text = subtitle,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontSize = 13.sp
+                        )
+                    }
+                }//: Column
+            }//: Row
+            if (isLoading) {
+                SmallCircularProgressIndicator(
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            }
         }//: Row
-        if (isLoading) {
-            SmallCircularProgressIndicator(
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
-        }
-    }//: Row
+    }//: Surface
 }
 
 @Composable
@@ -126,66 +168,78 @@ fun SwitchPreference(
     @DrawableRes icon: Int? = null,
     iconTint: Color = MaterialTheme.colorScheme.primary,
     iconPadding: PaddingValues = PaddingValues(16.dp),
-    onValueChange: (Boolean) -> Unit
+    onValueChange: (Boolean) -> Unit,
+    shape: RoundedCornerShape = RoundedCornerShape(4.dp),
+    containerColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh
 ) {
-    Row(
-        modifier = modifier
+    val verticalPadding = if (subtitle == null) 8.dp else 1.dp
+    Surface(
+        modifier = Modifier
             .fillMaxWidth()
-            .clickable {
-                onValueChange(preferenceValue?.not() ?: false)
-            },
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+            .padding(start = 16.dp, end = 16.dp, top = 1.dp, bottom = 1.dp),
+        shape = shape,
+        color = containerColor
     ) {
         Row(
-            modifier = Modifier.weight(1f),
-            horizontalArrangement = Arrangement.Start,
+            modifier = modifier
+                .fillMaxWidth()
+                .clickable {
+                    onValueChange(preferenceValue?.not() ?: false)
+                }
+                .padding(vertical = verticalPadding),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            if (icon != null) {
-                Icon(
-                    painter = painterResource(icon),
-                    contentDescription = title,
-                    modifier = Modifier.padding(iconPadding),
-                    tint = iconTint
-                )
-            } else {
-                Spacer(
-                    modifier = Modifier
-                        .padding(iconPadding)
-                        .size(24.dp)
-                )
-            }
-
-            Column(
-                modifier = if (subtitle != null)
-                    Modifier.padding(16.dp)
-                else Modifier.padding(horizontal = 16.dp)
+            Row(
+                modifier = Modifier.weight(1f),
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = title,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-
-                if (subtitle != null) {
-                    Text(
-                        text = subtitle,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontSize = 13.sp,
-                        lineHeight = 14.sp
+                if (icon != null) {
+                    Icon(
+                        painter = painterResource(icon),
+                        contentDescription = title,
+                        modifier = Modifier.padding(iconPadding),
+                        tint = iconTint
+                    )
+                } else {
+                    Spacer(
+                        modifier = Modifier
+                            .padding(iconPadding)
+                            .size(24.dp)
                     )
                 }
-            }//: Column
-        }//: Row
 
-        Switch(
-            checked = preferenceValue ?: false,
-            onCheckedChange = {
-                onValueChange(it)
-            },
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
-    }//: Row
+                Column(
+                    modifier = if (subtitle != null)
+                        Modifier.padding(16.dp)
+                    else Modifier.padding(horizontal = 16.dp)
+                ) {
+                    Text(
+                        text = title,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+
+                    if (subtitle != null) {
+                        Text(
+                            text = subtitle,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            fontSize = 13.sp,
+                            lineHeight = 14.sp
+                        )
+                    }
+                }//: Column
+            }//: Row
+
+            Switch(
+                checked = preferenceValue ?: false,
+                onCheckedChange = {
+                    onValueChange(it)
+                },
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+        }//: Row
+    }//: Surface
 }
 
 @Composable
@@ -196,49 +250,62 @@ fun <T> ListPreference(
     labelForValue: @Composable (T) -> String = { it.toString() },
     preferenceValue: T?,
     @DrawableRes icon: Int? = null,
-    onValueChange: (T) -> Unit
+    onValueChange: (T) -> Unit,
+    shape: RoundedCornerShape = RoundedCornerShape(4.dp),
+    containerColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh
 ) {
     val windowInfo = LocalWindowInfo.current.containerSize
     var openDialog by remember { mutableStateOf(false) }
-    Row(
-        modifier = modifier
+
+    val verticalPadding = if (preferenceValue == null) 8.dp else 1.dp
+    Surface(
+        modifier = Modifier
             .fillMaxWidth()
-            .clickable { openDialog = true },
-        horizontalArrangement = Arrangement.Start,
-        verticalAlignment = Alignment.CenterVertically
+            .padding(start = 16.dp, end = 16.dp, top = 1.dp, bottom = 1.dp),
+        shape = shape,
+        color = containerColor
     ) {
-        if (icon != null) {
-            Icon(
-                painter = painterResource(icon),
-                contentDescription = title,
-                modifier = Modifier.padding(16.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
-        } else {
-            Spacer(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .size(24.dp)
-            )
-        }
-
-        Column(
-            modifier = Modifier.padding(16.dp)
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .clickable { openDialog = true }
+                .padding(vertical = verticalPadding),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = title,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-
-            if (preferenceValue != null) {
-                Text(
-                    text = labelForValue(preferenceValue),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontSize = 13.sp
+            if (icon != null) {
+                Icon(
+                    painter = painterResource(icon),
+                    contentDescription = title,
+                    modifier = Modifier.padding(16.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            } else {
+                Spacer(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .size(24.dp)
                 )
             }
-        }
-    }
+
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Text(
+                    text = title,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+                if (preferenceValue != null) {
+                    Text(
+                        text = labelForValue(preferenceValue),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontSize = 13.sp
+                    )
+                }
+            }//: Column
+        }//: Row
+    }//: Surface
 
     if (openDialog) {
         AlertDialog(
@@ -282,7 +349,9 @@ fun <T> ListPreference(
     modifier: Modifier = Modifier,
     preferenceValue: T?,
     @DrawableRes icon: Int? = null,
-    onValueChange: (T) -> Unit
+    onValueChange: (T) -> Unit,
+    shape: RoundedCornerShape = RoundedCornerShape(4.dp),
+    containerColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh
 ) {
     ListPreference(
         title = title,
@@ -294,7 +363,132 @@ fun <T> ListPreference(
         preferenceValue = preferenceValue,
         icon = icon,
         onValueChange = onValueChange,
+        shape = shape,
+        containerColor = containerColor
     )
+}
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ScoreStepsPreferenceSheet(
+    title: String,
+    @DrawableRes icon: Int? = null,
+    initialValue: Double = 1.0,
+    scoreFormat: ScoreFormat?,
+    changeValue: (Double) -> Unit,
+    shape: RoundedCornerShape = RoundedCornerShape(4.dp)
+) {
+    val minValue = when (scoreFormat) {
+        ScoreFormat.POINT_100 -> 1.0
+        ScoreFormat.POINT_10 -> 1.0
+        ScoreFormat.POINT_10_DECIMAL -> 0.1
+        else -> 1.0
+    }
+
+    val maxValue = when (scoreFormat) {
+        ScoreFormat.POINT_100 -> 100.0
+        ScoreFormat.POINT_10 -> 10.0
+        ScoreFormat.POINT_10_DECIMAL -> 10.0
+        else -> 10.0
+    }
+
+    val allowDecimal = scoreFormat == ScoreFormat.POINT_10_DECIMAL
+
+    var openModal by remember { mutableStateOf(false) }
+
+    var value by remember(initialValue, minValue, maxValue) {
+        mutableDoubleStateOf(initialValue.coerceIn(minValue..maxValue))
+    }
+
+    var textFieldValue by remember(initialValue) {
+        mutableStateOf(if (allowDecimal) initialValue.toString() else initialValue.roundToInt().toString()
+        )
+    }
+
+    val integerRegex = remember { Regex("^\\d*$") }
+    val decimalRegex = remember { Regex("^\\d*\\.?\\d?$") }
+
+    PlainPreference(
+        title = title,
+        subtitle = value.format(),
+        icon = icon,
+        onClick = {
+            openModal = true
+        },
+        shape = shape
+    )
+
+    if (openModal) {
+        ModalBottomSheet(
+            onDismissRequest = {
+                openModal = false
+                changeValue(value)
+            }
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 16.dp)
+            ) {
+
+
+                OutlinedTextField(
+                    value = textFieldValue,
+                    onValueChange = { input ->
+                        // maybe you have here a better idea here than me
+                        val isValid = if (allowDecimal) {
+                            input.isEmpty() || input.matches(decimalRegex)
+                        } else {
+                            input.isEmpty() || input.matches(integerRegex)
+                        }
+
+                        if (isValid) {
+                            val asNumber = input.toDoubleOrNull()
+
+                            textFieldValue = if (asNumber == null || asNumber <= maxValue) input else textFieldValue
+                            if (asNumber != null) {
+                                val clamped = asNumber.coerceIn(minValue, maxValue)
+                                value = clamped
+                            }
+                        }
+                    },
+                    label = {
+                        Text(text = title)
+                    },
+                    supportingText = {
+                        Text(
+                            text = "$minValue - $maxValue",
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                    },
+                    singleLine = true,
+                    modifier = Modifier
+                        .padding(bottom = 8.dp)
+                        .align(Alignment.CenterHorizontally),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = if (allowDecimal) KeyboardType.Decimal else KeyboardType.Number
+                    )
+                )
+
+                Slider(
+                    value = value.toFloat(),
+                    valueRange = minValue.toFloat()..maxValue.toFloat(),
+                    onValueChange = { input ->
+                        if (allowDecimal) {
+                            val rounded = (input * 10f).roundToInt() / 10.0
+                            value = rounded.coerceIn(minValue, maxValue)
+                            textFieldValue = rounded.toString()
+                        } else {
+                            val roundedInt = input.roundToInt()
+                            value = roundedInt.toDouble().coerceIn(minValue, maxValue)
+                            textFieldValue = roundedInt.toString()
+                        }
+                    }
+                )
+            }
+        }
+    }
 }
 
 @Preview(showBackground = true)
@@ -310,6 +504,7 @@ private fun PreferencesPreviews() {
                 subtitle = "Subtitle",
                 icon = R.drawable.settings_24,
                 onClick = {},
+                shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp, bottomStart = 4.dp, bottomEnd = 4.dp)
             )
 
             SwitchPreference(
@@ -326,6 +521,15 @@ private fun PreferencesPreviews() {
                 preferenceValue = null,
                 icon = R.drawable.settings_24,
                 onValueChange = {},
+            )
+
+            ScoreStepsPreferenceSheet(
+                title = "BottomSheet Preference",
+                icon = R.drawable.settings_24,
+                scoreFormat = ScoreFormat.POINT_10_DECIMAL,
+                initialValue = 2.0,
+                changeValue = {},
+                shape = RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp, bottomStart = 24.dp, bottomEnd = 24.dp)
             )
         }
     }

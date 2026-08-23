@@ -17,213 +17,95 @@ import com.axiel7.anihyou.core.network.type.ScoreFormat
 class NavActionManager(
     private val navigator: INavigator,
 ) {
-    fun goBack() {
-        navigator.goBack()
-    }
+    fun navigate(route: Route) = navigator.navigate(route)
+    fun goBack() = navigator.goBack()
 
-    fun toMediaDetails(id: Int) {
-        navigator.navigate(Routes.MediaDetails(id))
-    }
+    fun toMediaDetails(id: Int) = navigator.navigate(Route.MediaDetails(id))
+    fun toMediaActivity(mediaId: Int) = navigator.navigate(Route.MediaActivity(mediaId))
+    fun toMediaCharacters(mediaId: Int) = navigator.navigate(Route.MediaCharacters(mediaId))
+    fun toCharacterDetails(id: Int) = navigator.navigate(Route.CharacterDetails(id))
+    fun toStaffDetails(id: Int) = navigator.navigate(Route.StaffDetails(id))
+    fun toStudioDetails(id: Int) = navigator.navigate(Route.StudioDetails(id))
+    fun toUserDetails(id: Int) = navigator.navigate(Route.UserDetails(id = id, userName = null))
+    fun toUserDetails(userId: Int?, username: String?) = navigator.navigate(Route.UserDetails(userId, username))
+    fun toActivityDetails(id: Int) = navigator.navigate(Route.ActivityDetails(id))
+    fun toThreadDetails(id: Int) = navigator.navigate(Route.ThreadDetails(id))
+    fun toThreadCommentDetails(childComment: ChildComment) = navigator.navigate(Route.ThreadCommentDetails(childComment))
+    fun toReviewDetails(id: Int) = navigator.navigate(Route.ReviewDetails(id))
+    fun toFullscreenImage(url: String) = navigator.navigate(Route.FullScreenImage(url))
+    fun toSearch() = navigator.navigate(Route.Search(focus = true))
 
-    fun toMediaActivity(mediaId: Int) {
-        navigator.navigate(Routes.MediaActivity(mediaId))
-    }
+    fun toSearchOnMyList(mediaType: MediaType) = navigator.navigate(
+        Route.Search(mediaType = mediaType.rawValue, onList = true, focus = true)
+    )
 
-    fun toCharacterDetails(id: Int) {
-        navigator.navigate(Routes.CharacterDetails(id))
-    }
+    fun toGenreTag(mediaType: MediaType, genre: String?, tag: String?) = navigator.navigate(
+        Route.Search(mediaType = mediaType.rawValue, genre = genre, tag = tag)
+    )
 
-    fun toStaffDetails(id: Int) {
-        navigator.navigate(Routes.StaffDetails(id))
-    }
+    fun toAnimeSeason(season: AnimeSeason) = navigator.navigate(
+        Route.SeasonAnime(season = season.season.rawValue, year = season.year)
+    )
 
-    fun toStudioDetails(id: Int) {
-        navigator.navigate(Routes.StudioDetails(id))
-    }
+    fun toAnimeSeason(year: Int, season: MediaSeason) = toAnimeSeason(
+        AnimeSeason(year = year, season = season)
+    )
 
-    fun toUserDetails(id: Int) {
-        navigator.navigate(Routes.UserDetails(id = id, userName = null))
-    }
+    fun toCalendar() = navigator.navigate(Route.Calendar)
+    fun toCurrentFullList(listType: CurrentListType) = navigator.navigate(Route.CurrentFullList(listType))
 
-    fun toUserDetails(userId: Int?, username: String?) {
-        navigator.navigate(Routes.UserDetails(userId, username))
-    }
+    fun toExplore(mediaType: MediaType, mediaSort: MediaSort) = navigator.navigate(
+        Route.Search(mediaType = mediaType.rawValue, mediaSort = mediaSort.rawValue)
+    )
 
-    fun toActivityDetails(id: Int) {
-        navigator.navigate(Routes.ActivityDetails(id))
-    }
+    fun toNotifications(unread: Int = 0) = navigator.navigate(Route.Notifications(unread))
+    fun toPublishNewActivity() = navigator.navigate(Route.PublishActivity(null, null, null))
 
-    fun toThreadDetails(id: Int) {
-        navigator.navigate(Routes.ThreadDetails(id))
-    }
+    fun toPublishActivityReply(activityId: Int, replyId: Int?, text: String?) = navigator.navigate(
+        Route.PublishActivity(activityId = activityId, id = replyId, text = text)
+    )
 
-    fun toThreadCommentDetails(childComment: ChildComment) {
-        navigator.navigate(Routes.ThreadCommentDetails(childComment))
-    }
+    fun toPublishThreadComment(threadId: Int, commentId: Int?, text: String?) = navigator.navigate(
+        Route.PublishComment(threadId = threadId, id = commentId ?: 0, text = text)
+    )
 
-    fun toReviewDetails(id: Int) {
-        navigator.navigate(Routes.ReviewDetails(id))
-    }
-
-    fun toFullscreenImage(url: String) {
-        navigator.navigate(Routes.FullScreenImage(url))
-    }
-
-    fun toSearch() {
-        navigator.navigate(Routes.Search(focus = true))
-    }
-
-    fun toSearchOnMyList(mediaType: MediaType) {
+    fun toPublishCommentReply(threadId: Int, parentCommentId: Int, commentId: Int?, text: String?) =
         navigator.navigate(
-            Routes.Search(mediaType = mediaType.rawValue, onList = true, focus = true)
-        )
-    }
-
-    fun toGenreTag(
-        mediaType: MediaType,
-        genre: String?,
-        tag: String?
-    ) {
-        navigator.navigate(
-            Routes.Search(mediaType = mediaType.rawValue, genre = genre, tag = tag)
-        )
-    }
-
-    fun toAnimeSeason(season: AnimeSeason) {
-        navigator.navigate(
-            Routes.SeasonAnime(season = season.season.rawValue, year = season.year)
-        )
-    }
-
-    fun toAnimeSeason(year: Int, season: MediaSeason) {
-        toAnimeSeason(
-            season = AnimeSeason(
-                year = year,
-                season = season,
-            )
-        )
-    }
-
-    fun toCalendar() {
-        navigator.navigate(Routes.Calendar)
-    }
-
-    fun toCurrentFullList(listType: CurrentListType) {
-        navigator.navigate(Routes.CurrentFullList(listType = listType))
-    }
-
-    fun toExplore(mediaType: MediaType, mediaSort: MediaSort) {
-        navigator.navigate(
-            Routes.Search(mediaType = mediaType.rawValue, mediaSort = mediaSort.rawValue)
-        )
-    }
-
-    fun toNotifications(unread: Int = 0) {
-        navigator.navigate(Routes.Notifications(unread))
-    }
-
-    fun toPublishNewActivity() {
-        navigator.navigate(
-            Routes.PublishActivity(activityId = null, id = null, text = null)
-        )
-    }
-
-    fun toPublishActivityReply(
-        activityId: Int,
-        replyId: Int?,
-        text: String?
-    ) {
-        navigator.navigate(
-            Routes.PublishActivity(activityId = activityId, id = replyId, text = text)
-        )
-    }
-
-    fun toPublishThreadComment(
-        threadId: Int,
-        commentId: Int?,
-        text: String?
-    ) {
-        navigator.navigate(
-            Routes.PublishComment(threadId = threadId, id = commentId ?: 0, text = text)
-        )
-    }
-
-    fun toPublishCommentReply(
-        threadId: Int,
-        parentCommentId: Int,
-        commentId: Int?,
-        text: String?
-    ) {
-        navigator.navigate(
-            Routes.PublishComment(
+            Route.PublishComment(
                 threadId = threadId,
                 parentCommentId = parentCommentId,
                 id = commentId ?: 0,
-                text = text
+                text = text,
             )
         )
-    }
 
-    fun toMediaChart(type: ChartType) {
-        navigator.navigate(Routes.MediaChartList(type.name))
-    }
+    fun toMediaChart(type: ChartType) = navigator.navigate(Route.MediaChartList(type.name))
 
-    fun toUserMediaList(
-        mediaType: MediaType,
-        userId: Int,
-        scoreFormat: ScoreFormat
-    ) {
-        navigator.navigate(
-            Routes.UserMediaList(
-                mediaType = mediaType.rawValue,
-                userId = userId,
-                scoreFormat = scoreFormat.rawValue
-            )
+    fun toUserMediaList(mediaType: MediaType, userId: Int, scoreFormat: ScoreFormat) = navigator.navigate(
+        Route.UserMediaList(
+            mediaType = mediaType.rawValue,
+            userId = userId,
+            scoreFormat = scoreFormat.rawValue,
         )
-    }
+    )
 
-    fun toSettings() {
-        navigator.navigate(Routes.Settings)
-    }
+    fun toSettings() = navigator.navigate(Route.Settings)
+    fun toMainNavigationSettings() = navigator.navigate(Route.MainNavigationSettings)
+    fun toListStyleSettings() = navigator.navigate(Route.ListStyleSettings)
+    fun toCustomLists() = navigator.navigate(Route.CustomLists)
+    fun toTranslations() = navigator.navigate(Route.Translations)
 
-    fun toMainNavigationSettings() {
-        navigator.navigate(Routes.MainNavigationSettings)
-    }
+    fun toReorderFavorites(userId: Int, type: FavoritesType) = navigator.navigate(
+        Route.ReorderFavorites(userId = userId, type = type)
+    )
 
-    fun toListStyleSettings() {
-        navigator.navigate(Routes.ListStyleSettings)
-    }
-
-    fun toCustomLists() {
-        navigator.navigate(Routes.CustomLists)
-    }
-
-    fun toTranslations() {
-        navigator.navigate(Routes.Translations)
-    }
-
-    fun toReorderFavorites(
-        userId: Int,
-        type: FavoritesType
-    ) {
-        navigator.navigate(
-            Routes.ReorderFavorites(
-                userId = userId,
-                type = type
-            )
-        )
-    }
-
-    fun toContributors() {
-        navigator.navigate(Routes.Contributors)
-    }
+    fun toContributors() = navigator.navigate(Route.Contributors)
+    fun toPriorityColors() = navigator.navigate(Route.PriorityColors)
 
     companion object {
         @Composable
         fun rememberNavActionManager(
-            navigator: INavigator = PreviewNavigator()
-        ) = remember(navigator) {
-            NavActionManager(navigator)
-        }
+            navigator: INavigator = PreviewNavigator(),
+        ) = remember(navigator) { NavActionManager(navigator) }
     }
 }

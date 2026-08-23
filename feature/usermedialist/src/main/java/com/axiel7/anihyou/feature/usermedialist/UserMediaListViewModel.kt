@@ -1,5 +1,6 @@
 package com.axiel7.anihyou.feature.usermedialist
 
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewModelScope
 import com.axiel7.anihyou.core.base.DataResult
 import com.axiel7.anihyou.core.base.PagedResult
@@ -25,7 +26,7 @@ import com.axiel7.anihyou.core.network.type.MediaStatus
 import com.axiel7.anihyou.core.network.type.MediaType
 import com.axiel7.anihyou.core.network.type.ScoreFormat
 import com.axiel7.anihyou.core.network.type.UserTitleLanguage
-import com.axiel7.anihyou.core.ui.common.navigation.Routes
+import com.axiel7.anihyou.core.ui.common.navigation.Route
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
@@ -45,7 +46,7 @@ import org.koin.core.annotation.InjectedParam
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class UserMediaListViewModel(
-    @InjectedParam arguments: Routes.UserMediaList,
+    @InjectedParam arguments: Route.UserMediaList,
     private val mediaListRepository: MediaListRepository,
     private val defaultPreferencesRepository: DefaultPreferencesRepository,
     private val listPreferencesRepository: ListPreferencesRepository,
@@ -280,6 +281,32 @@ class UserMediaListViewModel(
                     }
             }
         }.launchIn(viewModelScope)
+
+        // get value from settings
+        defaultPreferencesRepository.showLowPriority
+            .distinctUntilChanged()
+            .onEach { value ->
+                mutableUiState.update { it.copy(showLowPriority = value) }
+            }
+            .launchIn(viewModelScope)
+
+        defaultPreferencesRepository.colorLowPriority
+            .onEach { color ->
+                mutableUiState.update { it.copy(lowPriorityColor = Color(color)) }
+            }
+            .launchIn(viewModelScope)
+
+        defaultPreferencesRepository.colorMediumPriority
+            .onEach { color ->
+                mutableUiState.update { it.copy(mediumPriorityColor = Color(color)) }
+            }
+            .launchIn(viewModelScope)
+
+        defaultPreferencesRepository.colorHighPriority
+            .onEach { color ->
+                mutableUiState.update { it.copy(highPriorityColor = Color(color)) }
+            }
+            .launchIn(viewModelScope)
 
         // grid items per row
         listPreferencesRepository.gridItemsPerRow

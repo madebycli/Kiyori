@@ -29,8 +29,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.axiel7.anihyou.core.common.utils.NumberUtils.format
 import com.axiel7.anihyou.core.network.type.MediaFormat
 import com.axiel7.anihyou.core.ui.common.LocalBlurAdult
-import com.axiel7.anihyou.core.ui.common.navigation.NavActionManager
-import com.axiel7.anihyou.core.ui.common.navigation.Routes
+import com.axiel7.anihyou.core.ui.common.LocalNavActionManager
+import com.axiel7.anihyou.core.ui.common.navigation.Route
 import com.axiel7.anihyou.core.ui.common.rememberSnackbarManager
 import com.axiel7.anihyou.core.ui.composables.DefaultScaffoldWithMediumTopAppBar
 import com.axiel7.anihyou.core.ui.composables.common.BackIconButton
@@ -46,8 +46,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun MediaChartListView(
     isLoggedIn: Boolean,
-    arguments: Routes.MediaChartList,
-    navActionManager: NavActionManager,
+    arguments: Route.MediaChartList,
     modifier: Modifier = Modifier,
 ) {
     val viewModel: MediaChartViewModel = koinViewModel(parameters = { parametersOf(arguments) })
@@ -57,7 +56,6 @@ fun MediaChartListView(
         isLoggedIn = isLoggedIn,
         uiState = uiState,
         event = viewModel,
-        navActionManager = navActionManager,
         isMainDestination = arguments.isMainDestination,
         modifier = modifier,
     )
@@ -69,10 +67,10 @@ private fun MediaChartListContent(
     isLoggedIn: Boolean,
     uiState: MediaChartUiState,
     event: MediaChartEvent?,
-    navActionManager: NavActionManager,
     isMainDestination: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
+    val navActionManager = LocalNavActionManager.current
     val blurAdult = LocalBlurAdult.current
     val topAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
         rememberTopAppBarState()
@@ -91,9 +89,7 @@ private fun MediaChartListContent(
         EditMediaSheet(
             mediaDetails = uiState.selectedItem.basicMediaDetails,
             listEntry = uiState.selectedItem.mediaListEntry?.basicMediaListEntry,
-            onEntryUpdated = {
-                event?.onUpdateListEntry(it)
-            },
+            onEntryUpdated = { event?.onUpdateListEntry(it) },
             onDismissed = { showEditSheet = false }
         )
     }
@@ -118,9 +114,7 @@ private fun MediaChartListContent(
                     end = padding.calculateEndPadding(LocalLayoutDirection.current)
                 ),
             state = listState,
-            contentPadding = PaddingValues(
-                bottom = padding.calculateBottomPadding()
-            ),
+            contentPadding = PaddingValues(bottom = padding.calculateBottomPadding()),
         ) {
             itemsIndexed(
                 items = uiState.media,
@@ -138,9 +132,7 @@ private fun MediaChartListContent(
                     chapters = item.chapters,
                     duration = item.duration,
                     genres = item.genres?.filterNotNull(),
-                    onClick = {
-                        navActionManager.toMediaDetails(item.id)
-                    },
+                    onClick = { navActionManager.toMediaDetails(item.id) },
                     onLongClick = {
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         if (isLoggedIn) {
@@ -161,12 +153,10 @@ private fun MediaChartListContent(
                 )
             }
             if (uiState.isLoading) {
-                items(10) {
-                    MediaItemHorizontalPlaceholder()
-                }
+                items(10) { MediaItemHorizontalPlaceholder() }
             }
         }
-    }//: Scaffold
+    }
 }
 
 @Preview
@@ -178,7 +168,6 @@ private fun MediaChartListViewPreview() {
                 isLoggedIn = true,
                 uiState = MediaChartUiState(),
                 event = null,
-                navActionManager = NavActionManager.rememberNavActionManager(),
             )
         }
     }

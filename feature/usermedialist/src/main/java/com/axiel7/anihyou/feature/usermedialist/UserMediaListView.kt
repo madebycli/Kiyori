@@ -1,5 +1,6 @@
 package com.axiel7.anihyou.feature.usermedialist
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -20,11 +21,13 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -37,9 +40,11 @@ import com.axiel7.anihyou.core.network.fragment.CommonMediaListEntry
 import com.axiel7.anihyou.core.network.type.MediaListStatus
 import com.axiel7.anihyou.core.ui.common.navigation.NavActionManager
 import com.axiel7.anihyou.core.ui.composables.common.ErrorDialogHandler
+import com.axiel7.anihyou.core.ui.composables.media.AllPriorityColors
 import com.axiel7.anihyou.core.ui.composables.media.MEDIA_POSTER_MEDIUM_WIDTH
 import com.axiel7.anihyou.core.ui.composables.media.MediaItemHorizontalPlaceholder
 import com.axiel7.anihyou.core.ui.composables.media.MediaItemVerticalPlaceholder
+import com.axiel7.anihyou.core.ui.composables.media.PriorityColors.Companion.toPriorityColors
 import com.axiel7.anihyou.feature.usermedialist.composables.CompactUserMediaListItem
 import com.axiel7.anihyou.feature.usermedialist.composables.GridUserMediaListItem
 import com.axiel7.anihyou.feature.usermedialist.composables.MinimalUserMediaListItem
@@ -57,8 +62,27 @@ fun UserMediaListView(
     navActionManager: NavActionManager,
     onShowEditSheet: (CommonMediaListEntry) -> Unit,
 ) {
+    val isDark = isSystemInDarkTheme()
     val haptic = LocalHapticFeedback.current
     val pullRefreshState = rememberPullToRefreshState()
+
+    val priorityNoneColor = MaterialTheme.colorScheme.secondaryContainer
+    val lowPriorityColors = remember(uiState.lowPriorityColor, isDark) {
+        (uiState.lowPriorityColor ?: priorityNoneColor).toPriorityColors(isDark)
+    }
+    val mediumPriorityColors = remember(uiState.mediumPriorityColor, isDark) {
+        (uiState.mediumPriorityColor ?: priorityNoneColor).toPriorityColors(isDark)
+    }
+    val highPriorityColors = remember(uiState.highPriorityColor, isDark) {
+        (uiState.highPriorityColor ?: priorityNoneColor).toPriorityColors(isDark)
+    }
+    val allPriorityColors = remember(lowPriorityColors, mediumPriorityColors, highPriorityColors) {
+        AllPriorityColors(
+            low = lowPriorityColors,
+            medium = mediumPriorityColors,
+            high = highPriorityColors,
+        )
+    }
 
     LaunchedEffect(uiState.randomEntryId) {
         uiState.randomEntryId?.let { id ->
@@ -95,6 +119,7 @@ fun UserMediaListView(
                 mediaList = uiState.entries,
                 uiState = uiState,
                 event = event,
+                allPriorityColors = allPriorityColors,
                 modifier = listModifier,
                 navActionManager = navActionManager,
                 onShowEditSheet = onShowEditSheet,
@@ -104,6 +129,7 @@ fun UserMediaListView(
                 mediaList = uiState.entries,
                 uiState = uiState,
                 event = event,
+                allPriorityColors = allPriorityColors,
                 modifier = listModifier,
                 contentPadding = contentPadding,
                 navActionManager = navActionManager,
@@ -115,6 +141,7 @@ fun UserMediaListView(
                 mediaList = uiState.entries,
                 uiState = uiState,
                 event = event,
+                allPriorityColors = allPriorityColors,
                 modifier = listModifier,
                 contentPadding = contentPadding,
                 navActionManager = navActionManager,
@@ -131,6 +158,7 @@ private fun LazyListGrid(
     mediaList: List<CommonMediaListEntry>,
     uiState: UserMediaListUiState,
     event: UserMediaListEvent?,
+    allPriorityColors: AllPriorityColors,
     modifier: Modifier,
     navActionManager: NavActionManager,
     onShowEditSheet: (CommonMediaListEntry) -> Unit,
@@ -169,6 +197,8 @@ private fun LazyListGrid(
                 item = item,
                 listStatus = uiState.status,
                 scoreFormat = uiState.scoreFormat,
+                showLowPriority = uiState.showLowPriority,
+                allPriorityColors = allPriorityColors,
                 onClick = { navActionManager.toMediaDetails(item.mediaId) },
                 onLongClick = { onShowEditSheet(item) }
             )
@@ -182,6 +212,7 @@ private fun LazyListTablet(
     mediaList: List<CommonMediaListEntry>,
     uiState: UserMediaListUiState,
     event: UserMediaListEvent?,
+    allPriorityColors: AllPriorityColors,
     modifier: Modifier,
     contentPadding: PaddingValues,
     navActionManager: NavActionManager,
@@ -224,6 +255,8 @@ private fun LazyListTablet(
                         scoreFormat = uiState.scoreFormat,
                         isMyList = uiState.isMyList,
                         isPlusEnabled = !uiState.isLoadingPlusOne,
+                        showLowPriority = uiState.showLowPriority,
+                        allPriorityColors = allPriorityColors,
                         onClick = { navActionManager.toMediaDetails(item.mediaId) },
                         onLongClick = { onShowEditSheet(item) },
                         onClickPlus = { onClickPlus(it, item) },
@@ -249,6 +282,8 @@ private fun LazyListTablet(
                         scoreFormat = uiState.scoreFormat,
                         isMyList = uiState.isMyList,
                         isPlusEnabled = !uiState.isLoadingPlusOne,
+                        showLowPriority = uiState.showLowPriority,
+                        allPriorityColors = allPriorityColors,
                         onClick = { navActionManager.toMediaDetails(item.mediaId) },
                         onLongClick = { onShowEditSheet(item) },
                         onClickPlus = { onClickPlus(it, item) },
@@ -272,8 +307,10 @@ private fun LazyListTablet(
                         item = item,
                         listStatus = uiState.status,
                         scoreFormat = uiState.scoreFormat,
+                        allPriorityColors = allPriorityColors,
                         isMyList = uiState.isMyList,
                         isPlusEnabled = !uiState.isLoadingPlusOne,
+                        showLowPriority = uiState.showLowPriority,
                         onClick = { navActionManager.toMediaDetails(item.mediaId) },
                         onLongClick = { onShowEditSheet(item) },
                         onClickPlus = { onClickPlus(it, item) },
@@ -294,6 +331,7 @@ private fun LazyListPhone(
     mediaList: List<CommonMediaListEntry>,
     uiState: UserMediaListUiState,
     event: UserMediaListEvent?,
+    allPriorityColors: AllPriorityColors,
     modifier: Modifier,
     contentPadding: PaddingValues,
     navActionManager: NavActionManager,
@@ -331,6 +369,8 @@ private fun LazyListPhone(
                         scoreFormat = uiState.scoreFormat,
                         isMyList = uiState.isMyList,
                         isPlusEnabled = !uiState.isLoadingPlusOne,
+                        showLowPriority = uiState.showLowPriority,
+                        allPriorityColors = allPriorityColors,
                         onClick = { navActionManager.toMediaDetails(item.mediaId) },
                         onLongClick = { onShowEditSheet(item) },
                         onClickPlus = { onClickPlus(it, item) },
@@ -357,6 +397,8 @@ private fun LazyListPhone(
                         scoreFormat = uiState.scoreFormat,
                         isMyList = uiState.isMyList,
                         isPlusEnabled = !uiState.isLoadingPlusOne,
+                        showLowPriority = uiState.showLowPriority,
+                        allPriorityColors = allPriorityColors,
                         onClick = { navActionManager.toMediaDetails(item.mediaId) },
                         onLongClick = { onShowEditSheet(item) },
                         onClickPlus = { onClickPlus(it, item) },
@@ -381,8 +423,10 @@ private fun LazyListPhone(
                         item = item,
                         listStatus = uiState.status,
                         scoreFormat = uiState.scoreFormat,
+                        allPriorityColors = allPriorityColors,
                         isMyList = uiState.isMyList,
                         isPlusEnabled = !uiState.isLoadingPlusOne,
+                        showLowPriority = uiState.showLowPriority,
                         onClick = { navActionManager.toMediaDetails(item.mediaId) },
                         onLongClick = { onShowEditSheet(item) },
                         onClickPlus = { onClickPlus(it, item) },

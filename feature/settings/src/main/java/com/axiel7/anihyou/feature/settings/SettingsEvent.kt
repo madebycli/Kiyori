@@ -19,23 +19,14 @@ import com.google.accompanist.permissions.PermissionState
 
 @Immutable
 interface SettingsEvent : UiEvent {
-
     fun setTheme(value: Theme)
-
     fun setUseBlackColors(value: Boolean)
-
     fun setAppColorMode(value: AppColorMode)
-
     fun setColorPalette(value: String)
-
     fun setCustomAppColor(color: Color)
-
     fun setUseGeneralListStyle(value: Boolean)
-
     fun setGeneralListStyle(value: ListStyle)
-
     fun setGridItemsPerRow(value: ItemsPerRow)
-
     fun setAiringOnMyList(value: Boolean)
 
     @OptIn(ExperimentalPermissionsApi::class)
@@ -46,28 +37,18 @@ interface SettingsEvent : UiEvent {
     )
 
     fun setNotificationCheckInterval(value: NotificationInterval)
-
     fun setDisplayAdultContent(value: Boolean)
-
     fun setBlurAdultContent(value: Boolean)
-
+    fun setShowLowPriority(value: Boolean)
     fun setHideScores(value: Boolean)
-
     fun setTranslatorApp(value: TranslatorApp)
-
     fun setTitleLanguage(value: UserTitleLanguage)
-
     fun setStaffNameLanguage(value: UserStaffNameLanguage)
-
     fun setScoreFormat(value: ScoreFormat)
-
+    fun setScoreStep(value: Double)
     fun setDefaultTab(value: DefaultTab)
-
     fun setAiringNotification(value: Boolean)
-
     fun setAppLockEnabledAfterAuthentication(value: Boolean)
-
     fun setAppLockTimeout(value: AppLockTimeout)
-
     fun logOut(recreate: () -> Unit)
 }

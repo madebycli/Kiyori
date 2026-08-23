@@ -10,4 +10,5 @@
     <string name="media_people_no_characters">Für diesen Filter wurden keine Charaktere gefunden.</string>
     <string name="media_people_no_team">Es sind keine Teammitglieder verfügbar.</string>
     <string name="media_people_open_voice_actors">Alle Synchronsprecher für %1$s anzeigen</string>
+    <string name="media_people_all_characters">Alle Charaktere</string>
 </resources>

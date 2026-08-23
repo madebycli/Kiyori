@@ -41,12 +41,10 @@ import com.axiel7.anihyou.core.ui.composables.common.CommentIconButton
 import com.axiel7.anihyou.core.ui.composables.common.FavoriteIconButton
 import com.axiel7.anihyou.core.ui.composables.defaultPlaceholder
 import com.axiel7.anihyou.core.ui.composables.markdown.DefaultMarkdownText
-import com.axiel7.anihyou.core.ui.composables.markdown.MarkdownUriHandler
 import com.axiel7.anihyou.core.ui.composables.media.MediaPoster
 import com.axiel7.anihyou.core.ui.composables.person.PersonItemSmall
 import com.axiel7.anihyou.core.ui.theme.AniHyouTheme
-import com.axiel7.anihyou.core.ui.utils.ComposeDateUtils.secondsToLegibleText
-import java.time.temporal.ChronoUnit
+import com.axiel7.anihyou.core.ui.utils.ComposeDateUtils.nonFutureDateToLegibleText
 
 const val ACTIVITY_IMAGE_SIZE = 48
 
@@ -68,7 +66,6 @@ fun ActivityItem(
     onClickImage: () -> Unit = {},
     onClickLike: () -> Unit,
     onClickDelete: () -> Unit,
-    uriHandler: MarkdownUriHandler,
 ) {
     Row(
         modifier = modifier
@@ -104,7 +101,6 @@ fun ActivityItem(
                         markdown = text,
                         modifier = Modifier.weight(1f),
                         textStyle = MaterialTheme.typography.bodyMedium,
-                        uriHandler = uriHandler,
                     )
                 } else {
                     Text(
@@ -130,10 +126,7 @@ fun ActivityItem(
             ) {
                 Text(
                     text = createdAt.toLong().timestampIntervalSinceNow()
-                        .secondsToLegibleText(
-                            maxUnit = ChronoUnit.WEEKS,
-                            isFutureDate = false
-                        ),
+                        .nonFutureDateToLegibleText(),
                     modifier = Modifier.weight(1f),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.labelMedium
@@ -245,7 +238,6 @@ private fun ActivityItemPreview() {
                     onClick = {},
                     onClickLike = {},
                     onClickDelete = {},
-                    uriHandler = MarkdownUriHandler(),
                 )
                 ActivityItemPlaceholder(
                     modifier = Modifier.padding(8.dp)

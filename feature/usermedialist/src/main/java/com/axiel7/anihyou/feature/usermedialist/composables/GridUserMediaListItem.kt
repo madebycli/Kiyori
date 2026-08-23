@@ -6,12 +6,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
@@ -20,30 +20,26 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.axiel7.anihyou.core.base.UNKNOWN_CHAR
-import com.axiel7.anihyou.core.common.utils.NumberUtils.format
 import com.axiel7.anihyou.core.common.utils.NumberUtils.isGreaterThanZero
-import com.axiel7.anihyou.core.model.media.duration
 import com.axiel7.anihyou.core.model.media.exampleCommonMediaListEntry
-import com.axiel7.anihyou.core.model.media.isUsingVolumeProgress
-import com.axiel7.anihyou.core.model.media.progressOrVolumes
 import com.axiel7.anihyou.core.network.fragment.CommonMediaListEntry
 import com.axiel7.anihyou.core.network.type.MediaListStatus
+import com.axiel7.anihyou.core.network.type.MediaType
 import com.axiel7.anihyou.core.network.type.ScoreFormat
-import com.axiel7.anihyou.core.resources.R
 import com.axiel7.anihyou.core.ui.common.LocalBlurAdult
 import com.axiel7.anihyou.core.ui.composables.media.AiringScheduleText
+import com.axiel7.anihyou.core.ui.composables.media.AllPriorityColors
 import com.axiel7.anihyou.core.ui.composables.media.ListStatusBadgeIndicator
 import com.axiel7.anihyou.core.ui.composables.media.MEDIA_POSTER_MEDIUM_HEIGHT
 import com.axiel7.anihyou.core.ui.composables.media.MEDIA_POSTER_MEDIUM_WIDTH
 import com.axiel7.anihyou.core.ui.composables.media.MediaPoster
+import com.axiel7.anihyou.core.ui.composables.media.MediaProgressIndicator
+import com.axiel7.anihyou.core.ui.composables.media.PriorityIndicator
 import com.axiel7.anihyou.core.ui.composables.scores.BadgeScoreIndicator
 import com.axiel7.anihyou.core.ui.theme.AniHyouTheme
 
@@ -53,11 +49,15 @@ fun GridUserMediaListItem(
     item: CommonMediaListEntry,
     listStatus: MediaListStatus?,
     scoreFormat: ScoreFormat,
+    showLowPriority: Boolean,
+    allPriorityColors: AllPriorityColors,
     onClick: () -> Unit,
     onLongClick: () -> Unit,
 ) {
     val blurAdult = LocalBlurAdult.current
     val status = listStatus ?: item.basicMediaListEntry.status
+    val priority = item.basicMediaListEntry.priority
+    val singleEpisode = item.media?.basicMediaDetails?.type == MediaType.ANIME && (item.media?.basicMediaDetails?.episodes == 1)
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -92,16 +92,39 @@ fun GridUserMediaListItem(
                     )
                 }
 
-                if (item.media?.nextAiringEpisode != null) {
-                    ElevatedCard(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .align(Alignment.TopCenter)
-                    ) {
-                        AiringScheduleText(
-                            item = item,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                            textAlign = TextAlign.Center
+                Column(
+                    modifier = Modifier.align(Alignment.TopEnd)
+                ) {
+                    val nextAiringEpisode = item.media?.nextAiringEpisode
+                    val hasPriorityBadge = priority != null && (priority > 0 || showLowPriority)
+
+                    if (nextAiringEpisode != null) {
+                        ElevatedCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = if (hasPriorityBadge) {
+                                RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp, bottomStart = 12.dp)
+                            } else {
+                                RoundedCornerShape(12.dp)
+                            }
+                        ) {
+                            AiringScheduleText(
+                                item = item,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                textAlign = TextAlign.Left,
+                            )
+                        }
+                    }
+
+                    if (hasPriorityBadge) {
+                        PriorityIndicator(
+                            priority = priority,
+                            modifier = Modifier.align(Alignment.End),
+                            allPriorityColors = allPriorityColors,
+                            shape = if (nextAiringEpisode != null) {
+                                RoundedCornerShape(bottomStart = 16.dp)
+                            } else {
+                                RoundedCornerShape(topEnd = 8.dp, bottomStart = 16.dp)
+                            }
                         )
                     }
                 }
@@ -118,24 +141,13 @@ fun GridUserMediaListItem(
                 minLines = 2,
             )
 
-            Row(
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                val progress = item.basicMediaListEntry.progressOrVolumes()?.format() ?: 0
-                val duration = item.duration()?.format() ?: UNKNOWN_CHAR
-                Text(
-                    text = "$progress/$duration",
-                    fontSize = 15.sp,
-                    maxLines = 1
-                )
-                if (item.basicMediaListEntry.isUsingVolumeProgress()) {
-                    Icon(
-                        painter = painterResource(R.drawable.bookmark_20),
-                        contentDescription = stringResource(R.string.volumes),
-                    )
-                }
-            }
+
+            MediaProgressIndicator(
+                item = item,
+                singleEpisode = singleEpisode,
+                fontSize = 15.sp,
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp)
+            )
         }//:Column
     }//:Card
 }
@@ -158,6 +170,8 @@ fun GridUserMediaListItemPreview() {
                         ) else exampleCommonMediaListEntry,
                         listStatus = null,
                         scoreFormat = ScoreFormat.POINT_100,
+                        showLowPriority = true,
+                        allPriorityColors = AllPriorityColors.Default,
                         onClick = { },
                         onLongClick = { }
                     )

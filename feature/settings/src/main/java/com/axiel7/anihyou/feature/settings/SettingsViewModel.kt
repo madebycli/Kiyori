@@ -49,19 +49,14 @@ class SettingsViewModel(
     override val initialState = SettingsUiState()
 
     private val profileColor = defaultPreferencesRepository.profileColor
-
     private val isLoggedIn = defaultPreferencesRepository.isLoggedIn
 
     override fun setTheme(value: Theme) {
-        viewModelScope.launch {
-            defaultPreferencesRepository.setTheme(value)
-        }
+        viewModelScope.launch { defaultPreferencesRepository.setTheme(value) }
     }
 
     override fun setUseBlackColors(value: Boolean) {
-        viewModelScope.launch {
-            defaultPreferencesRepository.setUseBlackColors(value)
-        }
+        viewModelScope.launch { defaultPreferencesRepository.setUseBlackColors(value) }
     }
 
     override fun setAppColorMode(value: AppColorMode) {
@@ -76,9 +71,7 @@ class SettingsViewModel(
     }
 
     override fun setCustomAppColor(color: Color) {
-        viewModelScope.launch {
-            defaultPreferencesRepository.setAppColor(color)
-        }
+        viewModelScope.launch { defaultPreferencesRepository.setAppColor(color) }
     }
 
     private fun setAppColor(value: Color?) = viewModelScope.launch {
@@ -86,33 +79,23 @@ class SettingsViewModel(
     }
 
     override fun setColorPalette(value: String) {
-        viewModelScope.launch {
-            defaultPreferencesRepository.setColorPalette(value)
-        }
+        viewModelScope.launch { defaultPreferencesRepository.setColorPalette(value) }
     }
 
     override fun setUseGeneralListStyle(value: Boolean) {
-        viewModelScope.launch {
-            listPreferencesRepository.setUseGeneralListStyle(value)
-        }
+        viewModelScope.launch { listPreferencesRepository.setUseGeneralListStyle(value) }
     }
 
     override fun setGeneralListStyle(value: ListStyle) {
-        viewModelScope.launch {
-            listPreferencesRepository.setGeneralListStyle(value)
-        }
+        viewModelScope.launch { listPreferencesRepository.setGeneralListStyle(value) }
     }
 
     override fun setGridItemsPerRow(value: ItemsPerRow) {
-        viewModelScope.launch {
-            listPreferencesRepository.setGridItemsPerRow(value)
-        }
+        viewModelScope.launch { listPreferencesRepository.setGridItemsPerRow(value) }
     }
 
     override fun setAiringOnMyList(value: Boolean) {
-        viewModelScope.launch {
-            defaultPreferencesRepository.setAiringOnMyList(value)
-        }
+        viewModelScope.launch { defaultPreferencesRepository.setAiringOnMyList(value) }
     }
 
     @OptIn(ExperimentalPermissionsApi::class)
@@ -156,64 +139,55 @@ class SettingsViewModel(
     }
 
     override fun setBlurAdultContent(value: Boolean) {
-        viewModelScope.launch {
-            defaultPreferencesRepository.setBlurAdult(value)
-        }
+        viewModelScope.launch { defaultPreferencesRepository.setBlurAdult(value) }
+    }
+
+    override fun setShowLowPriority(value: Boolean) {
+        viewModelScope.launch { defaultPreferencesRepository.setShowLowPriority(value) }
     }
 
     override fun setHideScores(value: Boolean) {
-        viewModelScope.launch {
-            defaultPreferencesRepository.setHideScores(value)
-        }
+        viewModelScope.launch { defaultPreferencesRepository.setHideScores(value) }
     }
 
     override fun setTranslatorApp(value: TranslatorApp) {
-        viewModelScope.launch {
-            defaultPreferencesRepository.setTranslatorApp(value)
-        }
+        viewModelScope.launch { defaultPreferencesRepository.setTranslatorApp(value) }
     }
 
     override fun setTitleLanguage(value: UserTitleLanguage) {
-        viewModelScope.launch {
-            updateUser(titleLanguage = value)
-        }
+        viewModelScope.launch { updateUser(titleLanguage = value) }
     }
 
     override fun setStaffNameLanguage(value: UserStaffNameLanguage) {
-        viewModelScope.launch {
-            updateUser(staffNameLanguage = value)
-        }
+        viewModelScope.launch { updateUser(staffNameLanguage = value) }
     }
 
     override fun setScoreFormat(value: ScoreFormat) {
         viewModelScope.launch {
             defaultPreferencesRepository.setScoreFormat(value)
+            defaultPreferencesRepository.setScoreSteps(1.0)
             updateUser(scoreFormat = value)
         }
     }
 
+    override fun setScoreStep(value: Double) {
+        viewModelScope.launch { defaultPreferencesRepository.setScoreSteps(value) }
+    }
+
     override fun setDefaultTab(value: DefaultTab) {
-        viewModelScope.launch {
-            defaultPreferencesRepository.setDefaultTab(value)
-        }
+        viewModelScope.launch { defaultPreferencesRepository.setDefaultTab(value) }
     }
 
     override fun setAiringNotification(value: Boolean) {
-        viewModelScope.launch {
-            updateUser(airingNotifications = value)
-        }
+        viewModelScope.launch { updateUser(airingNotifications = value) }
     }
 
     override fun setAppLockEnabledAfterAuthentication(value: Boolean) {
-        viewModelScope.launch {
-            appLockPreferencesRepository.setEnabled(value)
-        }
+        viewModelScope.launch { appLockPreferencesRepository.setEnabled(value) }
     }
 
     override fun setAppLockTimeout(value: AppLockTimeout) {
-        viewModelScope.launch {
-            appLockPreferencesRepository.setTimeout(value)
-        }
+        viewModelScope.launch { appLockPreferencesRepository.setTimeout(value) }
     }
 
     override fun logOut(recreate: () -> Unit) {
@@ -241,10 +215,7 @@ class SettingsViewModel(
         .let { result ->
             mutableUiState.update {
                 if (result is DataResult.Success) {
-                    it.copy(
-                        isLoading = false,
-                        userSettings = result.data,
-                    )
+                    it.copy(isLoading = false, userSettings = result.data)
                 } else {
                     result.toUiState()
                 }
@@ -253,9 +224,7 @@ class SettingsViewModel(
 
     init {
         isLoggedIn
-            .onEach { value ->
-                mutableUiState.update { it.copy(isLoggedIn = value) }
-            }
+            .onEach { value -> mutableUiState.update { it.copy(isLoggedIn = value) } }
             .filter { it }
             .flatMapLatest { userRepository.getViewerSettings() }
             .onEach { result ->
@@ -294,6 +263,10 @@ class SettingsViewModel(
             .onEach { value -> mutableUiState.update { it.copy(blurAdultContent = value) } }
             .launchIn(viewModelScope)
 
+        defaultPreferencesRepository.showLowPriority
+            .onEach { value -> mutableUiState.update { it.copy(showLowPriority = value) } }
+            .launchIn(viewModelScope)
+
         defaultPreferencesRepository.defaultTab
             .filterNotNull()
             .onEach { value -> mutableUiState.update { it.copy(defaultTab = value) } }
@@ -317,6 +290,10 @@ class SettingsViewModel(
 
         defaultPreferencesRepository.scoreFormat
             .onEach { value -> mutableUiState.update { it.copy(scoreFormat = value) } }
+            .launchIn(viewModelScope)
+
+        defaultPreferencesRepository.scoreSteps
+            .onEach { value -> mutableUiState.update { it.copy(scoreStep = value) } }
             .launchIn(viewModelScope)
 
         defaultPreferencesRepository.isNotificationsEnabled

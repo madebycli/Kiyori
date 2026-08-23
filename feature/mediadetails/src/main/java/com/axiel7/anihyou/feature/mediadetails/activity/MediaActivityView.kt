@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.plus
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,23 +32,20 @@ import com.axiel7.anihyou.core.model.activity.text
 import com.axiel7.anihyou.core.network.type.ActivityType
 import com.axiel7.anihyou.core.resources.R
 import com.axiel7.anihyou.core.ui.common.LocalBlurAdult
-import com.axiel7.anihyou.core.ui.common.navigation.NavActionManager
-import com.axiel7.anihyou.core.ui.common.navigation.Routes
+import com.axiel7.anihyou.core.ui.common.LocalNavActionManager
+import com.axiel7.anihyou.core.ui.common.navigation.Route
 import com.axiel7.anihyou.core.ui.composables.DefaultScaffoldWithSmallTopAppBar
 import com.axiel7.anihyou.core.ui.composables.activity.ActivityFeedItem
 import com.axiel7.anihyou.core.ui.composables.activity.ActivityItemPlaceholder
 import com.axiel7.anihyou.core.ui.composables.common.BackIconButton
 import com.axiel7.anihyou.core.ui.composables.common.ErrorDialogHandler
-import com.axiel7.anihyou.core.ui.composables.markdown.MarkdownUriHandler
 import com.axiel7.anihyou.core.ui.theme.AniHyouTheme
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 @Composable
 fun MediaActivityView(
-    arguments: Routes.MediaActivity,
-    uriHandler: MarkdownUriHandler,
-    navActionManager: NavActionManager
+    arguments: Route.MediaActivity,
 ) {
     val viewModel: MediaActivityViewModel = koinViewModel(parameters = { parametersOf(arguments) })
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -55,8 +53,6 @@ fun MediaActivityView(
     MediaActivityContent(
         uiState = uiState,
         event = viewModel,
-        uriHandler = uriHandler,
-        navActionManager = navActionManager,
     )
 }
 
@@ -65,9 +61,8 @@ fun MediaActivityView(
 private fun MediaActivityContent(
     uiState: MediaActivityUiState,
     event: MediaActivityEvent?,
-    uriHandler: MarkdownUriHandler,
-    navActionManager: NavActionManager,
 ) {
+    val navActionManager = LocalNavActionManager.current
     val blurAdult = LocalBlurAdult.current
     val topAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
         rememberTopAppBarState()
@@ -100,9 +95,8 @@ private fun MediaActivityContent(
     ) { padding ->
         LazyColumn(
             modifier = Modifier
-                .padding(padding)
                 .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
-            contentPadding = PaddingValues(top = 8.dp)
+            contentPadding = PaddingValues(top = 8.dp) + padding
         ) {
             if (uiState.isLoading) {
                 items(10) {
@@ -140,7 +134,6 @@ private fun MediaActivityContent(
                     onClickDelete = {
                         event?.deleteActivity(item.id)
                     },
-                    uriHandler = uriHandler,
                 )
                 HorizontalDivider(modifier = Modifier.padding(bottom = 16.dp))
             }
@@ -168,8 +161,6 @@ private fun MediaActivityViewPreview() {
             MediaActivityContent(
                 uiState = MediaActivityUiState(),
                 event = null,
-                uriHandler = MarkdownUriHandler(),
-                navActionManager = NavActionManager.rememberNavActionManager()
             )
         }
     }

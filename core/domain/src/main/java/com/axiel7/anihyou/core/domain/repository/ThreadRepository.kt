@@ -46,6 +46,6 @@ class ThreadRepository(
         .updateThreadCommentMutation(threadId, parentCommentId, id, text)
         .execute()
         .asDataResult {
-            it.SaveThreadComment
+            it.SaveThreadComment?.commonThreadComment
         }
 }

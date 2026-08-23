@@ -1,4 +1,5 @@
 #bug: if the query name contains "ThreadComments" the `childComments` is always null
+#also we cannot use a fragment otherwise `childComments` is also null... :(
 query ChildComments($page: Int, $perPage: Int, $threadId: Int) {
     Page(page: $page, perPage: $perPage) {
         threadComments(threadId: $threadId) {

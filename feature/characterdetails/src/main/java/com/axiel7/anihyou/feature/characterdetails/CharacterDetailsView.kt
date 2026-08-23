@@ -25,8 +25,8 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.axiel7.anihyou.core.ui.common.navigation.NavActionManager
-import com.axiel7.anihyou.core.ui.common.navigation.Routes
+import com.axiel7.anihyou.core.ui.common.LocalNavActionManager
+import com.axiel7.anihyou.core.ui.common.navigation.Route
 import com.axiel7.anihyou.core.ui.common.rememberSnackbarManager
 import com.axiel7.anihyou.core.ui.composables.ConnectedButtonGroup
 import com.axiel7.anihyou.core.ui.composables.DefaultScaffoldWithSmallTopAppBar
@@ -35,7 +35,6 @@ import com.axiel7.anihyou.core.ui.composables.common.BackIconButton
 import com.axiel7.anihyou.core.ui.composables.common.ErrorDialogHandler
 import com.axiel7.anihyou.core.ui.composables.common.FavoriteIconButton
 import com.axiel7.anihyou.core.ui.composables.common.ShareIconButton
-import com.axiel7.anihyou.core.ui.composables.markdown.MarkdownUriHandler
 import com.axiel7.anihyou.core.ui.theme.AniHyouTheme
 import com.axiel7.anihyou.feature.characterdetails.content.CharacterInfoView
 import com.axiel7.anihyou.feature.characterdetails.content.CharacterMediaView
@@ -46,9 +45,7 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun CharacterDetailsView(
     isLoggedIn: Boolean,
-    arguments: Routes.CharacterDetails,
-    uriHandler: MarkdownUriHandler,
-    navActionManager: NavActionManager
+    arguments: Route.CharacterDetails,
 ) {
     val viewModel: CharacterDetailsViewModel = koinViewModel(parameters = { parametersOf(arguments) })
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -57,8 +54,6 @@ fun CharacterDetailsView(
         isLoggedIn = isLoggedIn,
         uiState = uiState,
         event = viewModel,
-        uriHandler = uriHandler,
-        navActionManager = navActionManager,
     )
 }
 
@@ -68,9 +63,8 @@ private fun CharacterDetailsContent(
     isLoggedIn: Boolean,
     uiState: CharacterDetailsUiState,
     event: CharacterDetailsEvent?,
-    uriHandler: MarkdownUriHandler,
-    navActionManager: NavActionManager,
 ) {
+    val navActionManager = LocalNavActionManager.current
     val scope = rememberCoroutineScope()
     val snackbarManager = rememberSnackbarManager()
 
@@ -149,7 +143,6 @@ private fun CharacterDetailsContent(
                         contentPadding = PaddingValues(
                             bottom = padding.calculateBottomPadding()
                         ),
-                        uriHandler = uriHandler,
                         navigateToFullscreenImage = navActionManager::toFullscreenImage,
                     )
 
@@ -195,8 +188,6 @@ fun CharacterDetailsViewPreview() {
                 isLoggedIn = true,
                 uiState = CharacterDetailsUiState(),
                 event = null,
-                uriHandler = MarkdownUriHandler(),
-                navActionManager = NavActionManager.rememberNavActionManager()
             )
         }
     }

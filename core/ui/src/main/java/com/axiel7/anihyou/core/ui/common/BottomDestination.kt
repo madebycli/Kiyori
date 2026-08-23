@@ -7,7 +7,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation3.runtime.NavKey
 import com.axiel7.anihyou.core.resources.R
-import com.axiel7.anihyou.core.ui.common.navigation.Routes
+import com.axiel7.anihyou.core.ui.common.navigation.Route
 
 sealed class BottomDestination(
     val index: Int,
@@ -16,55 +16,13 @@ sealed class BottomDestination(
     @param:DrawableRes val icon: Int,
     @param:DrawableRes val iconSelected: Int,
 ) {
-    data object Home : BottomDestination(
-        index = 0,
-        route = Routes.Home,
-        title = R.string.home,
-        icon = R.drawable.home_24,
-        iconSelected = R.drawable.home_filled_24
-    )
+    data object Home : BottomDestination(0, Route.Home, R.string.home, R.drawable.home_24, R.drawable.home_filled_24)
+    data object AnimeList : BottomDestination(1, Route.AnimeTab, R.string.anime, R.drawable.live_tv_24, R.drawable.live_tv_filled_24)
+    data object MangaList : BottomDestination(2, Route.MangaTab, R.string.manga, R.drawable.book_24, R.drawable.book_filled_24)
+    data object Profile : BottomDestination(3, Route.Profile, R.string.profile, R.drawable.person_24, R.drawable.person_filled_24)
+    data object Explore : BottomDestination(4, Route.Explore, R.string.explore, R.drawable.explore_24, R.drawable.explore_filled_24)
+    data object Calendar : BottomDestination(5, Route.CalendarMain, R.string.calendar, R.drawable.calendar_month_24, R.drawable.calendar_month_24)
 
-    data object AnimeList : BottomDestination(
-        index = 1,
-        route = Routes.AnimeTab,
-        title = R.string.anime,
-        icon = R.drawable.live_tv_24,
-        iconSelected = R.drawable.live_tv_filled_24
-    )
-
-    data object MangaList : BottomDestination(
-        index = 2,
-        route = Routes.MangaTab,
-        title = R.string.manga,
-        icon = R.drawable.book_24,
-        iconSelected = R.drawable.book_filled_24
-    )
-
-    data object Profile : BottomDestination(
-        index = 3,
-        route = Routes.Profile,
-        title = R.string.profile,
-        icon = R.drawable.person_24,
-        iconSelected = R.drawable.person_filled_24
-    )
-
-    data object Explore : BottomDestination(
-        index = 4,
-        route = Routes.Explore,
-        title = R.string.explore,
-        icon = R.drawable.explore_24,
-        iconSelected = R.drawable.explore_filled_24
-    )
-
-    data object Calendar : BottomDestination(
-        index = 5,
-        route = Routes.CalendarMain,
-        title = R.string.calendar,
-        icon = R.drawable.calendar_month_24,
-        iconSelected = R.drawable.calendar_month_24,
-    )
-
-    /** A typed, persisted shortcut projected into the same bottom/rail UI as static tabs. */
     class Shortcut(
         val stableId: String,
         index: Int,
@@ -77,29 +35,19 @@ sealed class BottomDestination(
     fun Icon(selected: Boolean) {
         androidx.compose.material3.Icon(
             painter = painterResource(if (selected) iconSelected else icon),
-            contentDescription = stringResource(title)
+            contentDescription = stringResource(title),
         )
     }
 
     companion object {
-        /*
-         * Use accessors instead of eagerly initialized companion fields.
-         * Eager initialization can run while BottomDestination's nested data objects
-         * are still being initialized, which made Home null and crashed at startup.
-         */
         val values: List<BottomDestination>
             get() = listOf(Home, AnimeList, MangaList, Profile, Explore, Calendar)
-
         val routes: Set<NavKey>
             get() = values.mapTo(linkedSetOf()) { it.route }
-
         val railValues: List<BottomDestination>
             get() = listOf(Home, AnimeList, MangaList, Profile)
-
         fun Int.toBottomDestinationRoute(): NavKey? = values.find { it.index == this }?.route
-
         fun NavKey.isBottomDestination() = values.any { it.route == this }
-
         val BottomDestination.testTag
             get() = when (this) {
                 is Home -> "HomeTab"
