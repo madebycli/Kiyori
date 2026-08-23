@@ -52,6 +52,7 @@ import com.axiel7.anihyou.feature.home.current.fulllist.CurrentFullListView
 import com.axiel7.anihyou.feature.login.LoginView
 import com.axiel7.anihyou.feature.mediadetails.MediaDetailsView
 import com.axiel7.anihyou.feature.mediadetails.activity.MediaActivityView
+import com.axiel7.anihyou.feature.mediadetails.characters.MediaCharactersView
 import com.axiel7.anihyou.feature.notifications.NotificationsView
 import com.axiel7.anihyou.feature.profile.ProfileView
 import com.axiel7.anihyou.feature.profile.favorites.reorder.ReorderFavoritesView
@@ -62,6 +63,7 @@ import com.axiel7.anihyou.feature.settings.SettingsView
 import com.axiel7.anihyou.feature.settings.TranslationsView
 import com.axiel7.anihyou.feature.settings.customlists.CustomListsView
 import com.axiel7.anihyou.feature.settings.liststyle.ListStyleSettingsView
+import com.axiel7.anihyou.feature.settings.priority_colors.PriorityColorView
 import com.axiel7.anihyou.feature.staffdetails.StaffDetailsView
 import com.axiel7.anihyou.feature.studiodetails.StudioDetailsView
 import com.axiel7.anihyou.feature.thread.ThreadDetailsView
@@ -183,15 +185,10 @@ fun MainNavigation(
             SearchView(arguments = it, isLoggedIn = isLoggedIn, modifier = Modifier.padding(bottom = bottomPadding))
         }
         entry<Route.Notifications> { if (isLoggedIn) NotificationsView(arguments = it) else LoginView() }
+        entry<Route.MediaDetails> { MediaDetailsView(arguments = it.copy(isLoggedIn = isLoggedIn)) }
 
-        // Media details is still a Kiyori-merged screen and is adapted until its upstream merge below is complete.
-        entry<Route.MediaDetails> {
-            MediaDetailsView(
-                arguments = Routes.MediaDetails(it.id, isLoggedIn),
-                navActionManager = navActionManager,
-            )
-        }
-
+        // These three Kiyori main-destination variants still use the small compatibility argument wrappers
+        // so their top bars can hide Back while sharing the current upstream ViewModels/data layer.
         entry<Route.MediaChartList> {
             MediaChartListView(
                 arguments = Routes.MediaChartList(it.type, it.isMainDestination),
@@ -208,7 +205,6 @@ fun MainNavigation(
                 modifier = mainDestinationModifier(true),
             )
         }
-
         entry<Route.SeasonAnime> {
             SeasonAnimeView(
                 isLoggedIn = isLoggedIn,
@@ -243,12 +239,13 @@ fun MainNavigation(
         entry<Route.ThreadCommentDetails> { ThreadCommentDetailsView(arguments = it) }
         entry<Route.StudioDetails> { StudioDetailsView(arguments = it) }
 
-        entry<Route.Settings> { SettingsView(navActionManager = navActionManager) }
+        entry<Route.Settings> { SettingsView() }
         entry<Route.MainNavigationSettings> { MainNavigationSettingsView(navActionManager = navActionManager) }
-        entry<Route.ListStyleSettings> { ListStyleSettingsView(navActionManager = navActionManager) }
-        entry<Route.CustomLists> { CustomListsView(navActionManager = navActionManager) }
-        entry<Route.Translations> { TranslationsView(navActionManager = navActionManager) }
-        entry<Route.Contributors> { ContributorsView(navActionManager = navActionManager) }
+        entry<Route.ListStyleSettings> { ListStyleSettingsView() }
+        entry<Route.CustomLists> { CustomListsView() }
+        entry<Route.Translations> { TranslationsView() }
+        entry<Route.Contributors> { ContributorsView() }
+        entry<Route.PriorityColors> { PriorityColorView() }
 
         entry<Route.FullScreenImage> {
             FullScreenImageView(arguments = it, isCompactScreen = isCompactScreen, onDismiss = navActionManager::goBack)
@@ -256,13 +253,8 @@ fun MainNavigation(
         entry<Route.ActivityDetails> { ActivityDetailsView(arguments = it) }
         entry<Route.PublishActivity> { if (isLoggedIn) PublishActivityView(arguments = it) else LoginView() }
         entry<Route.PublishComment> { if (isLoggedIn) PublishCommentView(arguments = it) else LoginView() }
-        entry<Route.MediaActivity> {
-            MediaActivityView(
-                arguments = Routes.MediaActivity(it.mediaId),
-                uriHandler = markdownUriHandler,
-                navActionManager = navActionManager,
-            )
-        }
+        entry<Route.MediaActivity> { MediaActivityView(arguments = it) }
+        entry<Route.MediaCharacters> { MediaCharactersView(arguments = it) }
 
         entry<Route.CurrentFullList> {
             CurrentFullListView(
