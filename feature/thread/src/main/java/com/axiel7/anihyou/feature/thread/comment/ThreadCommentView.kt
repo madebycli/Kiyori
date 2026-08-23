@@ -24,14 +24,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation3.runtime.result.ResultEffect
 import com.axiel7.anihyou.core.common.utils.DateUtils.timestampIntervalSinceNow
 import com.axiel7.anihyou.core.common.utils.StringUtils.htmlStripped
 import com.axiel7.anihyou.core.model.TranslatorApp
 import com.axiel7.anihyou.core.model.thread.ChildComment
+import com.axiel7.anihyou.core.network.fragment.CommonThreadComment
 import com.axiel7.anihyou.core.resources.R
 import com.axiel7.anihyou.core.ui.common.LocalIsLanguageEn
-import com.axiel7.anihyou.core.ui.common.navigation.NavActionManager
-import com.axiel7.anihyou.core.ui.common.navigation.Routes
+import com.axiel7.anihyou.core.ui.common.LocalNavActionManager
+import com.axiel7.anihyou.core.ui.common.navigation.Route
 import com.axiel7.anihyou.core.ui.composables.DefaultScaffoldWithSmallTopAppBar
 import com.axiel7.anihyou.core.ui.composables.TextIconHorizontal
 import com.axiel7.anihyou.core.ui.composables.common.BackIconButton
@@ -40,24 +42,28 @@ import com.axiel7.anihyou.core.ui.composables.common.ReplyButton
 import com.axiel7.anihyou.core.ui.composables.common.TranslateIconButton
 import com.axiel7.anihyou.core.ui.composables.defaultPlaceholder
 import com.axiel7.anihyou.core.ui.composables.markdown.DefaultMarkdownText
-import com.axiel7.anihyou.core.ui.composables.markdown.MarkdownUriHandler
 import com.axiel7.anihyou.core.ui.composables.person.PersonItemSmall
 import com.axiel7.anihyou.core.ui.theme.AniHyouTheme
-import com.axiel7.anihyou.core.ui.utils.ComposeDateUtils.secondsToLegibleText
+import com.axiel7.anihyou.core.ui.utils.ComposeDateUtils.nonFutureDateToLegibleText
 import com.axiel7.anihyou.feature.thread.composables.ChildCommentView
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
-import java.time.temporal.ChronoUnit
+import org.koin.core.parameter.parametersOf
 
 @Composable
 fun ThreadCommentDetailsView(
-    arguments: Routes.ThreadCommentDetails,
-    uriHandler: MarkdownUriHandler,
-    navActionManager: NavActionManager,
+    arguments: Route.ThreadCommentDetails,
 ) {
-    val viewModel: ThreadCommentViewModel = koinViewModel()
+    val navActionManager = LocalNavActionManager.current
+    val viewModel: ThreadCommentViewModel = koinViewModel {
+        parametersOf(arguments)
+    }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scrollState = rememberScrollState()
+
+    ResultEffect<CommonThreadComment> {
+        viewModel.onCommentPublished(it)
+    }
 
     DefaultScaffoldWithSmallTopAppBar(
         title = "",
@@ -81,7 +87,6 @@ fun ThreadCommentDetailsView(
             },
             navigateToDetails = navActionManager::toThreadCommentDetails,
             navigateToPublishReply = navActionManager::toPublishThreadComment,
-            uriHandler = uriHandler,
             modifier = Modifier
                 .padding(padding)
                 .verticalScroll(scrollState),
@@ -105,7 +110,6 @@ fun ThreadCommentView(
     navigateToUserDetails: () -> Unit,
     navigateToDetails: (ChildComment) -> Unit,
     navigateToPublishReply: (parentCommentId: Int, Int?, String?) -> Unit,
-    uriHandler: MarkdownUriHandler,
     modifier: Modifier = Modifier,
 ) {
     val isEnglishLocale = LocalIsLanguageEn.current
@@ -128,15 +132,12 @@ fun ThreadCommentView(
                 avatarUrl = avatarUrl,
                 username = username,
                 isLocked = isLocked,
-                fontWeight = FontWeight.SemiBold,
+                textStyle = MaterialTheme.typography.labelMedium,
                 onClick = navigateToUserDetails
             )
             Text(
                 text = createdAt.toLong().timestampIntervalSinceNow()
-                    .secondsToLegibleText(
-                        maxUnit = ChronoUnit.WEEKS,
-                        isFutureDate = false
-                    ),
+                    .nonFutureDateToLegibleText(),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.labelMedium
             )
@@ -145,7 +146,6 @@ fun ThreadCommentView(
             markdown = body,
             modifier = Modifier.padding(vertical = 8.dp),
             textStyle = MaterialTheme.typography.bodyMedium,
-            uriHandler = uriHandler,
         )
         Row(
             modifier = Modifier.align(Alignment.End)
@@ -180,7 +180,6 @@ fun ThreadCommentView(
                 navigateToUserDetails = navigateToUserDetails,
                 navigateToDetails = navigateToDetails,
                 navigateToPublishReply = navigateToPublishReply,
-                uriHandler = uriHandler,
             )
         }
     }
@@ -246,7 +245,6 @@ private fun ThreadCommentViewPreview() {
                     navigateToUserDetails = {},
                     navigateToDetails = {},
                     navigateToPublishReply = { _, _, _ -> },
-                    uriHandler = MarkdownUriHandler(),
                 )
                 ThreadCommentViewPlaceholder()
             }

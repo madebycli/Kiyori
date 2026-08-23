@@ -20,7 +20,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,12 +33,10 @@ import com.axiel7.anihyou.core.ui.composables.common.FavoriteIconButton
 import com.axiel7.anihyou.core.ui.composables.common.ReplyButton
 import com.axiel7.anihyou.core.ui.composables.common.TranslateIconButton
 import com.axiel7.anihyou.core.ui.composables.markdown.DefaultMarkdownText
-import com.axiel7.anihyou.core.ui.composables.markdown.MarkdownUriHandler
 import com.axiel7.anihyou.core.ui.composables.person.PersonItemSmall
 import com.axiel7.anihyou.core.ui.theme.AniHyouTheme
-import com.axiel7.anihyou.core.ui.utils.ComposeDateUtils.secondsToLegibleText
+import com.axiel7.anihyou.core.ui.utils.ComposeDateUtils.nonFutureDateToLegibleText
 import kotlinx.coroutines.launch
-import java.time.temporal.ChronoUnit
 
 @Composable
 fun ChildCommentView(
@@ -50,7 +47,6 @@ fun ChildCommentView(
     navigateToUserDetails: () -> Unit,
     navigateToDetails: (ChildComment) -> Unit,
     navigateToPublishReply: (parentCommentId: Int, Int?, String?) -> Unit,
-    uriHandler: MarkdownUriHandler,
 ) {
     val isEnglishLocale = LocalIsLanguageEn.current
     val scope = rememberCoroutineScope()
@@ -78,16 +74,12 @@ fun ChildCommentView(
                     avatarUrl = comment.user?.avatar?.medium,
                     username = comment.user?.name,
                     isLocked = comment.isLocked,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.SemiBold,
+                    textStyle = MaterialTheme.typography.labelMedium,
                     onClick = navigateToUserDetails
                 )
                 Text(
                     text = comment.createdAt.toLong().timestampIntervalSinceNow()
-                        .secondsToLegibleText(
-                            maxUnit = ChronoUnit.WEEKS,
-                            isFutureDate = false
-                        ),
+                        .nonFutureDateToLegibleText(),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.labelMedium,
                 )
@@ -96,7 +88,6 @@ fun ChildCommentView(
                 markdown = comment.comment.orEmpty(),
                 modifier = Modifier.padding(vertical = 8.dp),
                 textStyle = MaterialTheme.typography.bodyMedium,
-                uriHandler = uriHandler,
             )
             Row(
                 modifier = Modifier.align(Alignment.End),
@@ -150,7 +141,6 @@ private fun ChildCommentViewPreview() {
                 navigateToUserDetails = {},
                 navigateToDetails = {},
                 navigateToPublishReply = { _, _, _ -> },
-                uriHandler = MarkdownUriHandler(),
             )
         }
     }

@@ -1,6 +1,5 @@
 package com.axiel7.anihyou.feature.profile
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,7 +9,6 @@ import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -18,11 +16,11 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -31,10 +29,8 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -46,15 +42,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.axiel7.anihyou.core.model.user.hexColor
 import com.axiel7.anihyou.core.resources.ColorUtils.colorFromHex
 import com.axiel7.anihyou.core.resources.R
+import com.axiel7.anihyou.core.ui.common.LocalNavActionManager
 import com.axiel7.anihyou.core.ui.common.navigation.NavActionManager
-import com.axiel7.anihyou.core.ui.common.navigation.Routes
+import com.axiel7.anihyou.core.ui.common.navigation.Route
 import com.axiel7.anihyou.core.ui.composables.ConnectedButtonGroup
 import com.axiel7.anihyou.core.ui.composables.TopBannerView
 import com.axiel7.anihyou.core.ui.composables.common.BackIconButton
@@ -62,7 +58,6 @@ import com.axiel7.anihyou.core.ui.composables.common.ErrorDialogHandler
 import com.axiel7.anihyou.core.ui.composables.common.ShareIconButton
 import com.axiel7.anihyou.core.ui.composables.common.singleClick
 import com.axiel7.anihyou.core.ui.composables.defaultPlaceholder
-import com.axiel7.anihyou.core.ui.composables.markdown.MarkdownUriHandler
 import com.axiel7.anihyou.core.ui.composables.person.PERSON_IMAGE_SIZE_SMALL
 import com.axiel7.anihyou.core.ui.composables.person.PersonImage
 import com.axiel7.anihyou.core.ui.theme.AniHyouTheme
@@ -78,10 +73,8 @@ import org.koin.core.parameter.parametersOf
 
 @Composable
 fun ProfileView(
-    arguments: Routes.UserDetails,
+    arguments: Route.UserDetails,
     modifier: Modifier = Modifier,
-    uriHandler: MarkdownUriHandler,
-    navActionManager: NavActionManager,
 ) {
     val viewModel: ProfileViewModel = if (arguments.id == null && arguments.userName == null)
         koinActivityViewModel { parametersOf(arguments) }
@@ -92,8 +85,6 @@ fun ProfileView(
         uiState = uiState,
         event = viewModel,
         modifier = modifier,
-        uriHandler = uriHandler,
-        navActionManager = navActionManager,
     )
 }
 
@@ -103,16 +94,12 @@ private fun ProfileContent(
     uiState: ProfileUiState,
     event: ProfileEvent?,
     modifier: Modifier = Modifier,
-    uriHandler: MarkdownUriHandler,
-    navActionManager: NavActionManager,
 ) {
+    val navActionManager = LocalNavActionManager.current
     var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
     val topAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
         rememberTopAppBarState()
     )
-    val collapsedFraction by remember {
-        derivedStateOf { topAppBarScrollBehavior.state.collapsedFraction }
-    }
     val statusBarPadding = WindowInsets.statusBars.asPaddingValues()
 
     ErrorDialogHandler(uiState, onDismiss = { event?.onErrorDisplayed() })
@@ -128,48 +115,39 @@ private fun ProfileContent(
                 fallbackColor = colorFromHex(uiState.userInfo?.hexColor()),
                 height = statusBarPadding.calculateTopPadding() + 100.dp
             )
-            TopAppBar(
-                title = {},
-                navigationIcon = {
-                    if (!uiState.isMyProfile) {
-                        BackIconButton(onClick = navActionManager::goBack)
-                    }
-                },
-                actions = {
-                    ShareIconButton(url = uiState.userInfo?.siteUrl.orEmpty())
-                },
-                windowInsets = WindowInsets.statusBars.only(WindowInsetsSides.Top),
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent,
-                    scrolledContainerColor = Color.Transparent,
-                ),
-            )
-            TopAppBar(
-                title = {
-                    MainProfileInfo(
-                        uiState = uiState,
-                        event = event,
-                        navActionManager = navActionManager,
-                        modifier = Modifier.offset {
-                            val offset = collapsedFraction * 200
-                            IntOffset(
-                                x = 0,
-                                y = -offset.toInt()
-                            )
+            Column {
+                TopAppBar(
+                    title = {},
+                    navigationIcon = {
+                        if (!uiState.isMyProfile) {
+                            BackIconButton(onClick = navActionManager::goBack)
                         }
-                    )
-                },
-                modifier = Modifier
-                    .padding(
-                        top = statusBarPadding.calculateTopPadding() + 24.dp,
-                        bottom = 8.dp
+                    },
+                    actions = {
+                        ShareIconButton(url = uiState.userInfo?.siteUrl.orEmpty())
+                    },
+                    windowInsets = WindowInsets.statusBars.only(WindowInsetsSides.Top),
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent,
+                        scrolledContainerColor = Color.Transparent,
                     ),
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.Transparent,
-                    scrolledContainerColor = Color.Transparent,
-                ),
-                scrollBehavior = topAppBarScrollBehavior
-            )
+                )
+                TopAppBar(
+                    title = {
+                        MainProfileInfo(
+                            uiState = uiState,
+                            event = event,
+                            navActionManager = navActionManager,
+                        )
+                    },
+                    modifier = Modifier.padding(bottom = 8.dp),
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = Color.Transparent,
+                        scrolledContainerColor = Color.Transparent,
+                    ),
+                    scrollBehavior = topAppBarScrollBehavior
+                )
+            }
         }
     ) { padding ->
         Column(
@@ -217,8 +195,6 @@ private fun ProfileContent(
                             uiState = uiState,
                             event = event,
                             modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
-                            uriHandler = uriHandler,
-                            navActionManager = navActionManager,
                         )
                     }
 
@@ -226,7 +202,6 @@ private fun ProfileContent(
                         UserStatsView(
                             userId = uiState.userInfo.id,
                             nestedScrollConnection = topAppBarScrollBehavior.nestedScrollConnection,
-                            navActionManager = navActionManager,
                         )
 
                     ProfileInfoType.FAVORITES ->
@@ -234,14 +209,12 @@ private fun ProfileContent(
                             userId = uiState.userInfo.id,
                             isMyProfile = uiState.isMyProfile,
                             modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
-                            navActionManager = navActionManager,
                         )
 
                     ProfileInfoType.SOCIAL ->
                         UserSocialView(
                             userId = uiState.userInfo.id,
                             modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
-                            navActionManager = navActionManager,
                         )
                 }
             }
@@ -262,7 +235,7 @@ private fun MainProfileInfo(
         PersonImage(
             url = uiState.userInfo?.avatar?.large,
             modifier = Modifier
-                .padding(start = 8.dp, top = 16.dp, end = 16.dp)
+                .padding(start = 8.dp, end = 16.dp)
                 .size(PERSON_IMAGE_SIZE_SMALL.dp)
                 .clickable(onClick = singleClick {
                     uiState.userInfo?.avatar?.large?.let(navActionManager::toFullscreenImage)
@@ -309,16 +282,14 @@ private fun MainProfileInfo(
             }//:Column
 
             if (uiState.isMyProfile) {
-                OutlinedIconButton(
+                FilledTonalIconButton(
                     onClick = navActionManager::toSettings,
                     modifier = Modifier.padding(horizontal = 16.dp),
                     shapes = IconButtonDefaults.shapes(),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.settings_24),
                         contentDescription = stringResource(R.string.settings),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             } else {
@@ -350,8 +321,6 @@ private fun ProfileViewPreview() {
             ProfileContent(
                 uiState = ProfileUiState(isMyProfile = false),
                 event = null,
-                uriHandler = MarkdownUriHandler(),
-                navActionManager = NavActionManager.rememberNavActionManager()
             )
         }
     }
