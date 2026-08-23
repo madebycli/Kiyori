@@ -64,6 +64,7 @@ val exampleBasicMediaListEntry = BasicMediaListEntry(
     private = false,
     hiddenFromStatusLists = false,
     notes = "This is a note",
+    priority = 0
 )
 
 val exampleCommonMediaListEntry = CommonMediaListEntry(
@@ -90,6 +91,7 @@ val exampleCommonMediaListEntry = CommonMediaListEntry(
                 __typename = "",
                 userPreferred = "Guild no Uketsukejou desu ga, Zangyou wa Iya nanode Boss wo Solo Toubatsu Shiyou to Omoimasu"
             ),
+            duration = 24,
             episodes = 1095,
             chapters = null,
             volumes = null,
