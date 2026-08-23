@@ -1,5 +1,6 @@
 package com.axiel7.anihyou.feature.settings
 
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -10,6 +11,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import com.axiel7.anihyou.core.common.utils.ContextUtils.getActivity
 import com.axiel7.anihyou.core.model.security.AppLockTimeout
@@ -20,20 +22,15 @@ import com.axiel7.anihyou.core.ui.security.SystemAuthenticationAvailability
 import com.axiel7.anihyou.core.ui.security.SystemAuthenticationError
 import com.axiel7.anihyou.core.ui.security.SystemAuthenticationPrompt
 
-data class AppLockAuthenticationChange(
-    val enabled: Boolean,
-)
-
 @Composable
 fun AppLockSettings(
     uiState: SettingsUiState,
     event: SettingsEvent?,
     modifier: Modifier = Modifier,
+    shape: RoundedCornerShape = RoundedCornerShape(4.dp),
 ) {
     val activity = LocalContext.current.getActivity() as? FragmentActivity
-    val authenticationPrompt = remember(activity) {
-        activity?.let(::SystemAuthenticationPrompt)
-    }
+    val authenticationPrompt = remember(activity) { activity?.let(::SystemAuthenticationPrompt) }
     val availability = remember(authenticationPrompt) {
         authenticationPrompt?.availability() ?: SystemAuthenticationAvailability.UNSUPPORTED
     }
@@ -49,8 +46,7 @@ fun AppLockSettings(
         SystemAuthenticationAvailability.AVAILABLE -> stringResource(R.string.app_lock_summary)
         SystemAuthenticationAvailability.NONE_ENROLLED -> stringResource(R.string.app_lock_none_enrolled)
         SystemAuthenticationAvailability.NO_HARDWARE -> stringResource(R.string.app_lock_no_hardware)
-        SystemAuthenticationAvailability.TEMPORARILY_UNAVAILABLE ->
-            stringResource(R.string.app_lock_temporarily_unavailable)
+        SystemAuthenticationAvailability.TEMPORARILY_UNAVAILABLE -> stringResource(R.string.app_lock_temporarily_unavailable)
         SystemAuthenticationAvailability.UNSUPPORTED -> stringResource(R.string.app_lock_unsupported)
     }
 
@@ -60,6 +56,7 @@ fun AppLockSettings(
         preferenceValue = uiState.appLockEnabled,
         icon = R.drawable.lock_24,
         modifier = modifier,
+        shape = shape,
         onValueChange = { enabled ->
             authenticationError = null
             if (!available || authenticationPrompt == null) {
@@ -68,9 +65,7 @@ fun AppLockSettings(
                 authenticationPrompt.prompt(
                     title = if (enabled) enableTitle else disableTitle,
                     subtitle = promptSubtitle,
-                    onSuccess = {
-                        event?.setAppLockEnabledAfterAuthentication(enabled)
-                    },
+                    onSuccess = { event?.setAppLockEnabledAfterAuthentication(enabled) },
                     onError = { error, message ->
                         if (error != SystemAuthenticationError.CANCELED) {
                             authenticationError = message?.toString() ?: genericError
@@ -89,14 +84,12 @@ fun AppLockSettings(
             icon = R.drawable.schedule_24,
             labelForValue = { timeout -> timeout.localizedLabel() },
             onValueChange = { timeout -> event?.setAppLockTimeout(timeout) },
+            shape = shape,
         )
     }
 
     authenticationError?.let { message ->
-        Text(
-            text = message,
-            color = MaterialTheme.colorScheme.error,
-        )
+        Text(text = message, color = MaterialTheme.colorScheme.error)
     }
 }
 
