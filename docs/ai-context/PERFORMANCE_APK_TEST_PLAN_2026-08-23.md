@@ -1,15 +1,23 @@
 # Kiyori Performance-Test-APK — manueller Gerätetest
 
-Dieser Testplan gilt für den Upstream-Sync aus PR #10. Der Test soll möglichst als **Update über eine vorhandene Kiyori-v1.6.0.1-Installation ohne App-Daten zu löschen** durchgeführt werden. Danach kann optional noch ein Clean-Install-Test folgen.
+Dieser Testplan gilt für den Upstream-Sync aus PR #10.
+
+## Wichtig: Signatur und Installation
+
+Der CI-Workflow erzeugt zwei Test-APKs mit unterschiedlichen Installationsregeln:
+
+- **FOSS Debug APK**: `applicationId = app.kiyori.debug`. Diese APK kann parallel zur stabilen Kiyori-Installation installiert werden und ist der bevorzugte Weg für den funktionalen Gerätetest ohne Datenverlust.
+- **FOSS Performance APK**: `applicationId = app.kiyori`, aber mit einem **temporären CI-Zertifikat** signiert. Sie kann deshalb **nicht** über eine permanent signierte Kiyori-v1.6.0.1-Installation installiert werden. Nutze sie nur auf einem Testgerät/Testprofil ohne bestehende stabile Kiyori-Installation oder nach bewusstem Entfernen der vorhandenen Installation.
+
+Ein echter In-place-Upgrade-/Migrationstest über eine vorhandene stabile v1.6.0.1-Installation ist erst mit einem Kandidaten möglich, der mit demselben permanenten Release-Zertifikat signiert wurde. Niemals Signaturprüfung umgehen oder Release-Schlüssel exportieren, um diesen Test zu erzwingen.
 
 ## Vor dem Start notieren
 
 - Gerät / Android-Version
-- installierte Variante (FOSS oder GMS)
-- ob du vor dem Update eingeloggt warst
-- deine aktuelle Main-Tab-Konfiguration
-- ob App Lock vorher aktiviert war
-- auffällige vorhandene Calendar-/Notification-Einstellungen
+- verwendete Test-APK (Debug oder Performance)
+- ob eine stabile Kiyori-Installation parallel vorhanden ist
+- deine normale Main-Tab-Konfiguration zum Vergleich
+- auffällige Calendar-/Notification-Einstellungen, die du im Test nachbauen möchtest
 
 Bei einem Fehler möglichst notieren:
 
@@ -19,15 +27,21 @@ Bei einem Fehler möglichst notieren:
 - Screenshot oder Screenrecording
 - App-Logs unmittelbar danach
 
-## 1. Upgrade / Start
+## 1. Installation / Start
 
-1. Performance-APK über die vorhandene Installation installieren.
-2. App normal öffnen.
-3. Prüfen, dass vorhandene Session und Einstellungen erhalten sind.
+### Sicherer Funktionstest
+
+1. `Kiyori-1.6.0.1-foss-debug.apk` installieren.
+2. Prüfen, dass sie als Debug-App parallel zur stabilen Kiyori-App vorhanden ist.
+3. Einloggen und die für den Test benötigten Einstellungen nachbilden.
 4. App vollständig schließen und erneut cold-starten.
 5. Android-Systemsprache einmal Deutsch und, wenn möglich, Englisch testen.
 
-Fehler wären insbesondere Crash, verlorener Login, zurückgesetzte Main-Tabs oder verlorene App-Lock-/Calendar-Einstellungen.
+### Performance-Build
+
+1. `Kiyori-1.6.0.1-foss-performance-temp-signed.apk` nur auf einem Gerät/Testprofil ohne bestehende `app.kiyori`-Installation installieren.
+2. Start, Login und denselben Smoke-/Stress-Test wie mit Debug durchführen.
+3. Nicht versuchen, Androids Signaturprüfung zu umgehen.
 
 ## 2. Hauptnavigation — höchste Priorität
 
@@ -44,14 +58,7 @@ Teste verschiedene Konfigurationen, nicht nur deine normale.
 - Von jedem Haupttab in ein Detail navigieren und mit Zurück zum selben Haupttab zurückkehren.
 - Nach mehreren Back-Vorgängen erneut zwischen Tabs wechseln.
 
-Besonders melden:
-
-- falscher Selected-State
-- Bottom-Bar verschwindet
-- Tab reagiert erst nach mehreren Klicks
-- Inhalt wechselt, Markierung aber nicht
-- Back führt auf falschen Haupttab
-- Crash beim Season-/Chart-/Current-Shortcut
+Besonders melden: falscher Selected-State, verschwundene Bottom-Bar, Tab reagiert erst nach mehreren Klicks, Inhalt/Markierung nicht synchron, falsches Back-Ziel oder Crash bei Season-/Chart-/Current-Shortcut.
 
 ## 3. Calendar
 
@@ -77,37 +84,27 @@ Nur auf einem Gerät mit eingerichteter Biometrie oder sicherer Gerätesperre vo
 
 ## 5. Media Lists / Edit / Priority
 
-- Anime-Liste öffnen und manuell aktualisieren.
-- Prüfen, dass keine doppelten Einträge entstehen.
-- Status eines Eintrags ändern.
-- Score ändern; bei unterstützten Score-Formaten verschiedene Score Steps testen.
-- Progress +1/-1 bzw. normalen Progress-Edit testen.
-- Priority ändern (Low/Medium/High bzw. vorhandene Stufen).
-- Eintrag aus der Liste entfernen und wieder hinzufügen, falls für deinen Testaccount okay.
-- Direkt danach Home/Current und die betroffene Liste kontrollieren: Änderungen sollen ohne unnötigen Neustart sichtbar sein.
+- Anime-Liste öffnen und manuell aktualisieren; keine doppelten Einträge.
+- Status, Score, Score Steps, Progress und Priority ändern.
+- Eintrag entfernen/wieder hinzufügen, sofern für den Testaccount okay.
+- Direkt danach Home/Current und die betroffene Liste prüfen: Änderungen sollen ohne Neustart sichtbar sein.
 
 ## 6. Current / Progress
 
 - Airing, Behind, Watching/Anime, Reading/Manga und Next Season öffnen, soweit befüllt.
-- +1-Progress mehrfach testen.
-- Langdruck/Edit öffnen und Wert ändern.
+- +1-Progress und normalen Edit testen.
 - Current-Liste als normalen Screen und als Haupttab-Shortcut testen.
-- Prüfen, dass Änderung, Sortierung und sichtbarer Eintrag sofort konsistent sind.
+- Änderung, Sortierung und sichtbarer Eintrag müssen sofort konsistent sein.
 
 ## 7. MediaDetails / Characters / Staff
 
 - Mehrere Anime und Manga öffnen.
 - Relations, Stats, Reviews/Threads und Info-Tabs öffnen.
-- Kiyori-People-Bereich testen:
-  - Characters / Team
-  - Rollenfilter
-  - Sprachfilter
-  - Voice-Actor-Auswahl
-- „Alle Charaktere“ öffnen.
-- In der vollständigen Character-Liste scrollen, Filter/Sortierung falls vorhanden nutzen und Character/Staff-Details öffnen.
+- Kiyori-People-Bereich mit Rollenfilter, Sprachfilter und Voice-Actor-Auswahl testen.
+- „Alle Charaktere“ öffnen, lange Liste scrollen und Character/Staff-Details öffnen.
 - Mehrfach zurück navigieren.
 
-Wichtig: Kiyoris People-UI darf nicht durch die einfachere alte/upstream Grid-Ansicht ersetzt worden sein.
+Wichtig: Kiyoris People-UI darf nicht durch eine einfachere alte/upstream Grid-Ansicht ersetzt worden sein.
 
 ## 8. Settings
 
@@ -123,74 +120,53 @@ Im neuen Settings-Design müssen gleichzeitig vorhanden sein:
 - Notifications
 - Logout mit Bestätigungsdialog
 
-Teste:
-
-- Hauptnavigation aus Settings öffnen und zurück.
-- App Lock aus Settings konfigurieren.
-- Priority Colors ändern und anschließend Priority-Indikatoren kontrollieren.
-- Score Step ändern; danach Score Edit öffnen.
-- Score Format wechseln und prüfen, ob Score-Step-Reset sinnvoll erfolgt.
-- Theme/Palette wechseln und App neu starten.
+Hauptnavigation öffnen/zurück, App Lock konfigurieren, Priority Colors ändern, Score Step/Score Format testen und Theme/Palette nach Neustart prüfen.
 
 ## 9. Activity / Threads
 
-- Activity Feed öffnen und Filter testen.
+- Activity Feed und Filter testen.
 - Activity-Details öffnen.
-- Reply erstellen/bearbeiten, soweit du dafür einen Testpost verwenden möchtest.
-- Thread öffnen, Parent/Child Comments laden.
+- Thread mit Parent/Child Comments laden.
 - Reply auf Child Comment und normalen Comment testen.
-- Nach Rückkehr prüfen, ob Inhalt aktualisiert wurde und keine Duplikate entstehen.
+- Nach Rückkehr auf Aktualisierung und Duplikate achten.
 
 ## 10. Search / Discover / Season / Charts
 
-- Search mit mehreren Begriffen.
-- Genre/Tag-Suche.
-- Discover öffnen und mehrere Sektionen nutzen.
-- aktuelle und nächste Season öffnen, Filter/List/Grid testen.
-- Season zusätzlich als Haupttab testen.
-- Top 100 / Popular / Upcoming / Airing Chart öffnen.
-- Chart zusätzlich als Haupttab testen.
+- Search mit mehreren Begriffen sowie Genre/Tag-Suche.
+- Discover-Sektionen öffnen.
+- aktuelle/nächste Season mit Filter/List/Grid testen.
+- Season als Haupttab testen.
+- Top 100 / Popular / Upcoming / Airing Chart öffnen und Chart als Haupttab testen.
 
 ## 11. Profile / Favorites / Stats
 
-- eigenes Profil und ein fremdes Profil öffnen.
-- Favorites öffnen und Details aufrufen.
-- Reorder Favorites testen, wenn du die Reihenfolge ohne Risiko ändern kannst.
-- Stats-Unterseiten öffnen und scrollen.
+- eigenes und fremdes Profil öffnen.
+- Favorites öffnen; Reorder nur wenn für den Account okay.
+- Stats-Unterseiten scrollen.
 - Social/Following/Follower öffnen.
 
 ## 12. Notifications / Deep Links
 
 - Notifications-Screen öffnen.
-- Falls Push/Worker aktiv ist: Notification-Einstellung an/aus und Intervall ändern.
-- Vorhandene Notification öffnen und korrektes Ziel prüfen.
-- AniList-Link für Anime/Manga/User/Character/Staff/Thread/Activity testen, soweit einfach möglich.
+- Notification-Einstellungen/Intervall testen, sofern aktiv.
+- vorhandene Notification öffnen und korrektes Ziel prüfen.
+- AniList-Links für Anime/Manga/User/Character/Staff/Thread/Activity testen.
 - Dasselbe einmal mit aktiviertem App Lock.
 
 ## 13. Stress / Performance
 
-Diese Runde soll gezielt Dinge provozieren, die bei normalem Testen oft nicht auffallen.
-
-- 30–60 Sekunden sehr schnell zwischen Haupttabs wechseln.
-- Lange Listen schnell hoch/runter flingen.
+- 30–60 Sekunden schnell zwischen Haupttabs wechseln.
+- Lange Listen schnell flingen.
 - 10–20 MediaDetails nacheinander öffnen/zurück.
 - Während Laden mehrfach Tab wechseln.
 - App mehrfach Background -> Foreground.
-- Display drehen, falls du Rotation nutzt.
-- Android „Nicht im Speicher behalten“ nur optional als harter Restore-Test verwenden.
+- Rotation optional testen.
+- Android „Nicht im Speicher behalten“ nur optional als harter Restore-Test.
 - Auf Ruckler, ANR („Kiyori reagiert nicht“), leere Screens, verlorene Bottom-Bar, falschen Selected-State und ungewöhnlich lange Ladevorgänge achten.
 
 ## 14. FOSS / GMS
 
-Wenn möglich beide Varianten wenigstens smoke-testen:
-
-- Installation / Start
-- Login
-- Home
-- Main Navigation
-- Calendar
-- MediaDetails
-- Settings
+Die bereitgestellte Performance-Test-Pipeline validiert FOSS. Android CI baut und testet zusätzlich FOSS und GMS. Wenn später ein GMS-Geräteartefakt bereitgestellt wird, mindestens Installation/Start, Login, Home, Main Navigation, Calendar, MediaDetails und Settings smoke-testen.
 
 ## Mindestfreigabe für Merge/Release
 
@@ -205,4 +181,5 @@ Ein manueller Test ist erfolgreich, wenn:
 - Kiyori Character/Staff UI erhalten ist
 - neue Upstream-Funktionen (Priority, Score Steps, Alle Charaktere) funktionieren
 - Settings sowohl Kiyori- als auch Upstream-Einträge enthält
-- vorhandene Benutzerdaten/Settings beim Upgrade erhalten bleiben
+
+Ein separater In-place-Upgrade-Test über die stabile App wird mit einem permanent signierten Kandidaten durchgeführt; er ist **nicht** Aufgabe der temporär signierten Performance-APK.
