@@ -10,6 +10,7 @@ import com.axiel7.anihyou.core.model.ListStyle
 import com.axiel7.anihyou.core.model.Theme
 import com.axiel7.anihyou.core.model.TranslatorApp
 import com.axiel7.anihyou.core.model.notification.NotificationInterval
+import com.axiel7.anihyou.core.model.security.AppLockTimeout
 import com.axiel7.anihyou.core.network.fragment.UserSettings
 import com.axiel7.anihyou.core.network.type.ScoreFormat
 import com.materialkolor.PaletteStyle
@@ -35,6 +36,8 @@ data class SettingsUiState(
     val userSettings: UserSettings? = null,
     val translatorApp: TranslatorApp = TranslatorApp.DEFAULT,
     val hideScores: Boolean = false,
+    val appLockEnabled: Boolean = false,
+    val appLockTimeout: AppLockTimeout = AppLockTimeout.IMMEDIATELY,
     val isLoggedIn: Boolean = false,
     override val error: String? = null,
     override val isLoading: Boolean = false,
