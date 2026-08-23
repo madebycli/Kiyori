@@ -139,9 +139,7 @@ class CurrentViewModel(
         }
     }
 
-    private fun findEntryAndListType(
-        entry: BasicMediaListEntry
-    ): Pair<CommonMediaListEntry, CurrentListType>? {
+    private fun findEntryAndListType(entry: BasicMediaListEntry): Pair<CommonMediaListEntry, CurrentListType>? {
         val predicate: (CommonMediaListEntry) -> Boolean = { it.mediaId == entry.mediaId }
         mutableUiState.value.run {
             return airingList.find(predicate)?.let { it to CurrentListType.AIRING }
@@ -257,6 +255,13 @@ class CurrentViewModel(
             }
             .launchIn(viewModelScope)
 
+
+        defaultPreferencesRepository.scoreSteps
+            .onEach { value ->
+                mutableUiState.update { it.copy(scoreStep = value) }
+            }
+            .launchIn(viewModelScope)
+
         // next season on list
         mutableUiState
             .distinctUntilChanged { _, new ->
@@ -320,7 +325,9 @@ class CurrentViewModel(
             .lastUpdatedEntry
             .filterNotNull()
             .onEach { entry ->
-                findEntryAndListType(entry)?.let { (mediaEntry, listType) ->
+                findEntryAndListType(entry)?.let {
+                    val mediaEntry = it.first
+                    val listType = it.second
                     selectItem(mediaEntry, listType)
                     onUpdateListEntry(entry, listType)
                 }

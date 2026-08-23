@@ -1,6 +1,5 @@
 package com.axiel7.anihyou.feature.explore.search
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -26,8 +25,6 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -69,8 +66,8 @@ import com.axiel7.anihyou.core.network.type.MediaSort
 import com.axiel7.anihyou.core.network.type.MediaType
 import com.axiel7.anihyou.core.resources.R
 import com.axiel7.anihyou.core.ui.common.LocalBlurAdult
-import com.axiel7.anihyou.core.ui.common.navigation.NavActionManager
-import com.axiel7.anihyou.core.ui.common.navigation.Routes
+import com.axiel7.anihyou.core.ui.common.LocalNavActionManager
+import com.axiel7.anihyou.core.ui.common.navigation.Route
 import com.axiel7.anihyou.core.ui.common.rememberSnackbarManager
 import com.axiel7.anihyou.core.ui.composables.common.BackIconButton
 import com.axiel7.anihyou.core.ui.composables.common.ErrorDialogHandler
@@ -100,11 +97,11 @@ import org.koin.core.parameter.parametersOf
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SearchView(
-    arguments: Routes.Search,
+    arguments: Route.Search,
     isLoggedIn: Boolean,
     modifier: Modifier = Modifier,
-    navActionManager: NavActionManager,
 ) {
+    val navActionManager = LocalNavActionManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
     val viewModel: SearchViewModel = koinViewModel(parameters = { parametersOf(arguments, isLoggedIn) })
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -177,7 +174,6 @@ fun SearchView(
                 initialTag = arguments.tag,
                 uiState = uiState,
                 event = viewModel,
-                navActionManager = navActionManager,
             )
         }//:Column
     }//:Surface
@@ -192,8 +188,8 @@ fun SearchContentView(
     initialTag: String?,
     uiState: SearchUiState,
     event: SearchEvent?,
-    navActionManager: NavActionManager,
 ) {
+    val navActionManager = LocalNavActionManager.current
     val blurAdult = LocalBlurAdult.current
     val scope = rememberCoroutineScope()
     val snackbarManager = rememberSnackbarManager()
@@ -262,11 +258,8 @@ fun SearchContentView(
                 .fillMaxHeight(),
             state = listState
         ) {
-            item(contentType = 0) {
-                Column(
-                    modifier = Modifier
-                        .animateContentSize()
-                ) {
+            item(key = "filters", contentType = "header") {
+                Column {
                     Row(
                         modifier = Modifier
                             .horizontalScroll(rememberScrollState())
@@ -317,13 +310,14 @@ fun SearchContentView(
             when (uiState.searchType) {
                 SearchType.ANIME, SearchType.MANGA -> {
                     if (uiState.isLoading) {
-                        items(10) {
+                        items(10, key = { "placeholder_$it" }, contentType = { "media_placeholder" }) {
                             MediaItemHorizontalPlaceholder()
                         }
                     }
                     items(
                         items = uiState.media,
-                        contentType = { it }
+                        key = { it.id },
+                        contentType = { "media" }
                     ) { item ->
                         MediaItemHorizontal(
                             title = item.basicMediaDetails.title?.userPreferred.orEmpty(),
@@ -356,17 +350,20 @@ fun SearchContentView(
 
                 SearchType.CHARACTER -> {
                     if (uiState.isLoading) {
-                        items(10) {
+                        items(10, key = { "char_placeholder_$it" }, contentType = { "char_placeholder" }) {
                             PersonItemHorizontalPlaceholder()
                         }
                     }
                     items(
                         items = uiState.characters,
-                        contentType = { it }
+                        key = { it.id },
+                        contentType = { "character" }
                     ) { item ->
                         PersonItemHorizontal(
                             title = item.name?.userPreferred.orEmpty(),
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                                .fillMaxWidth(),
                             imageUrl = item.image?.medium,
                             onClick = {
                                 navActionManager.toCharacterDetails(item.id)
@@ -377,17 +374,20 @@ fun SearchContentView(
 
                 SearchType.STAFF -> {
                     if (uiState.isLoading) {
-                        items(10) {
+                        items(10, key = { "staff_placeholder_$it" }, contentType = { "staff_placeholder" }) {
                             PersonItemHorizontalPlaceholder()
                         }
                     }
                     items(
                         items = uiState.staff,
-                        contentType = { it }
+                        key = { it.id },
+                        contentType = { "staff" }
                     ) { item ->
                         PersonItemHorizontal(
                             title = item.name?.userPreferred.orEmpty(),
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                                .fillMaxWidth(),
                             imageUrl = item.image?.medium,
                             onClick = {
                                 navActionManager.toStaffDetails(item.id)
@@ -398,7 +398,7 @@ fun SearchContentView(
 
                 SearchType.STUDIO -> {
                     if (uiState.isLoading) {
-                        items(10) {
+                        items(10, key = { "studio_placeholder_$it" }, contentType = { "studio_placeholder" }) {
                             Text(
                                 text = "Loading placeholder",
                                 modifier = Modifier
@@ -409,30 +409,40 @@ fun SearchContentView(
                     }
                     items(
                         items = uiState.studios,
-                        contentType = { it }
+                        key = { it.id },
+                        contentType = { "studio" }
                     ) { item ->
-                        ListItem(
+                        Surface(
                             onClick = { navActionManager.toStudioDetails(item.id) },
-                            colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                            shape = MaterialTheme.shapes.large,
+                            color = Color.Transparent,
                         ) {
-                            Text(text = item.name)
+                            Text(
+                                text = item.name,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                            )
                         }
                     }
                 }
 
                 SearchType.USER -> {
                     if (uiState.isLoading) {
-                        items(10) {
+                        items(10, key = { "user_placeholder_$it" }, contentType = { "user_placeholder" }) {
                             PersonItemHorizontalPlaceholder()
                         }
                     }
                     items(
                         items = uiState.users,
-                        contentType = { it }
+                        key = { it.id },
+                        contentType = { "user" }
                     ) { item ->
                         PersonItemHorizontal(
                             title = item.name,
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                                .fillMaxWidth(),
                             imageUrl = item.avatar?.medium,
                             onClick = {
                                 navActionManager.toUserDetails(item.id)
@@ -542,7 +552,6 @@ private fun SearchPreview() {
                     isLoggedIn = false
                 ),
                 event = null,
-                navActionManager = NavActionManager.rememberNavActionManager()
             )
         }
     }
