@@ -89,6 +89,8 @@ fun LanguagePreference(
         }
     }
 
+    KiyoriGeneralPreferences()
+
     if (openDialog) {
         AlertDialog(
             onDismissRequest = { openDialog = false },
