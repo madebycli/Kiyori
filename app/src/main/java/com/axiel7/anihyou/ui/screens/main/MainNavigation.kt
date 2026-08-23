@@ -187,24 +187,23 @@ fun MainNavigation(
         entry<Route.Notifications> { if (isLoggedIn) NotificationsView(arguments = it) else LoginView() }
         entry<Route.MediaDetails> { MediaDetailsView(arguments = it.copy(isLoggedIn = isLoggedIn)) }
 
-        // These three Kiyori main-destination variants still use the small compatibility argument wrappers
-        // so their top bars can hide Back while sharing the current upstream ViewModels/data layer.
         entry<Route.MediaChartList> {
             MediaChartListView(
-                arguments = Routes.MediaChartList(it.type, it.isMainDestination),
+                arguments = it,
                 isLoggedIn = isLoggedIn,
-                navActionManager = navActionManager,
                 modifier = mainDestinationModifier(it.isMainDestination),
             )
         }
         entry<Route.MediaChartListMain>(metadata = topNavigationTransitionSpec) {
             MediaChartListView(
-                arguments = Routes.MediaChartList(it.type, true),
+                arguments = Route.MediaChartList(it.type, isMainDestination = true),
                 isLoggedIn = isLoggedIn,
-                navActionManager = navActionManager,
                 modifier = mainDestinationModifier(true),
             )
         }
+
+        // Season keeps one small Kiyori compatibility wrapper until its main-tab top-bar variant is
+        // folded into the typed upstream composable. The route itself is already typed/stable.
         entry<Route.SeasonAnime> {
             SeasonAnimeView(
                 isLoggedIn = isLoggedIn,
