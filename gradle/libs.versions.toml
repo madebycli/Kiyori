@@ -3,13 +3,13 @@ android-compileSdk = "37"
 android-minSdk = "23"
 android-targetSdk = "37"
 accompanist = "0.37.3"
-agp = "9.3.0"
-apollo = "5.0.1"
-apolloCache = "1.0.6"
-appcompat = "1.7.1"
+agp = "9.3.1"
+apollo = "5.1.0"
+apolloCache = "1.0.7"
+appcompat = "1.8.0"
 benchmarkMacroJunit4 = "1.4.1"
 coil = "3.5.0"
-markdownRenderer = "0.43.0"
+markdownRenderer = "0.44.0"
 coreSplashscreen = "1.2.0"
 datastorePreferences = "1.2.1"
 desugar_jdk_libs = "2.1.5"
@@ -28,7 +28,7 @@ turbine = "1.2.1"
 lifecycleRuntimeKtx = "2.11.0"
 lifecycleNavigation3 = "2.11.0"
 activityCompose = "1.13.0"
-composeBom = "2026.06.01"
+composeBom = "2026.08.00"
 material3 = "1.5.0-alpha25"
 materialKolor = "5.0.0"
 navigation3 = "1.2.0-alpha07"
@@ -37,10 +37,11 @@ placeholderMaterial3 = "2.0.0"
 profileinstaller = "1.4.1"
 uiautomator = "2.4.0"
 workRuntime = "2.11.2"
-baselineprofile = "1.5.0-beta01"
-haze = "2.0.0-alpha03"
+baselineprofile = "1.5.0-rc01"
+haze = "2.0.0-beta01"
 reorderable = "3.1.0"
 zoomable = "2.13.0"
+colorpicker = "1.2.0"
 
 [libraries]
 accompanist-permissions = { group = "com.google.accompanist", name = "accompanist-permissions", version.ref = "accompanist" }
@@ -103,6 +104,7 @@ compose-gradlePlugin = { group = "org.jetbrains.kotlin.plugin.compose", name = "
 haze-blur = { group = "dev.chrisbanes.haze", name = "haze-blur", version.ref = "haze" }
 reorderable = { module = "sh.calvin.reorderable:reorderable", version.ref = "reorderable" }
 zoomable = { module = "net.engawapg.lib:zoomable", version.ref = "zoomable" }
+compose-colorpicker = { module = "com.github.skydoves:colorpicker-compose", version.ref = "colorpicker" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
