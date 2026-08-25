@@ -158,7 +158,7 @@ class MediaRepository (
         page: Int,
         perPage: Int = 25,
     ) = api
-        .mediaFollowingQuery(mediaId, page, perPage)
+        .mediaFollowingQuery(mediaId, userId = null, page = page, perPage = perPage)
         .toFlow()
         .asPagedResult(page = { it.Page?.pageInfo?.commonPage }) {
             it.Page?.mediaList?.filterNotNull().orEmpty()
@@ -239,7 +239,7 @@ class MediaRepository (
         rating: RecommendationRating?
     ) = api.saveRecommendationMutation(
         mediaId = mediaId,
-        mediaRecommendationId = recommendedMediaId,
+        mediaRecommendationId = mediaRecommendationId,
         rating = rating
     ).toFlow().asDataResult()
 
