@@ -1,0 +1,17 @@
+{
+  "id":"issue.aniworld-repository-gap",
+  "type":"issue",
+  "status":"current",
+  "authority":"secondary",
+  "updated_at":"2026-08-26T00:00:56+02:00",
+  "summary":"The current canonical repository does not expose a verifiable AniWorld provider path even though AniWorld-specific German availability semantics are a protected product invariant.",
+  "facts":[
+    {"key":"calendar_current_source","value":"CalendarViewModel and CalendarHostViewModel query MediaRepository.getAiringAnimesPage, backed by AniList AiringAnimesQuery time bounds.","confidence":"verified","evidence":["feature/calendar/src/main/java/com/axiel7/anihyou/feature/calendar/CalendarViewModel.kt","feature/calendar/src/main/java/com/axiel7/anihyou/feature/calendar/CalendarHostViewModel.kt","core/domain/src/main/java/com/axiel7/anihyou/core/domain/repository/MediaRepository.kt"]},
+    {"key":"widget_current_source","value":"AiringWidget renders AniList nextAiringEpisode and MediaRepository.getAiringWidgetData sorts by nextAiringEpisode.timeUntilAiring.","confidence":"verified","evidence":["feature/widget/src/main/java/com/axiel7/anihyou/widget/AiringWidget.kt","core/domain/src/main/java/com/axiel7/anihyou/core/domain/repository/MediaRepository.kt"]},
+    {"key":"aniworld_named_source_found","value":false,"confidence":"verified","evidence":["fresh repository code search for AniWorld and aniworld.to on 2026-08-26"]},
+    {"key":"default_branch_provenance_gap","value":"The canonical commit history inspected around the 2026-08-05 release and 2026-08-23 upstream sync contains no identifiable AniWorld implementation commit.","confidence":"supported","evidence":["fresh default-branch commit audit on 2026-08-26","history.legacy-context"]}
+  ],
+  "constraints":["Do not treat AniList airing timestamps as proof of German AniWorld availability.","Do not invent a replacement AniWorld matcher or provider without verifiable source/recovery evidence and regression tests.","Ambiguous external title matches must fail closed.","Before restoring or rewriting this integration, identify an authoritative implementation source or reconstruct the behavior from owner-approved evidence."],
+  "relations":{"protected_by":["contract.product-invariants"],"governed_by":["contract.repository-safety"],"derived_from":["history.legacy-context"]},
+  "evidence":[{"kind":"file","ref":"feature/calendar/src/main/java/com/axiel7/anihyou/feature/calendar/CalendarViewModel.kt","observed_at":"2026-08-26T00:00:56+02:00"},{"kind":"file","ref":"feature/calendar/src/main/java/com/axiel7/anihyou/feature/calendar/CalendarHostViewModel.kt","observed_at":"2026-08-26T00:00:56+02:00"},{"kind":"file","ref":"feature/widget/src/main/java/com/axiel7/anihyou/widget/AiringWidget.kt","observed_at":"2026-08-26T00:00:56+02:00"},{"kind":"file","ref":"core/domain/src/main/java/com/axiel7/anihyou/core/domain/repository/MediaRepository.kt","observed_at":"2026-08-26T00:00:56+02:00"}]
+}
