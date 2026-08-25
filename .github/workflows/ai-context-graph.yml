@@ -1,0 +1,29 @@
+name: AI Context Graph
+
+on:
+  push:
+    paths:
+      - 'docs/ai-context/**'
+      - 'tools/validate_ai_context_graph.py'
+      - '.github/workflows/ai-context-graph.yml'
+  pull_request:
+    paths:
+      - 'docs/ai-context/**'
+      - 'tools/validate_ai_context_graph.py'
+      - '.github/workflows/ai-context-graph.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Validate AI context graph
+        run: python tools/validate_ai_context_graph.py

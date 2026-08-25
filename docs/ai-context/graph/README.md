@@ -15,6 +15,7 @@ The source of truth is a small JSON property graph:
 - `schema/node.schema.json` defines the node shape.
 - Legacy Markdown remains in `docs/ai-context/` as evidence and recovery history.
 - `tools/validate_ai_context_graph.py` validates structure, index coverage and graph references without third-party Python packages.
+- `.github/workflows/ai-context-graph.yml` runs the validator when graph context or the validator changes.
 
 JSON was chosen over YAML because it is deterministic, universally parseable, directly compatible with JSON Schema and needs no extra parser dependency in CI or agent environments.
 
@@ -50,21 +51,12 @@ Fresh evidence may make a graph snapshot stale. In that case, update the smalles
 - Never turn a historical node back into current truth without fresh verification.
 - Run `python tools/validate_ai_context_graph.py` after graph changes.
 
+## Legacy inventory
+
+The migration-base source set is cataloged by `history.legacy-inventory`. It intentionally includes Markdown, screenshots and helper scripts but does not make them current instructions. The former `docs/ai-context/README.md` was archived as `docs/ai-context/historical/LEGACY_AI_CONTEXT_README_2026-08-25.md` before the graph-first README replaced it.
+
 ## Relation vocabulary
 
-Relations are intentionally extensible. Common relations include:
-
-- `depends_on`
-- `protects`
-- `protected_by`
-- `implemented_by`
-- `verified_by`
-- `derived_from`
-- `informs`
-- `conflicts_with`
-- `supersedes`
-- `superseded_for_current_truth_by`
-- `entrypoints`
-- `has_history`
+Relations are intentionally extensible. Common relations include `depends_on`, `protects`, `protected_by`, `implemented_by`, `verified_by`, `derived_from`, `informs`, `conflicts_with`, `supersedes`, `superseded_for_current_truth_by`, `entrypoints`, `has_history` and `inventory`.
 
 A relation target must resolve to a node in `index.json`.

@@ -4,9 +4,14 @@
   "status":"historical",
   "authority":"evidence",
   "updated_at":"2026-08-25T23:18:00+02:00",
-  "summary":"Legacy Markdown context remains available for recovery evidence and detailed history, but is not a current source of truth by itself.",
-  "facts":[{"key":"known_stale_example","value":"CURRENT_STATE.md is dated 2026-08-05 and reports an older main state than the repository observation captured by repo.main-state.","confidence":"verified","evidence":["docs/ai-context/CURRENT_STATE.md","repo.main-state"]},{"key":"migration_policy","value":"preserve legacy files, classify them, and consume them only through explicit graph edges","confidence":"declared","evidence":["contract.context-authority"]}],
-  "constraints":["Do not execute old branch, SHA, package, Wear or release instructions without fresh verification.","Use legacy context for provenance, recovery and rationale only when a current node points to it or a conflict requires investigation."],
-  "relations":{"superseded_for_current_truth_by":["contract.context-authority","repo.main-state"]},
-  "evidence":[{"kind":"legacy_file","ref":"docs/ai-context/CURRENT_STATE.md"},{"kind":"legacy_file","ref":"docs/ai-context/ARCHITECTURE_AND_SCOPES.md"},{"kind":"legacy_file","ref":"docs/ai-context/DECISIONS.md"},{"kind":"legacy_file","ref":"docs/ai-context/KNOWN_FAILURES.md"},{"kind":"legacy_file","ref":"docs/ai-context/UPSTREAM_SYNC_2026-08-23_DOWNSTREAM_HANDOFF.md"}]
+  "summary":"Legacy Markdown, scripts and visual evidence remain available for recovery and provenance, but are not a current source of truth by themselves.",
+  "facts":[
+    {"key":"known_stale_example","value":"CURRENT_STATE.md is dated 2026-08-05 and reports an older main state than the repository observation captured by repo.main-state.","confidence":"verified","evidence":["docs/ai-context/CURRENT_STATE.md","repo.main-state"]},
+    {"key":"migration_policy","value":"preserve the legacy source set, classify it, and consume it only through explicit graph edges","confidence":"declared","evidence":["contract.context-authority"]},
+    {"key":"legacy_inventory_count","value":41,"confidence":"verified","evidence":["history.legacy-inventory"]},
+    {"key":"legacy_readme_preserved_as","value":"docs/ai-context/historical/LEGACY_AI_CONTEXT_README_2026-08-25.md","confidence":"verified","evidence":["history.legacy-inventory"]}
+  ],
+  "constraints":["Do not execute old branch, SHA, package, Wear or release instructions without fresh verification.","Use legacy context for provenance, recovery and rationale only when a current node points to it or a conflict requires investigation.","Legacy scripts are evidence or tooling references, not automatically authorized execution instructions."],
+  "relations":{"inventory":["history.legacy-inventory"],"superseded_for_current_truth_by":["contract.context-authority","repo.main-state"]},
+  "evidence":[{"kind":"legacy_file","ref":"docs/ai-context/CURRENT_STATE.md"},{"kind":"legacy_file","ref":"docs/ai-context/ARCHITECTURE_AND_SCOPES.md"},{"kind":"legacy_file","ref":"docs/ai-context/DECISIONS.md"},{"kind":"legacy_file","ref":"docs/ai-context/KNOWN_FAILURES.md"},{"kind":"legacy_file","ref":"docs/ai-context/UPSTREAM_SYNC_2026-08-23_DOWNSTREAM_HANDOFF.md"},{"kind":"legacy_file","ref":"docs/ai-context/historical/LEGACY_AI_CONTEXT_README_2026-08-25.md"}]
 }
