@@ -118,6 +118,7 @@ class MediaRepository (
 
     fun getMediaDetails(mediaId: Int) = api
         .mediaDetailsQuery(mediaId)
+        .fetchPolicy(FetchPolicy.NetworkFirst)
         .toFlow()
         .asDataResult { it.Media }
 
@@ -238,7 +239,7 @@ class MediaRepository (
         rating: RecommendationRating?
     ) = api.saveRecommendationMutation(
         mediaId = mediaId,
-        mediaRecommendationId = mediaRecommendationId,
+        mediaRecommendationId = recommendedMediaId,
         rating = rating
     ).toFlow().asDataResult()
 
