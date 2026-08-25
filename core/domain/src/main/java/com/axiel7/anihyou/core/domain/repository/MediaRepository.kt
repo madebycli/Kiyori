@@ -158,7 +158,7 @@ class MediaRepository (
         page: Int,
         perPage: Int = 25,
     ) = api
-        .mediaFollowingQuery(mediaId, userId = null, page = page, perPage = perPage)
+        .mediaFollowingQuery(mediaId, page, perPage)
         .toFlow()
         .asPagedResult(page = { it.Page?.pageInfo?.commonPage }) {
             it.Page?.mediaList?.filterNotNull().orEmpty()
