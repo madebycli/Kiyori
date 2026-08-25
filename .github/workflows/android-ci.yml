@@ -4,6 +4,10 @@ on:
   pull_request:
     branches:
       - main
+    paths-ignore:
+      - 'docs/ai-context/graph/**'
+      - 'tools/validate_ai_context_graph.py'
+      - '.github/workflows/ai-context-graph.yml'
   push:
     branches:
       - main
