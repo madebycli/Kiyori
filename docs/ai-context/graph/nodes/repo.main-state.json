@@ -3,18 +3,19 @@
   "type":"repository_state",
   "status":"current",
   "authority":"primary",
-  "updated_at":"2026-08-25T23:18:00+02:00",
-  "summary":"Fresh repository observations captured when the graph was introduced. Volatile values must be re-verified before write, release or merge decisions.",
+  "updated_at":"2026-08-25T23:43:27+02:00",
+  "summary":"Current repository identity and durable state observations after integrating the AI context graph. Volatile branch heads are intentionally re-verified live instead of being stored as self-referential current truth.",
   "facts":[
-    {"key":"observed_main_sha","value":"ff7c418cdc0517a3142fbba4827ead311a5e2ca9","confidence":"verified","evidence":["https://api.github.com/repos/madebycli/Kiyori/branches/main"]},
-    {"key":"observed_main_tree","value":"e062de322e0d46d5e0bf47baf13428d432457caf","confidence":"verified","evidence":["https://api.github.com/repos/madebycli/Kiyori/branches/main"]},
+    {"key":"pre_graph_integration_main_sha","value":"ff7c418cdc0517a3142fbba4827ead311a5e2ca9","confidence":"verified","evidence":["https://api.github.com/repos/madebycli/Kiyori/branches/main"]},
+    {"key":"pre_graph_integration_main_tree","value":"e062de322e0d46d5e0bf47baf13428d432457caf","confidence":"verified","evidence":["https://api.github.com/repos/madebycli/Kiyori/branches/main"]},
+    {"key":"graph_integration_commit","value":"818c453ac63ce14788c34e429a6197c4ba103e8d","confidence":"verified","evidence":["https://api.github.com/repos/madebycli/Kiyori/commits/818c453ac63ce14788c34e429a6197c4ba103e8d"]},
     {"key":"application_id","value":"app.kiyori","confidence":"verified","evidence":["build.gradle.kts"]},
     {"key":"namespace","value":"com.axiel7.anihyou","confidence":"verified","evidence":["build.gradle.kts"]},
     {"key":"version_name","value":"1.6.0.1","confidence":"verified","evidence":["version.properties"]},
     {"key":"version_code","value":114,"confidence":"verified","evidence":["version.properties"]},
     {"key":"wear_module_present","value":false,"confidence":"verified","evidence":["settings.gradle.kts"]}
   ],
-  "constraints":["Re-verify main SHA immediately before branch creation, merge, release or statements about current branch state.","Re-verify package identity and version before release claims.","Do not reinterpret historical desired package IDs as current code facts."],
+  "constraints":["Re-verify the live main SHA immediately before branch creation, write, merge, release or statements about current branch state.","Do not store the current main HEAD as a self-referential durable fact in this node; use fresh repository evidence for volatile branch-head truth.","Re-verify package identity and version before release claims.","Do not reinterpret historical desired package IDs as current code facts."],
   "relations":{"governed_by":["contract.context-authority","contract.repository-safety"],"conflicts_with":["history.legacy-context"]},
-  "evidence":[{"kind":"api","ref":"https://api.github.com/repos/madebycli/Kiyori/branches/main","observed_at":"2026-08-25T23:18:00+02:00"},{"kind":"file","ref":"build.gradle.kts","observed_at":"2026-08-25T23:18:00+02:00"},{"kind":"file","ref":"settings.gradle.kts","observed_at":"2026-08-25T23:18:00+02:00"},{"kind":"file","ref":"version.properties","observed_at":"2026-08-25T23:18:00+02:00"}]
+  "evidence":[{"kind":"api","ref":"https://api.github.com/repos/madebycli/Kiyori/branches/main","observed_at":"2026-08-25T23:43:27+02:00"},{"kind":"commit","ref":"https://api.github.com/repos/madebycli/Kiyori/commits/818c453ac63ce14788c34e429a6197c4ba103e8d","observed_at":"2026-08-25T23:43:27+02:00"},{"kind":"file","ref":"build.gradle.kts","observed_at":"2026-08-25T23:43:27+02:00"},{"kind":"file","ref":"settings.gradle.kts","observed_at":"2026-08-25T23:43:27+02:00"},{"kind":"file","ref":"version.properties","observed_at":"2026-08-25T23:43:27+02:00"}]
 }
