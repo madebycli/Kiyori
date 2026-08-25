@@ -1,0 +1,12 @@
+{
+  "id":"contract.context-authority",
+  "type":"contract",
+  "status":"current",
+  "authority":"primary",
+  "updated_at":"2026-08-25T23:18:00+02:00",
+  "summary":"Defines how an AI resolves truth, freshness and conflicts in Kiyori context.",
+  "facts":[{"key":"entrypoint","value":"docs/ai-context/graph/index.json","confidence":"declared","evidence":["docs/ai-context/graph/index.json"]},{"key":"canonical_format","value":"JSON property graph","confidence":"declared","evidence":["docs/ai-context/graph/README.md"]},{"key":"legacy_markdown_role","value":"evidence_and_history","confidence":"declared","evidence":["history.legacy-context"]}],
+  "constraints":["Start with index.json. Do not recursively ingest docs/ai-context Markdown files by default.","For volatile facts, live repository and CI evidence outrank graph snapshots.","Among graph nodes, status=current outranks historical or deprecated nodes.","authority=primary outranks secondary and evidence-only nodes when facts are equally fresh.","If two current primary nodes disagree, report CONFLICT and verify from source. Never guess.","Historical and deprecated nodes cannot issue current implementation instructions.","Update the smallest relevant node instead of duplicating the same fact across many nodes.","Every current volatile fact needs evidence and an observation timestamp or must be re-verified before action."],
+  "relations":{"protects":["project.kiyori","repo.main-state"],"classifies":["history.legacy-context"]},
+  "evidence":[{"kind":"design","ref":"docs/ai-context/graph/README.md"}]
+}

@@ -1,0 +1,35 @@
+{
+  "format": "kiyori-context-graph/v1",
+  "generated_at": "2026-08-25T23:18:00+02:00",
+  "repository": "madebycli/Kiyori",
+  "entry_nodes": [
+    "project.kiyori",
+    "repo.main-state",
+    "contract.context-authority",
+    "contract.repository-safety",
+    "contract.product-invariants",
+    "policy.upstream-sync"
+  ],
+  "traversal": {
+    "default_max_depth": 2,
+    "load_status": ["current"],
+    "historical_policy": "Load historical/evidence nodes only when a current node references them and the task requires provenance, recovery or conflict resolution.",
+    "freshness_policy": "Re-verify volatile repository, branch, CI, version, package and release facts before acting on them."
+  },
+  "authority_order": [
+    "fresh_live_repository_or_ci_evidence",
+    "current_primary_graph_nodes",
+    "current_secondary_graph_nodes",
+    "historical_or_evidence_nodes",
+    "unlinked_legacy_markdown"
+  ],
+  "nodes": [
+    {"id":"contract.context-authority","path":"nodes/contract.context-authority.json","type":"contract","status":"current","authority":"primary"},
+    {"id":"contract.product-invariants","path":"nodes/contract.product-invariants.json","type":"contract","status":"current","authority":"primary"},
+    {"id":"contract.repository-safety","path":"nodes/contract.repository-safety.json","type":"contract","status":"current","authority":"primary"},
+    {"id":"history.legacy-context","path":"nodes/history.legacy-context.json","type":"history","status":"historical","authority":"evidence"},
+    {"id":"policy.upstream-sync","path":"nodes/policy.upstream-sync.json","type":"policy","status":"current","authority":"primary"},
+    {"id":"project.kiyori","path":"nodes/project.kiyori.json","type":"project","status":"current","authority":"primary"},
+    {"id":"repo.main-state","path":"nodes/repo.main-state.json","type":"repository_state","status":"current","authority":"primary"}
+  ]
+}

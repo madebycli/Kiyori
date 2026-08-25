@@ -1,0 +1,17 @@
+{
+  "id":"project.kiyori",
+  "type":"project",
+  "status":"current",
+  "authority":"primary",
+  "updated_at":"2026-08-25T23:18:00+02:00",
+  "summary":"Kiyori Android application. This node is the stable root for project context traversal.",
+  "facts":[
+    {"key":"repository","value":"madebycli/Kiyori","confidence":"verified","evidence":["repo.main-state"]},
+    {"key":"default_branch","value":"main","confidence":"verified","evidence":["repo.main-state"]},
+    {"key":"current_version_name","value":"1.6.0.1","confidence":"verified","evidence":["repo.main-state"]},
+    {"key":"current_version_code","value":114,"confidence":"verified","evidence":["repo.main-state"]}
+  ],
+  "constraints":["Use the graph entrypoint before reading legacy context documents.","Fresh repository evidence overrides stale prose snapshots."],
+  "relations":{"entrypoints":["repo.main-state","contract.context-authority","contract.repository-safety","contract.product-invariants","policy.upstream-sync"],"has_history":["history.legacy-context"]},
+  "evidence":[{"kind":"file","ref":"version.properties"},{"kind":"file","ref":"settings.gradle.kts"}]
+}

@@ -1,0 +1,12 @@
+{
+  "id":"contract.product-invariants",
+  "type":"contract",
+  "status":"current",
+  "authority":"primary",
+  "updated_at":"2026-08-25T23:18:00+02:00",
+  "summary":"High-level product invariants that should survive upstream integrations and refactors.",
+  "facts":[{"key":"target","value":"phone-first Android app","confidence":"supported","evidence":["settings.gradle.kts","docs/ai-context/UPSTREAM_SYNC_2026-08-23_DOWNSTREAM_HANDOFF.md"]},{"key":"wear_module_present","value":false,"confidence":"verified","evidence":["settings.gradle.kts"]}],
+  "constraints":["Preserve downstream user-facing behavior semantically when taking upstream architecture or bug fixes.","Navigation, app-lock/security behavior, notifications, widgets and AniWorld-specific release semantics are protected regression surfaces.","Do not infer German AniWorld availability from AniList airing data.","When an external match is ambiguous, prefer no match or no navigation over a guessed match.","Do not reintroduce a Wear module unless the user explicitly changes scope."],
+  "relations":{"protected_by":["contract.repository-safety"],"informs":["policy.upstream-sync"],"derived_from":["history.legacy-context"]},
+  "evidence":[{"kind":"file","ref":"settings.gradle.kts","observed_at":"2026-08-25T23:18:00+02:00"},{"kind":"legacy_file","ref":"docs/ai-context/ARCHITECTURE_AND_SCOPES.md"},{"kind":"legacy_file","ref":"docs/ai-context/UPSTREAM_SYNC_2026-08-23_DOWNSTREAM_HANDOFF.md"}]
+}

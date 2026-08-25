@@ -1,0 +1,12 @@
+{
+  "id":"policy.upstream-sync",
+  "type":"policy",
+  "status":"current",
+  "authority":"primary",
+  "updated_at":"2026-08-25T23:18:00+02:00",
+  "summary":"How Kiyori should consume upstream changes while remaining a fork with downstream semantics.",
+  "facts":[],
+  "constraints":["Audit upstream against the fresh downstream main, not against remembered SHAs.","Prefer semantic ports of useful upstream fixes when direct merges would overwrite downstream behavior.","Classify each upstream change by user impact, regression risk and protected downstream surfaces.","Do not treat a clean merge as proof of semantic compatibility.","Re-run relevant regression tests and release proof after upstream integration."],
+  "relations":{"depends_on":["repo.main-state","contract.product-invariants","contract.repository-safety"],"derived_from":["history.legacy-context"]},
+  "evidence":[{"kind":"legacy_file","ref":"docs/ai-context/UPSTREAM_SYNC_2026-08-23_DOWNSTREAM_HANDOFF.md"},{"kind":"legacy_file","ref":"docs/ai-context/DECISIONS.md"},{"kind":"legacy_file","ref":"docs/ai-context/KNOWN_FAILURES.md"}]
+}

@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/madebycli/Kiyori/docs/ai-context/graph/schema/node.schema.json",
+  "title": "Kiyori AI Context Graph Node",
+  "type": "object",
+  "required": ["id","type","status","authority","updated_at","summary","facts","constraints","relations","evidence"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {"type":"string","pattern":"^[a-z0-9][a-z0-9._-]*$"},
+    "type": {"type":"string","enum":["project","repository_state","contract","policy","feature","architecture","ci","release","issue","history","evidence"]},
+    "status": {"type":"string","enum":["current","planned","historical","deprecated"]},
+    "authority": {"type":"string","enum":["primary","secondary","evidence"]},
+    "updated_at": {"type":"string","format":"date-time"},
+    "summary": {"type":"string","minLength":1},
+    "facts": {"type":"array","items":{"type":"object","required":["key","value","confidence","evidence"],"additionalProperties":false,"properties":{"key":{"type":"string","minLength":1},"value":{},"confidence":{"type":"string","enum":["verified","supported","declared","uncertain"]},"evidence":{"type":"array","items":{"type":"string"}}}}},
+    "constraints": {"type":"array","items":{"type":"string"}},
+    "relations": {"type":"object","additionalProperties":{"type":"array","items":{"type":"string"}}},
+    "evidence": {"type":"array","items":{"type":"object","required":["kind","ref"],"additionalProperties":false,"properties":{"kind":{"type":"string","enum":["file","legacy_file","api","test","ci","commit","design","issue","pr","release"]},"ref":{"type":"string","minLength":1},"observed_at":{"type":"string","format":"date-time"}}}}
+  }
+}

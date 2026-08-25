@@ -1,0 +1,12 @@
+{
+  "id":"contract.repository-safety",
+  "type":"contract",
+  "status":"current",
+  "authority":"primary",
+  "updated_at":"2026-08-25T23:18:00+02:00",
+  "summary":"Repository safety rules for AI-driven Kiyori work.",
+  "facts":[],
+  "constraints":["Never force-push unless the user explicitly authorizes that exact operation.","Do not move main, merge into main, publish a release or delete branches without explicit user authorization.","Before writes, verify the target repository, target branch and current head.","Use isolated work branches for migrations, experiments and feature work.","Keep commits focused and reversible.","Do not claim CI, release or APK success without fresh evidence.","Do not silently restore obsolete Wear, package, branch or release instructions from historical context."],
+  "relations":{"protects":["repo.main-state","contract.product-invariants"],"derived_from":["history.legacy-context"]},
+  "evidence":[{"kind":"legacy_file","ref":"docs/ai-context/DECISIONS.md"},{"kind":"legacy_file","ref":"docs/ai-context/KNOWN_FAILURES.md"}]
+}

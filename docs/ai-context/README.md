@@ -1,29 +1,34 @@
-# AI Context for Kiyori
+# Kiyori AI Context
 
-This directory is the authoritative implementation handoff for rebuilding Kiyori from the preserved Phase-0 source backup.
+> Canonical AI entry point: [`graph/index.json`](graph/index.json)
 
-## Read first
+Kiyori uses a repo-native typed knowledge graph for AI context. **Do not start a session by recursively reading every Markdown file in this directory.**
 
-1. `../../NEXT_CHAT_START.md`
-2. `CURRENT_STATE.md`
-3. `PRODUCT_PLAN.md`
-4. `DECISIONS.md`
-5. `ARCHITECTURE_AND_SCOPES.md`
-6. `UPSTREAM_BUILD_AUTH.md`
-7. `KNOWN_FAILURES.md`
-8. `PHASE_PROMPTS.md`
-9. `reconstruction/11_INTEGRATED_REBUILD_COPY_PROMPT.md`
-10. `blueprints/`
+## Start here
 
-`SPEEDRUN_ALL_IN_ONE.md` combines the reconstructed plan and technical blueprints into one context file.
+1. Read `graph/index.json`.
+2. Read `graph/nodes/contract.context-authority.json`.
+3. Read `graph/nodes/contract.repository-safety.json`.
+4. Load only the current nodes relevant to the task.
+5. Follow explicit relations as needed.
+6. Use legacy Markdown only as linked evidence, recovery history or conflict context.
 
-## Evidence
+The reusable session instruction is in [`AI_SESSION_PROMPT.md`](AI_SESSION_PROMPT.md).
 
-- `evidence/SOURCE_BACKUP_AUDIT.md` proves the source backup is Phase 0.
-- `evidence/screenshots/` contains the accepted later UI reference.
-- `evidence/APK_ARTIFACTS.md` lists surviving APKs and hashes; APK binaries are not committed.
-- `historical/` is evidence only and may use the former project name.
+## Why the old files still exist
 
-## Authority rule
+The previous Markdown context contains valuable recovery history, decisions, failure reports and upstream handoffs. Those files are intentionally preserved, but they are no longer equal-authority current truth. The graph classifies and links them as evidence so stale SHAs, package targets, branches or old scope decisions cannot silently override fresh repository state.
 
-Current Kiyori files outside `historical/` take precedence over historical material. Reconstructed code snippets are not the exact deleted source and must be adapted to the current upstream tree.
+## Validation
+
+Run:
+
+```bash
+python tools/validate_ai_context_graph.py
+```
+
+The validator requires only the Python standard library.
+
+## Human documentation
+
+See [`graph/README.md`](graph/README.md) for the graph contract and [`graph/PLAN.md`](graph/PLAN.md) for the migration design.
