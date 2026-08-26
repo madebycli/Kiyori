@@ -50,7 +50,7 @@ Do not guess through ambiguity that could change repository state or product beh
 
 Before modifying architecture or integrating upstream, load `contract.product-invariants` and any nodes it references.
 
-Preserve downstream behavior semantically, especially navigation, app-lock/security, notifications, widgets and AniWorld-specific release semantics. AniList airing information must not be treated as proof of German AniWorld availability. Ambiguous external title matches should fail closed rather than navigate to a guessed target.
+Preserve downstream behavior semantically, especially navigation, app-lock/security, notifications, widgets, stable media-row geometry and media-details freshness. External or upstream metadata must not be interpreted as a stronger product guarantee than the source actually provides.
 
 ## Working method
 

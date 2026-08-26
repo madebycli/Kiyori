@@ -3,16 +3,17 @@
   "type":"issue",
   "status":"current",
   "authority":"secondary",
-  "updated_at":"2026-08-26T00:04:02+02:00",
+  "updated_at":"2026-08-26T23:51:00+02:00",
   "summary":"Legacy fork branches named develop and master no longer represent the current upstream source and must not be used as implicit upstream authority.",
   "facts":[
-    {"key":"live_upstream","value":"axiel7/AniHyou-android master at f35395594bff13581d4e239181ec4da988439d8e","confidence":"verified","evidence":["https://api.github.com/repos/axiel7/AniHyou-android/branches/master"]},
+    {"key":"live_upstream","value":"axiel7/AniHyou-android master at 50f496fcfc152c0adbc3d19485d83e8ce9c07ac7","confidence":"verified","evidence":["https://api.github.com/repos/axiel7/AniHyou-android/branches/master"]},
+    {"key":"latest_upstream_delta","value":"50f496fcfc152c0adbc3d19485d83e8ce9c07ac7 is one commit after f35395594bff13581d4e239181ec4da988439d8e and only changes upstream .github/workflows/assemble-android.yaml from `gradlew :app:assembleFossDebug` to `./gradlew :app:assembleFossDebug`; Kiyori has no assemble-android.yaml workflow and no matching faulty invocation, so no product or workflow port is applicable.","confidence":"verified","evidence":["https://api.github.com/repos/axiel7/AniHyou-android/commits/50f496fcfc152c0adbc3d19485d83e8ce9c07ac7"]},
     {"key":"fork_develop","value":"c44acfa7daec1d1286824166230c6938a790e2c1","confidence":"verified","evidence":["https://api.github.com/repos/madebycli/Kiyori/branches/develop"]},
-    {"key":"develop_upstream_gap","value":"The preserved upstream snapshot f35395594bff13581d4e239181ec4da988439d8e is 62 commits ahead of fork develop and 0 behind it.","confidence":"verified","evidence":["fresh compare develop...upstream-master-2026-08-23 on 2026-08-26"]},
+    {"key":"develop_upstream_gap","value":"The preserved upstream snapshot f35395594bff13581d4e239181ec4da988439d8e is 62 commits ahead of fork develop and 0 behind it; the live upstream has since advanced by the workflow-only commit recorded above.","confidence":"verified","evidence":["fresh compare develop...upstream-master-2026-08-23 on 2026-08-26","https://api.github.com/repos/axiel7/AniHyou-android/commits/50f496fcfc152c0adbc3d19485d83e8ce9c07ac7"]},
     {"key":"fork_master","value":"e8bfd135e1b7a84ea80a4598ba6efdf62d63f67c","confidence":"verified","evidence":["https://api.github.com/repos/madebycli/Kiyori/branches/master"]},
     {"key":"master_role","value":"Historical/recovery branch, not current upstream authority; it diverges substantially from current main.","confidence":"verified","evidence":["fresh compare master...main on 2026-08-26"]}
   ],
   "constraints":["For every upstream audit, query axiel7/AniHyou-android master live instead of assuming fork develop or fork master is current.","Do not merge or copy fork develop/master wholesale into Kiyori main.","Do not move or delete these legacy branches without explicit owner authorization.","Use preserved upstream snapshot refs only as dated evidence and re-verify live upstream before integration decisions."],
   "relations":{"governed_by":["contract.repository-safety"],"informed_by":["policy.upstream-sync"],"conflicts_with":["history.legacy-context"]},
-  "evidence":[{"kind":"api","ref":"https://api.github.com/repos/axiel7/AniHyou-android/branches/master","observed_at":"2026-08-26T00:04:02+02:00"},{"kind":"api","ref":"https://api.github.com/repos/madebycli/Kiyori/branches/develop","observed_at":"2026-08-26T00:04:02+02:00"},{"kind":"api","ref":"https://api.github.com/repos/madebycli/Kiyori/branches/master","observed_at":"2026-08-26T00:04:02+02:00"}]
+  "evidence":[{"kind":"api","ref":"https://api.github.com/repos/axiel7/AniHyou-android/branches/master","observed_at":"2026-08-26T23:51:00+02:00"},{"kind":"commit","ref":"https://api.github.com/repos/axiel7/AniHyou-android/commits/50f496fcfc152c0adbc3d19485d83e8ce9c07ac7","observed_at":"2026-08-26T23:51:00+02:00"},{"kind":"api","ref":"https://api.github.com/repos/madebycli/Kiyori/branches/develop","observed_at":"2026-08-26T00:04:02+02:00"},{"kind":"api","ref":"https://api.github.com/repos/madebycli/Kiyori/branches/master","observed_at":"2026-08-26T00:04:02+02:00"}]
 }

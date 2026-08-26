@@ -3,8 +3,8 @@
   "type": "issue",
   "status": "current",
   "authority": "secondary",
-  "updated_at": "2026-08-26T16:38:00+02:00",
-  "summary": "Media details freshness is now hardened on main with NetworkFirst plus Apollo normalized-cache watch(), so newly opened details prefer current network data and retained detail collectors can receive fresher cache updates. The original episode 9/10 device reproduction is still pending, so the issue remains current rather than resolved.",
+  "updated_at": "2026-08-26T20:02:00+02:00",
+  "summary": "Media details freshness is hardened on main with NetworkFirst plus Apollo normalized-cache watch(), so newly opened details prefer current network data and retained detail collectors can receive fresher cache updates. The original episode 9/10 device reproduction is still pending, so the issue remains current rather than resolved.",
   "facts": [
     {
       "key": "observed_reproduction",
@@ -89,7 +89,7 @@
     "Do not claim the original episode 9/10 reproduction is physically fixed until the real-device comparison is performed.",
     "Do not disable Apollo caching globally.",
     "Do not delete or collapse the separate top-level back stacks merely to force MediaDetails recreation.",
-    "Keep this issue distinct from issue.aniworld-repository-gap: fresher AniList data is not proof of German AniWorld availability."
+    "Keep this issue scoped to freshness of AniList MediaDetails state; it does not establish guarantees for unrelated external availability sources."
   ],
   "relations": {
     "protected_by": [
@@ -100,9 +100,6 @@
     ],
     "informed_by": [
       "policy.upstream-sync"
-    ],
-    "distinct_from": [
-      "issue.aniworld-repository-gap"
     ]
   },
   "evidence": [
