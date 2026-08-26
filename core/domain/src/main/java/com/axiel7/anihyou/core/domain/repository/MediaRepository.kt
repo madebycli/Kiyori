@@ -118,6 +118,7 @@ class MediaRepository (
 
     fun getMediaDetails(mediaId: Int) = api
         .mediaDetailsQuery(mediaId)
+        .fetchPolicy(FetchPolicy.NetworkFirst)
         .toFlow()
         .asDataResult { it.Media }
 
