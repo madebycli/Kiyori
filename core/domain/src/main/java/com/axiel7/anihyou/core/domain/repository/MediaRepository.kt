@@ -2,6 +2,7 @@ package com.axiel7.anihyou.core.domain.repository
 
 import com.apollographql.cache.normalized.FetchPolicy
 import com.apollographql.cache.normalized.fetchPolicy
+import com.apollographql.cache.normalized.watch
 import com.axiel7.anihyou.core.model.media.AnimeSeason
 import com.axiel7.anihyou.core.model.media.AnimeThemes
 import com.axiel7.anihyou.core.model.media.AnimeThemes.Companion.toBo
@@ -118,7 +119,8 @@ class MediaRepository (
 
     fun getMediaDetails(mediaId: Int) = api
         .mediaDetailsQuery(mediaId)
-        .toFlow()
+        .fetchPolicy(FetchPolicy.NetworkFirst)
+        .watch()
         .asDataResult { it.Media }
 
     suspend fun updateMediaDetailsCache(media: MediaDetailsQuery.Media) {
