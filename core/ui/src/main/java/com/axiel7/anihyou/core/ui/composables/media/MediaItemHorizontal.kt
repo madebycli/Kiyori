@@ -49,6 +49,8 @@ import com.axiel7.anihyou.core.ui.theme.AniHyouTheme
 import com.axiel7.anihyou.core.ui.utils.ComposeDateUtils.minutesToLegibleText
 import com.materialkolor.ktx.harmonize
 
+private val MediaItemTextStartPadding = 12.dp
+
 @Composable
 fun MediaItemHorizontal(
     title: String,
@@ -118,7 +120,7 @@ fun MediaItemHorizontal(
             modifier = Modifier
                 .padding(horizontal = 16.dp, vertical = 8.dp)
                 .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Top
         ) {
             val posterSizeModifier = Modifier
                 .size(
@@ -160,7 +162,7 @@ fun MediaItemHorizontal(
 
             Column(
                 modifier = Modifier
-                    .padding(start = 16.dp)
+                    .padding(start = MediaItemTextStartPadding)
                     .weight(1f),
                 verticalArrangement = Arrangement.Center
             ) {
@@ -174,7 +176,7 @@ fun MediaItemHorizontal(
                 if (subtitle1 != null) {
                     Column(
                         modifier = Modifier
-                            .padding(vertical = 8.dp),
+                            .padding(top = 8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         subtitle1()
@@ -308,7 +310,7 @@ fun MediaItemHorizontalPlaceholder() {
         Column(
             modifier = Modifier
                 .fillMaxHeight()
-                .padding(horizontal = 16.dp),
+                .padding(start = MediaItemTextStartPadding, end = 16.dp),
             verticalArrangement = Arrangement.SpaceEvenly
         ) {
             Text(
