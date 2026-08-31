@@ -1,0 +1,66 @@
+name: Settings Pending UI Validation
+
+on:
+  push:
+    branches:
+      - ci/validate-settings-pending-ui-2026-08-31
+    paths:
+      - .github/workflows/settings-pending-ui-validation.yml
+      - feature/home/**
+      - feature/settings/**
+      - core/resources/**
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout exact validation branch
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          fetch-depth: 0
+
+      - name: Verify patch invariants
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --check HEAD^ HEAD
+          grep -F 'val items = uiState.getListFromType(listType)' feature/home/src/main/java/com/axiel7/anihyou/feature/home/current/fulllist/CurrentFullListView.kt
+          grep -F 'Spacer(modifier = Modifier.height(8.dp))' feature/settings/src/main/java/com/axiel7/anihyou/feature/settings/SettingsView.kt
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          java-version: 17
+          distribution: temurin
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb
+
+      - name: Install Android SDK components
+        shell: bash
+        run: bash scripts/install-android-sdk.sh
+
+      - name: Run focused tests and compile
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+          chmod +x ./gradlew
+          ./gradlew \
+            :feature:home:testDebugUnitTest \
+            :feature:settings:testDebugUnitTest \
+            :app:assembleFossDebug \
+            --no-daemon \
+            --stacktrace
+
+      - name: Upload reports
+        if: ${{ always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: settings-pending-ui-validation-${{ github.sha }}
+          path: '**/build/reports/**'
+          if-no-files-found: ignore
+          retention-days: 7
