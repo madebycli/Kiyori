@@ -2,8 +2,8 @@
 <resources>
     <string name="main_navigation_editor_title">Hauptnavigation anpassen</string>
     <string name="main_navigation_editor_reset">Zurücksetzen</string>
-    <string name="main_navigation_editor_help">Wähle sichtbare Ziele aus und ziehe am Griff, um ihre Reihenfolge zu ändern.</string>
-    <string name="main_navigation_editor_rule">Es müssen zwei bis fünf Ziele sichtbar sein. Start ist verpflichtend.</string>
+    <string name="main_navigation_editor_help">Wähle sichtbare Tabs aus und ziehe am Griff, um ihre Reihenfolge zu ändern.</string>
+    <string name="main_navigation_editor_rule">Wähle zwei bis fünf Tabs. „Start“ bleibt immer sichtbar.</string>
     <string name="main_navigation_required">Verpflichtend</string>
     <string name="main_navigation_add">Haupttab hinzufügen</string>
     <string name="main_navigation_remove">%1$s entfernen</string>
